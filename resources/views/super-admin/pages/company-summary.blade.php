@@ -670,9 +670,11 @@
             });
             var curYear  = new Date().getFullYear();
             var prevYear = curYear - 1;
-            // Ensure Y-axis has a sensible max even when all data is zero
+            // Always enforce a minimum Y-axis range of ₱5,000 so ticks show as
+            // ₱1k, ₱2k … rather than ₱20, ₱40 (which looks like a percent scale
+            // when demo/small data is present).
             var monthlyMax = Math.max.apply(null, thisYearData.concat(lastYearData));
-            var monthlySuggestedMax = monthlyMax > 0 ? undefined : 5000;
+            var monthlySuggestedMax = Math.max(monthlyMax * 1.15, 5000);
             chartMonthly = new Chart(ctxMonthly, {
                 type: 'bar',
                 data: {
