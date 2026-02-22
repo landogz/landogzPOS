@@ -70,9 +70,10 @@
                     <tr class="border-b border-slate-200/60 dark:border-darkmode-400 bg-slate-50/60 dark:bg-darkmode-700/40">
                         <th class="py-3 pl-5 pr-3 text-left font-semibold text-slate-600 dark:text-slate-400 w-10"></th>
                         <th class="py-3 px-3 text-left font-semibold text-slate-600 dark:text-slate-400">Company</th>
-                        <th class="py-3 px-3 text-left font-semibold text-slate-600 dark:text-slate-400 hidden sm:table-cell">TIN</th>
+                        <th class="py-3 px-3 text-left font-semibold text-slate-600 dark:text-slate-400 hidden sm:table-cell">TIN / VAT</th>
                         <th class="py-3 px-3 text-left font-semibold text-slate-600 dark:text-slate-400 hidden md:table-cell">Contact</th>
                         <th class="py-3 px-3 text-center font-semibold text-slate-600 dark:text-slate-400">Branches</th>
+                        <th class="py-3 px-3 text-right font-semibold text-slate-600 dark:text-slate-400">Total Sales</th>
                         <th class="py-3 px-3 text-center font-semibold text-slate-600 dark:text-slate-400">Status</th>
                         <th class="py-3 pl-3 pr-5 text-right font-semibold text-slate-600 dark:text-slate-400">Actions</th>
                     </tr>
@@ -138,6 +139,17 @@
                 <div>
                     <label for="company-contact" class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">Contact</label>
                     <input type="text" id="company-contact" name="contact" class="w-full rounded-lg border border-slate-200 dark:border-darkmode-500 bg-white dark:bg-darkmode-700 px-4 py-2.5 text-slate-800 dark:text-slate-200 placeholder-slate-400 dark:placeholder-slate-500 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition dark:focus:border-primary" placeholder="Phone or email">
+                </div>
+                {{-- VAT toggle --}}
+                <div class="flex items-center justify-between rounded-xl border border-slate-200 dark:border-darkmode-500 bg-slate-50/50 dark:bg-darkmode-700/30 px-5 py-4">
+                    <div>
+                        <p class="text-sm font-medium text-slate-700 dark:text-slate-300">VAT Registered</p>
+                        <p class="mt-0.5 text-xs text-slate-500 dark:text-slate-400">Company is subject to Value-Added Tax (12%)</p>
+                    </div>
+                    <label class="relative inline-flex cursor-pointer items-center">
+                        <input type="checkbox" id="company-is-vat" name="is_vat" value="1" class="peer sr-only" checked>
+                        <div class="peer h-6 w-11 rounded-full bg-slate-200 dark:bg-darkmode-400 transition-colors after:absolute after:left-[2px] after:top-[2px] after:h-5 after:w-5 after:rounded-full after:bg-white after:shadow after:transition-all after:content-[''] peer-checked:bg-primary peer-checked:after:translate-x-full peer-focus:ring-2 peer-focus:ring-primary/30"></div>
+                    </label>
                 </div>
             </div>
             <div class="modal-footer flex flex-col-reverse sm:flex-row sm:justify-end gap-3 px-6 sm:px-8 py-5 border-t border-slate-200 dark:border-darkmode-600 bg-slate-50/30 dark:bg-darkmode-700/30">
@@ -309,32 +321,53 @@
             });
     }
 
+    // ── Helpers ───────────────────────────────────────────────────────────
+    function formatMoney(v) {
+        var n = parseFloat(v) || 0;
+        if (n >= 1000000) return '\u20B1' + (n / 1000000).toFixed(1) + 'M';
+        if (n >= 1000)    return '\u20B1' + Math.round(n / 1000) + 'k';
+        return '\u20B1' + Math.round(n).toLocaleString();
+    }
+
+    function vatBadge(isVat) {
+        return isVat !== false
+            ? '<span class="inline-flex items-center rounded-full bg-blue-100 dark:bg-blue-900/30 px-2 py-0.5 text-xs font-semibold text-blue-700 dark:text-blue-400">VAT</span>'
+            : '<span class="inline-flex items-center rounded-full bg-slate-100 dark:bg-darkmode-500 px-2 py-0.5 text-xs font-semibold text-slate-500 dark:text-slate-400">Non-VAT</span>';
+    }
+
     // ── Render: Grid ──────────────────────────────────────────────────────
     function renderGrid(list) {
         grid.innerHTML = '';
         list.forEach(function (c, idx) {
-            var isActive     = c.is_active !== false;
-            var branchCount  = typeof c.branches_count === 'number' ? c.branches_count : (c.branches_count || 0);
+            var isActive    = c.is_active !== false;
+            var branchCount = typeof c.branches_count === 'number' ? c.branches_count : 0;
+            var totalSales  = parseFloat(c.transactions_sum_total) || 0;
 
             var card = document.createElement('div');
             card.className = 'intro-y col-span-12 md:col-span-6 lg:col-span-4';
             card.innerHTML =
-                '<div class="box relative flex flex-col h-full' + (isActive ? '' : ' opacity-80') + '">'
+                // hover:-translate-y-1 gives the lift effect
+                '<div class="box relative flex flex-col h-full transition-all duration-200 hover:shadow-xl hover:-translate-y-1' + (isActive ? '' : ' opacity-80') + '">'
 
-                // ── Card header ──
+                // ── Card header: logo | name+meta | [status badge] [⋮] ──
                 + '<div class="flex items-start gap-3 p-5 pb-4">'
                 +   avatarHtml(c, idx, 'md')
                 +   '<div class="flex-1 min-w-0">'
                 +     '<a href="' + escapeHtml(summaryUrl(c.id)) + '" class="block font-semibold text-slate-800 dark:text-slate-100 hover:text-primary truncate">' + escapeHtml(c.name || '') + '</a>'
-                +     '<div class="mt-0.5 text-xs text-slate-500 dark:text-slate-400">' + (c.tin ? 'TIN: ' + escapeHtml(c.tin) : 'No TIN on file') + '</div>'
-                +     '<div class="mt-2">' + statusBadge(isActive) + '</div>'
+                +     '<div class="mt-1 flex flex-wrap items-center gap-1.5">'
+                +       '<span class="text-xs text-slate-500 dark:text-slate-400">' + (c.tin ? 'TIN: ' + escapeHtml(c.tin) : 'No TIN') + '</span>'
+                +       vatBadge(c.is_vat)
+                +     '</div>'
                 +   '</div>'
-                // ── Dropdown ──
-                +   '<div class="relative flex-shrink-0">'
-                +     '<button type="button" class="company-dropdown-btn flex h-8 w-8 items-center justify-center rounded-lg text-slate-400 hover:bg-slate-100 dark:hover:bg-darkmode-400 hover:text-slate-600 dark:hover:text-slate-300 transition-colors" aria-label="Actions">'
-                +       '<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="5" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="12" cy="19" r="1"/></svg>'
-                +     '</button>'
-                +     dropdownMenuHtml(c)
+                // ── Status badge + menu: top-right cluster ──
+                +   '<div class="flex flex-shrink-0 items-center gap-1.5">'
+                +     statusBadge(isActive)
+                +     '<div class="relative">'
+                +       '<button type="button" class="company-dropdown-btn flex h-7 w-7 items-center justify-center rounded-lg text-slate-400 hover:bg-slate-100 dark:hover:bg-darkmode-400 hover:text-slate-600 dark:hover:text-slate-300 transition-colors" aria-label="Actions">'
+                +         '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="5" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="12" cy="19" r="1"/></svg>'
+                +       '</button>'
+                +       dropdownMenuHtml(c)
+                +     '</div>'
                 +   '</div>'
                 + '</div>'
 
@@ -342,19 +375,24 @@
                 + '<div class="px-5 space-y-1.5 flex-1">'
                 +   '<div class="flex items-start gap-2 text-sm text-slate-500 dark:text-slate-400">'
                 +     '<svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mt-0.5 flex-shrink-0"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>'
-                +     '<span class="line-clamp-2">' + (c.address ? escapeHtml(c.address) : '<span class="italic text-slate-400">No address</span>') + '</span>'
+                +     '<span class="line-clamp-2">' + (c.address ? escapeHtml(c.address) : '<em class="text-slate-400 not-italic">No address</em>') + '</span>'
                 +   '</div>'
                 +   '<div class="flex items-center gap-2 text-sm text-slate-500 dark:text-slate-400">'
                 +     '<svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="flex-shrink-0"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 13a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.62 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l.77-.77a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>'
-                +     '<span>' + (c.contact ? escapeHtml(c.contact) : '<span class="italic text-slate-400">No contact</span>') + '</span>'
+                +     '<span>' + (c.contact ? escapeHtml(c.contact) : '<em class="text-slate-400 not-italic">No contact</em>') + '</span>'
                 +   '</div>'
                 + '</div>'
 
-                // ── Stats row ──
-                + '<div class="mx-5 mt-4 flex items-center gap-4 rounded-xl bg-slate-50 dark:bg-darkmode-700/40 px-4 py-3">'
+                // ── Stats row: branches | divider | total sales ──
+                + '<div class="mx-5 mt-4 flex items-center gap-3 rounded-xl bg-slate-50 dark:bg-darkmode-700/40 px-4 py-3">'
                 +   '<div class="flex items-center gap-1.5 text-sm font-medium text-slate-600 dark:text-slate-400">'
-                +     '<svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-primary"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>'
+                +     '<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-primary flex-shrink-0"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>'
                 +     '<span>' + branchCount + ' ' + (branchCount === 1 ? 'Branch' : 'Branches') + '</span>'
+                +   '</div>'
+                +   '<div class="h-4 w-px flex-shrink-0 bg-slate-200 dark:bg-darkmode-500"></div>'
+                +   '<div class="flex items-center gap-1.5 text-sm font-semibold text-emerald-600 dark:text-emerald-400">'
+                +     '<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="flex-shrink-0"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>'
+                +     '<span>' + formatMoney(totalSales) + '</span>'
                 +   '</div>'
                 + '</div>'
 
@@ -398,6 +436,7 @@
         list.forEach(function (c, idx) {
             var isActive    = c.is_active !== false;
             var branchCount = typeof c.branches_count === 'number' ? c.branches_count : 0;
+            var totalSales  = parseFloat(c.transactions_sum_total) || 0;
             var tr = document.createElement('tr');
             tr.className = 'border-b border-slate-200/60 dark:border-darkmode-400 hover:bg-slate-50/60 dark:hover:bg-darkmode-700/40 transition-colors';
             tr.innerHTML =
@@ -406,9 +445,13 @@
                 +   '<a href="' + escapeHtml(summaryUrl(c.id)) + '" class="font-medium text-slate-800 dark:text-slate-200 hover:text-primary">' + escapeHtml(c.name || '') + '</a>'
                 +   (c.address ? '<div class="text-xs text-slate-400 mt-0.5 truncate max-w-[200px]">' + escapeHtml(c.address) + '</div>' : '')
                 + '</td>'
-                + '<td class="py-3 px-3 text-sm text-slate-500 dark:text-slate-400 hidden sm:table-cell">' + (c.tin ? escapeHtml(c.tin) : '—') + '</td>'
+                + '<td class="py-3 px-3 hidden sm:table-cell">'
+                +   '<div class="text-sm text-slate-500 dark:text-slate-400">' + (c.tin ? escapeHtml(c.tin) : '—') + '</div>'
+                +   '<div class="mt-0.5">' + vatBadge(c.is_vat) + '</div>'
+                + '</td>'
                 + '<td class="py-3 px-3 text-sm text-slate-500 dark:text-slate-400 hidden md:table-cell">' + (c.contact ? escapeHtml(c.contact) : '—') + '</td>'
                 + '<td class="py-3 px-3 text-center text-sm font-medium text-slate-700 dark:text-slate-300">' + branchCount + '</td>'
+                + '<td class="py-3 px-3 text-right text-sm font-semibold text-emerald-600 dark:text-emerald-400">' + formatMoney(totalSales) + '</td>'
                 + '<td class="py-3 px-3 text-center">' + statusBadge(isActive) + '</td>'
                 + '<td class="py-3 pl-3 pr-5">'
                 +   '<div class="flex items-center justify-end gap-1.5">'
@@ -464,6 +507,8 @@
         logoPreview.onerror = function () { this.src = noImageUrl; };
     }
 
+    var vatCheckbox = document.getElementById('company-is-vat');
+
     function openAdd() {
         document.getElementById('company-id').value = '';
         document.getElementById('company-name').value = '';
@@ -471,6 +516,7 @@
         document.getElementById('company-bir').value = '';
         document.getElementById('company-address').value = '';
         document.getElementById('company-contact').value = '';
+        if (vatCheckbox) vatCheckbox.checked = true; // default VAT = true
         if (logoInput) logoInput.value = '';
         if (logoLabel) logoLabel.textContent = 'Choose file';
         setLogoPreview(null);
@@ -486,6 +532,7 @@
         document.getElementById('company-bir').value = c.bir_accreditation || '';
         document.getElementById('company-address').value = c.address || '';
         document.getElementById('company-contact').value = c.contact || '';
+        if (vatCheckbox) vatCheckbox.checked = (c.is_vat !== false);
         if (logoInput) logoInput.value = '';
         if (logoLabel) logoLabel.textContent = 'Choose file';
         setLogoPreview(c.logo_url || null);
@@ -527,6 +574,7 @@
         fd.append('bir_accreditation', document.getElementById('company-bir').value.trim());
         fd.append('address', document.getElementById('company-address').value.trim());
         fd.append('contact', document.getElementById('company-contact').value.trim());
+        fd.append('is_vat', vatCheckbox && vatCheckbox.checked ? '1' : '0');
         if (logoInput && logoInput.files && logoInput.files[0]) fd.append('logo', logoInput.files[0]);
         submitBtn.disabled = true;
         var p;

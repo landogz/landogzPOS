@@ -60,12 +60,13 @@ class CompanyController extends Controller
             ], 403);
         }
         $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'tin' => 'nullable|string|max:50',
+            'name'              => 'required|string|max:255',
+            'tin'               => 'nullable|string|max:50',
             'bir_accreditation' => 'nullable|string|max:255',
-            'address' => 'nullable|string',
-            'contact' => 'nullable|string|max:100',
-            'logo' => 'nullable|image|max:2048',
+            'address'           => 'nullable|string',
+            'contact'           => 'nullable|string|max:100',
+            'logo'              => 'nullable|image|max:2048',
+            'is_vat'            => 'nullable|boolean',
         ]);
         $company = $this->service->create($validated, $request->file('logo'));
         return response()->json([
@@ -84,12 +85,13 @@ class CompanyController extends Controller
             ], 403);
         }
         $validated = $request->validate([
-            'name' => 'sometimes|string|max:255',
-            'tin' => 'nullable|string|max:50',
+            'name'              => 'sometimes|string|max:255',
+            'tin'               => 'nullable|string|max:50',
             'bir_accreditation' => 'nullable|string|max:255',
-            'address' => 'nullable|string',
-            'contact' => 'nullable|string|max:100',
-            'logo' => 'nullable|image|max:2048',
+            'address'           => 'nullable|string',
+            'contact'           => 'nullable|string|max:100',
+            'logo'              => 'nullable|image|max:2048',
+            'is_vat'            => 'nullable|boolean',
         ]);
         $company = $this->service->update($company, $validated, $request->file('logo'));
         return response()->json([

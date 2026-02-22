@@ -10,7 +10,10 @@ class CompanyRepository
 {
     public function getAll(?string $search = null, ?string $status = null): Collection
     {
-        $query = Company::query()->withCount('branches')->orderBy('name');
+        $query = Company::query()
+            ->withCount('branches')
+            ->withSum('transactions', 'total')
+            ->orderBy('name');
         if ($search !== null && $search !== '') {
             $query->where(function ($q) use ($search) {
                 $q->where('name', 'like', '%' . $search . '%')
