@@ -8,9 +8,9 @@ use Illuminate\Database\Eloquent\Collection;
 
 class CompanyRepository
 {
-    public function getAll(?string $search = null): Collection
+    public function getAll(?string $search = null, ?string $status = null): Collection
     {
-        $query = Company::query()->orderBy('name');
+        $query = Company::query()->withCount('branches')->orderBy('name');
         if ($search !== null && $search !== '') {
             $query->where(function ($q) use ($search) {
                 $q->where('name', 'like', '%' . $search . '%')
@@ -18,6 +18,11 @@ class CompanyRepository
                     ->orWhere('contact', 'like', '%' . $search . '%')
                     ->orWhere('address', 'like', '%' . $search . '%');
             });
+        }
+        if ($status === 'active') {
+            $query->where('is_active', true);
+        } elseif ($status === 'inactive') {
+            $query->where('is_active', false);
         }
         return $query->get();
     }

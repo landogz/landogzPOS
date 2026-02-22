@@ -26,7 +26,8 @@ class CompanyController extends Controller
             ], 403);
         }
         $search = $request->query('search');
-        $companies = $this->service->list($search);
+        $status = $request->query('status');
+        $companies = $this->service->list($search, $status);
         return response()->json([
             'status' => true,
             'message' => 'OK',

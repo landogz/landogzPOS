@@ -17,9 +17,9 @@ class CompanyService
         private CompanyRepository $repository
     ) {}
 
-    public function list(?string $search = null): Collection
+    public function list(?string $search = null, ?string $status = null): Collection
     {
-        return $this->repository->getAll($search);
+        return $this->repository->getAll($search, $status);
     }
 
     public function get(int $id): ?Company
