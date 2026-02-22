@@ -25,6 +25,12 @@
         </div>
     </div>
 
+    {{-- Modals: wrapper ensures they always stack in front of layout (sidebar + content) --}}
+    <div style="position: fixed; inset: 0; z-index: 99999; pointer-events: none;" aria-hidden="true">
+        {{-- Modals use pointer-events: auto so they receive clicks despite wrapper --}}
+        @stack('modals')
+    </div>
+
     @include('super-admin.partials.footer-scripts')
 </body>
 </html>

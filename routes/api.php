@@ -11,12 +11,13 @@ use Illuminate\Support\Facades\Route;
 | Node middleware: 'node:local' | 'node:cloud' restricts by NODE_TYPE.
 */
 
-// ─── Auth (no auth middleware) ─────────────────────────────────────────
+// ─── Public (no auth) ──────────────────────────────────────────────────
 Route::prefix('v1')->group(function () {
     Route::post('auth/login', [\App\Http\Controllers\API\AuthController::class, 'login']);
     Route::post('auth/login-pin', [\App\Http\Controllers\API\AuthController::class, 'loginPin']);
     Route::post('auth/logout', [\App\Http\Controllers\API\AuthController::class, 'logout'])->middleware('auth:sanctum');
     Route::get('auth/me', [\App\Http\Controllers\API\AuthController::class, 'me'])->middleware('auth:sanctum');
+    Route::post('quote-request', [\App\Http\Controllers\API\QuoteRequestController::class, 'store']);
 });
 
 // ─── Shared: available on BOTH cloud and local ─────────────────────────
@@ -51,6 +52,8 @@ Route::prefix('v1')->middleware(['auth:sanctum'])->group(function () {
     // Companies (super_admin only)
     Route::get('companies', [\App\Http\Controllers\API\CompanyController::class, 'index']);
     Route::post('companies', [\App\Http\Controllers\API\CompanyController::class, 'store']);
+    Route::patch('companies/{company}/toggle-status', [\App\Http\Controllers\API\CompanyController::class, 'toggleStatus']);
+    Route::get('companies/{company}/summary', [\App\Http\Controllers\API\CompanyController::class, 'summary']);
     Route::get('companies/{company}', [\App\Http\Controllers\API\CompanyController::class, 'show']);
     Route::put('companies/{company}', [\App\Http\Controllers\API\CompanyController::class, 'update']);
     Route::delete('companies/{company}', [\App\Http\Controllers\API\CompanyController::class, 'destroy']);

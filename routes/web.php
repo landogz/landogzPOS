@@ -13,6 +13,8 @@ Route::get('/', function () {
     return view('landing');
 });
 
+Route::get('request-quote', [SuperAdminViewController::class, 'requestQuote'])->name('quote.request');
+
 // Super-admin login (alias: route name used by landing/footer; same as dashboard/login)
 Route::get('super-admin/login', [SuperAdminViewController::class, 'login'])->name('super-admin.login');
 
@@ -38,6 +40,7 @@ Route::prefix('dashboard')->name('dashboard.')->group(function () {
     Route::get('inventory', [SuperAdminViewController::class, 'inventory'])->name('inventory');
     Route::get('chain', [SuperAdminViewController::class, 'chainDashboard'])->name('chain');
     Route::get('companies', [SuperAdminViewController::class, 'companies'])->name('companies');
+    Route::get('companies/{company}/summary', [SuperAdminViewController::class, 'companySummary'])->name('companies.summary');
     Route::get('branches', [SuperAdminViewController::class, 'branches'])->name('branches');
     Route::get('terminals', [SuperAdminViewController::class, 'terminals'])->name('terminals');
     Route::get('bir-settings', [SuperAdminViewController::class, 'birSettings'])->name('bir-settings');

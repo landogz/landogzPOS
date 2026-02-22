@@ -3,10 +3,12 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="description" content="Landogz POS Super Admin">
 <title>@yield('title', 'Super Admin') - Landogz POS</title>
+@vite(['resources/css/app.css'])
 <link rel="stylesheet" href="{{ $midoneBase ?? asset('midone-html.vercel.app') }}/dist/css/vendors/tippy.css">
 <link rel="stylesheet" href="{{ $midoneBase ?? asset('midone-html.vercel.app') }}/dist/css/themes/rubick/side-nav.css">
 <link rel="stylesheet" href="{{ $midoneBase ?? asset('midone-html.vercel.app') }}/dist/css/vendors/simplebar.css">
 <link rel="stylesheet" href="{{ $midoneBase ?? asset('midone-html.vercel.app') }}/dist/css/components/mobile-menu.css">
+<link rel="stylesheet" href="{{ $midoneBase ?? asset('midone-html.vercel.app') }}/dist/css/vendors/toastify.css">
 <link rel="stylesheet" href="{{ $midoneBase ?? asset('midone-html.vercel.app') }}/dist/css/app.css">
 <style>
     /* Let curved pseudo-elements extend out of sidebar (theme + SimpleBar use overflow which clips them) */

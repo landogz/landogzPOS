@@ -1,0 +1,13 @@
+Landogz POS - Tawk.to Short Description
+========================================
+Copy the text below into Tawk.to: Settings → Chat Widget → Short Description (AI Assist).
+
+----------------------------------------
+
+Landogz POS is a secure, affordable point of sale (POS) system for food and retail businesses in the Philippines. It supports single and multi-branch operations with real-time sales, inventory (including batch and expiry tracking), low-stock and expiring-soon alerts, and BIR-ready official receipts. Features include role-based access (Super Admin, Manager, Cashier), dashboards and reports, and a REST API for web and mobile. It serves retail, boutiques, restaurants, cafés, pharmacies, convenience stores, supermarkets, salons, clinics, and hardware/bakery stores. Visitors often ask about demos, pricing/quotes, multi-branch setup, BIR compliance, and API/integrations. No long-term lock-in; data stays with the business.
+
+----------------------------------------
+
+Shorter version (if character limit):
+
+Landogz POS is a Philippine POS for food and retail: multi-branch, real-time inventory, BIR-ready receipts, and REST API. Serves retail, restaurants, cafés, pharmacies, salons, clinics. Common questions: demos, quotes, BIR compliance, API. No lock-in.

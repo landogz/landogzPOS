@@ -42,4 +42,10 @@ class CompanyRepository
     {
         return $company->delete();
     }
+
+    public function toggleActive(Company $company): Company
+    {
+        $company->update(['is_active' => !$company->is_active]);
+        return $company->fresh();
+    }
 }

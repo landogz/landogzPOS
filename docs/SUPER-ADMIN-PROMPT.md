@@ -38,7 +38,7 @@ Use this prompt when implementing or extending the **Super Admin** side of Lando
 3. **Tech stack (align with project rules)**
    - **Tailwind only** (template already uses Tailwind via `dist/css/app.css`).
    - **Axios** for all API calls (login, dashboard data, etc.).
-   - **SweetAlert2** for confirmations and notifications (no `alert()` / `confirm()`).
+   - **Notifications:** Always use **Toastify** via the global `showToastNotification(type, title, text)` (Rubick-style non-sticky, top-right, inline SVG icons). Use it for all **success** and **error** feedback (e.g. "Saved", "Done", "Company updated", API errors). Use **SweetAlert2** only for **confirmations** (Yes/Cancel, e.g. delete, disable). No `alert()` / `confirm()`.
    - **Laravel Blade** for layout and partials; keep one global CSS file, no inline styles.
 
 4. **Responsive & cross‑platform**

@@ -14,8 +14,27 @@
 <script src="{{ $base }}/dist/js/components/mobile-menu.js"></script>
 <script src="{{ $base }}/dist/js/themes/rubick.js"></script>
 <script src="{{ $base }}/dist/js/components/themes/rubick/top-bar.js"></script>
+<script src="{{ $base }}/dist/js/vendors/toastify.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
+/** Global: Rubick-style non-sticky Toastify notification (success/error). Use this for all success/error feedback; keep Swal for confirmations only. */
+window.showToastNotification = function(type, title, text) {
+    var wrap = document.createElement('div');
+    wrap.className = 'py-5 pl-5 pr-14 bg-white border border-slate-200/60 rounded-lg shadow-xl dark:bg-darkmode-600 dark:text-slate-300 dark:border-darkmode-600 flex items-start';
+    var iconColorClass = type === 'success' ? 'text-emerald-500' : 'text-red-500';
+    var iconSvg = type === 'success'
+        ? '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5 flex-shrink-0 ' + iconColorClass + '"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>'
+        : '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5 flex-shrink-0 ' + iconColorClass + '"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>';
+    var safeTitle = (title || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+    var safeText = (text || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+    wrap.innerHTML = '<span class="flex-shrink-0">' + iconSvg + '</span><div class="ml-4 mr-4 min-w-0"><div class="font-medium">' + safeTitle + '</div><div class="mt-1 text-slate-500 dark:text-slate-400">' + safeText + '</div></div>';
+    if (typeof Toastify !== 'undefined') {
+        Toastify({ node: wrap, duration: 3000, newWindow: true, close: true, gravity: 'top', position: 'right', stopOnFocus: true }).showToast();
+    } else if (typeof Swal !== 'undefined') {
+        Swal.fire({ icon: type === 'success' ? 'success' : 'error', title: title, text: text });
+    }
+};
+
 document.addEventListener('DOMContentLoaded', function() {
     var logoutBtn = document.getElementById('super-admin-logout');
     if (logoutBtn) {

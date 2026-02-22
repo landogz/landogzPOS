@@ -12,6 +12,14 @@ class SuperAdminViewController extends Controller
         return view('super-admin.login');
     }
 
+    /**
+     * Public page: Request a Quote form (sends email to configured address).
+     */
+    public function requestQuote(): View
+    {
+        return view('request-quote');
+    }
+
     public function dashboard(): View
     {
         return view('super-admin.dashboard');
@@ -75,6 +83,11 @@ class SuperAdminViewController extends Controller
     public function companies(): View
     {
         return view('super-admin.pages.companies');
+    }
+
+    public function companySummary(\App\Models\Company $company): View
+    {
+        return view('super-admin.pages.company-summary', ['company' => $company]);
     }
 
     public function reportPage(): View

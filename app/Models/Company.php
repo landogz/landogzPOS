@@ -10,7 +10,21 @@ class Company extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['name', 'tin', 'bir_accreditation', 'address', 'contact'];
+    protected $fillable = ['name', 'tin', 'bir_accreditation', 'address', 'contact', 'logo', 'is_active'];
+
+    protected $casts = [
+        'is_active' => 'boolean',
+    ];
+
+    protected $appends = ['logo_url'];
+
+    public function getLogoUrlAttribute(): ?string
+    {
+        if (empty($this->logo)) {
+            return null;
+        }
+        return asset('storage/' . $this->logo);
+    }
 
     public function branches(): HasMany
     {

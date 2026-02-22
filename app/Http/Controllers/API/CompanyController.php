@@ -64,8 +64,9 @@ class CompanyController extends Controller
             'bir_accreditation' => 'nullable|string|max:255',
             'address' => 'nullable|string',
             'contact' => 'nullable|string|max:100',
+            'logo' => 'nullable|image|max:2048',
         ]);
-        $company = $this->service->create($validated);
+        $company = $this->service->create($validated, $request->file('logo'));
         return response()->json([
             'status' => true,
             'message' => 'Company created.',
@@ -87,8 +88,9 @@ class CompanyController extends Controller
             'bir_accreditation' => 'nullable|string|max:255',
             'address' => 'nullable|string',
             'contact' => 'nullable|string|max:100',
+            'logo' => 'nullable|image|max:2048',
         ]);
-        $company = $this->service->update($company, $validated);
+        $company = $this->service->update($company, $validated, $request->file('logo'));
         return response()->json([
             'status' => true,
             'message' => 'Company updated.',
@@ -109,6 +111,45 @@ class CompanyController extends Controller
             'status' => true,
             'message' => 'Company deleted.',
             'data' => null,
+        ]);
+    }
+
+    public function toggleStatus(Request $request, Company $company): JsonResponse
+    {
+        if ($request->user()?->role !== 'super_admin') {
+            return response()->json([
+                'status' => false,
+                'message' => 'Only Super Admin can manage companies.',
+            ], 403);
+        }
+        $company = $this->service->toggleStatus($company);
+        return response()->json([
+            'status' => true,
+            'message' => $company->is_active ? 'Company enabled.' : 'Company disabled.',
+            'data' => $company,
+        ]);
+    }
+
+    public function summary(Request $request, Company $company): JsonResponse
+    {
+        if ($request->user()?->role !== 'super_admin') {
+            return response()->json([
+                'status' => false,
+                'message' => 'Only Super Admin can view company summary.',
+            ], 403);
+        }
+        $branchId = $request->query('branch_id');
+        $branchId = $branchId !== null && $branchId !== '' ? (int) $branchId : null;
+        $data = $this->service->getSummary(
+            $company,
+            $request->query('date_from'),
+            $request->query('date_to'),
+            $branchId > 0 ? $branchId : null
+        );
+        return response()->json([
+            'status' => true,
+            'message' => 'OK',
+            'data' => $data,
         ]);
     }
 }
