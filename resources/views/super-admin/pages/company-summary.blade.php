@@ -253,72 +253,72 @@
             {{-- Widgets row: Inventory, Top products, BIR, User activity (equal height cards) --}}
             <div class="col-span-12 mt-8 grid grid-cols-12 gap-6 items-stretch">
                 <div class="intro-y col-span-12 sm:col-span-6 2xl:col-span-3 flex">
-                    <div class="box zoom-in p-5 h-full w-full flex flex-col">
-                        <div class="flex items-center flex-shrink-0">
-                            <div class="w-2/4 flex-none">
-                                <div class="truncate text-lg font-medium text-slate-800 dark:text-slate-100">Inventory Summary</div>
-                                <div id="widget-inventory-subtitle" class="mt-1 text-slate-500 dark:text-slate-400">Low stock: 0 · Expiring: 0 · Out: 0</div>
+                    <div class="box zoom-in p-6 h-full w-full flex flex-col min-h-[200px]">
+                        <div class="flex items-start flex-shrink-0 gap-4">
+                            <div class="flex-1 min-w-0">
+                                <div class="text-base font-semibold text-slate-800 dark:text-slate-100">Inventory Summary</div>
+                                <div id="widget-inventory-subtitle" class="mt-1.5 text-sm text-slate-500 dark:text-slate-400 leading-relaxed">Low stock: 0 · Expiring: 0 · Out: 0</div>
                             </div>
-                            <div class="relative ml-auto flex-none">
+                            <div class="relative flex-none">
                                 <div class="w-[90px] h-[90px]">
                                     <canvas id="widget-chart-inventory" class="chart" width="90" height="90" aria-label="Inventory"></canvas>
                                 </div>
-                                <div id="widget-inventory-center" class="absolute left-0 top-0 flex h-full w-full items-center justify-center text-sm font-medium text-slate-700 dark:text-slate-300">0</div>
+                                <div id="widget-inventory-center" class="absolute left-0 top-0 flex h-full w-full items-center justify-center text-sm font-semibold text-slate-700 dark:text-slate-300">0</div>
                             </div>
                         </div>
                     </div>
                 </div>
                 <div class="intro-y col-span-12 sm:col-span-6 2xl:col-span-3 flex">
-                    <div class="box zoom-in p-5 h-full w-full flex flex-col">
-                        <div class="flex items-center flex-shrink-0">
-                            <div class="w-2/4 flex-none">
-                                <div class="truncate text-lg font-medium text-slate-800 dark:text-slate-100">Top Products</div>
-                                <div id="widget-top-products-subtitle" class="mt-1 text-slate-500 dark:text-slate-400">This period</div>
+                    <div class="box zoom-in p-6 h-full w-full flex flex-col min-h-[200px]">
+                        <div class="flex items-start flex-shrink-0 gap-4">
+                            <div class="flex-1 min-w-0">
+                                <div class="text-base font-semibold text-slate-800 dark:text-slate-100">Top Products</div>
+                                <div id="widget-top-products-subtitle" class="mt-1.5 text-sm text-slate-500 dark:text-slate-400">This period</div>
                             </div>
-                            <div class="relative ml-auto flex-none">
+                            <div class="relative flex-none">
                                 <div class="w-[90px] h-[90px]">
                                     <canvas id="widget-chart-top-products" class="chart" width="90" height="90" aria-label="Top products"></canvas>
                                 </div>
-                                <div id="widget-top-products-center" class="absolute left-0 top-0 flex h-full w-full items-center justify-center text-sm font-medium text-slate-700 dark:text-slate-300">0</div>
+                                <div id="widget-top-products-center" class="absolute left-0 top-0 flex h-full w-full items-center justify-center text-sm font-semibold text-slate-700 dark:text-slate-300">0</div>
                             </div>
                         </div>
-                        <ul id="widget-top-products-list" class="company-summary-widget-inner mt-3 space-y-1.5 border-t border-slate-200/60 pt-3 text-xs text-slate-600 dark:border-darkmode-400 dark:text-slate-400 flex-1 min-h-0 overflow-auto"></ul>
+                        <ul id="widget-top-products-list" class="company-summary-widget-inner mt-4 space-y-2 border-t border-slate-200/60 pt-4 text-sm text-slate-600 dark:border-darkmode-400 dark:text-slate-400 flex-1 min-h-0 overflow-auto"></ul>
                     </div>
                 </div>
                 <div class="intro-y col-span-12 sm:col-span-6 2xl:col-span-3 flex">
-                    <div class="box zoom-in p-5 h-full w-full flex flex-col">
-                        <div class="flex items-center flex-shrink-0">
-                            <div class="w-2/4 flex-none">
-                                <div class="truncate text-lg font-medium text-slate-800 dark:text-slate-100">BIR Compliance</div>
-                                <div id="widget-vat-month" class="mt-1 text-slate-500 dark:text-slate-400">VAT this month ₱0</div>
+                    <div class="box zoom-in p-6 h-full w-full flex flex-col min-h-[200px]">
+                        <div class="flex items-start flex-shrink-0 gap-4">
+                            <div class="flex-1 min-w-0">
+                                <div class="text-base font-semibold text-slate-800 dark:text-slate-100">BIR Compliance</div>
+                                <div id="widget-vat-month" class="mt-1.5 text-sm text-slate-500 dark:text-slate-400">VAT this month ₱0</div>
                             </div>
-                            <div class="relative ml-auto flex-none">
+                            <div class="relative flex-none">
                                 <div class="w-[90px] h-[90px]">
                                     <canvas id="widget-chart-bir" class="chart" width="90" height="90" aria-label="BIR"></canvas>
                                 </div>
-                                <div id="widget-bir-center" class="absolute left-0 top-0 flex h-full w-full items-center justify-center text-xs font-medium text-slate-700 dark:text-slate-300 text-center px-1">VAT</div>
+                                <div id="widget-bir-center" class="absolute left-0 top-0 flex h-full w-full items-center justify-center text-xs font-semibold text-slate-700 dark:text-slate-300 text-center px-1">VAT</div>
                             </div>
                         </div>
-                        <div id="widget-or-range" class="company-summary-widget-inner mt-3 border-t border-slate-200/60 pt-3 text-xs text-slate-500 dark:border-darkmode-400 dark:text-slate-400 flex-1 min-h-0 overflow-auto"></div>
+                        <div id="widget-or-range" class="company-summary-widget-inner mt-4 border-t border-slate-200/60 pt-4 text-sm text-slate-500 dark:border-darkmode-400 dark:text-slate-400 flex-1 min-h-0 overflow-auto space-y-1.5"></div>
                     </div>
                 </div>
                 <div class="intro-y col-span-12 sm:col-span-6 2xl:col-span-3 flex">
-                    <div class="box zoom-in p-5 h-full w-full flex flex-col">
-                        <div class="flex items-center flex-shrink-0">
-                            <div class="w-2/4 flex-none">
-                                <div class="truncate text-lg font-medium text-slate-800 dark:text-slate-100">User Activity</div>
-                                <div class="mt-1 flex items-center gap-2">
-                                    <span id="widget-active-cashiers" class="rounded-full bg-slate-100 px-2 py-0.5 text-xs font-medium text-slate-600 dark:bg-darkmode-400 dark:text-slate-300">0 active</span>
+                    <div class="box zoom-in p-6 h-full w-full flex flex-col min-h-[200px]">
+                        <div class="flex items-start flex-shrink-0 gap-4">
+                            <div class="flex-1 min-w-0">
+                                <div class="text-base font-semibold text-slate-800 dark:text-slate-100">User Activity</div>
+                                <div class="mt-1.5 flex items-center gap-2">
+                                    <span id="widget-active-cashiers" class="rounded-full bg-emerald-100 dark:bg-emerald-900/30 px-2.5 py-0.5 text-xs font-semibold text-emerald-700 dark:text-emerald-400">0 active</span>
                                 </div>
                             </div>
-                            <div class="relative ml-auto flex-none">
+                            <div class="relative flex-none">
                                 <div class="w-[90px] h-[90px]">
                                     <canvas id="widget-chart-activity" class="chart" width="90" height="90" aria-label="Activity"></canvas>
                                 </div>
-                                <div id="widget-activity-center" class="absolute left-0 top-0 flex h-full w-full items-center justify-center text-xs font-medium text-slate-700 dark:text-slate-300 text-center px-1">Today</div>
+                                <div id="widget-activity-center" class="absolute left-0 top-0 flex h-full w-full items-center justify-center text-xs font-semibold text-slate-700 dark:text-slate-300 text-center px-1">Today</div>
                             </div>
                         </div>
-                        <div id="widget-most-active" class="company-summary-widget-inner mt-3 border-t border-slate-200/60 pt-3 text-xs text-slate-500 dark:border-darkmode-400 dark:text-slate-400 flex-1 min-h-0">Most active: —</div>
+                        <div id="widget-most-active" class="company-summary-widget-inner mt-4 border-t border-slate-200/60 pt-4 text-sm text-slate-500 dark:border-darkmode-400 dark:text-slate-400 flex-1 min-h-0">Most active: —</div>
                     </div>
                 </div>
             </div>
@@ -333,23 +333,32 @@
                     </div>
                 </div>
                 <div class="p-4 sm:p-5 company-summary-table-wrap overflow-x-auto">
-                    <table class="w-full min-w-[600px] sm:min-w-[700px] text-left text-sm">
+                    <table class="w-full min-w-[700px] text-left text-sm">
                         <thead class="border-b border-slate-200 dark:border-darkmode-500">
                             <tr>
-                                <th class="pb-3 font-medium text-slate-700 dark:text-slate-300">OR #</th>
-                                <th class="pb-3 font-medium text-slate-700 dark:text-slate-300">Branch</th>
-                                <th class="pb-3 font-medium text-slate-700 dark:text-slate-300">Cashier</th>
-                                <th class="pb-3 font-medium text-slate-700 dark:text-slate-300">Payment</th>
-                                <th class="pb-3 font-medium text-slate-700 dark:text-slate-300">Status</th>
-                                <th class="pb-3 font-medium text-slate-700 dark:text-slate-300 text-right">Total</th>
-                                <th class="pb-3 font-medium text-slate-700 dark:text-slate-300 text-right">VAT</th>
-                                <th class="pb-3 font-medium text-slate-700 dark:text-slate-300 text-right">Discount</th>
-                                <th class="pb-3 font-medium text-slate-700 dark:text-slate-300">Date</th>
+                                <th class="pb-3 pr-4 font-medium text-slate-700 dark:text-slate-300 whitespace-nowrap">OR #</th>
+                                <th class="pb-3 pr-4 font-medium text-slate-700 dark:text-slate-300">Branch</th>
+                                <th class="pb-3 pr-4 font-medium text-slate-700 dark:text-slate-300">Cashier</th>
+                                <th class="pb-3 pr-4 font-medium text-slate-700 dark:text-slate-300">Payment</th>
+                                <th class="pb-3 pr-4 font-medium text-slate-700 dark:text-slate-300">Status</th>
+                                <th class="pb-3 pr-4 font-medium text-slate-700 dark:text-slate-300 text-right whitespace-nowrap">Total</th>
+                                <th class="pb-3 pr-4 font-medium text-slate-700 dark:text-slate-300 text-right whitespace-nowrap">VAT</th>
+                                <th class="pb-3 pr-4 font-medium text-slate-700 dark:text-slate-300 text-right whitespace-nowrap">Discount</th>
+                                <th class="pb-3 font-medium text-slate-700 dark:text-slate-300 whitespace-nowrap">Date</th>
                             </tr>
                         </thead>
                         <tbody id="summary-transactions-tbody" class="divide-y divide-slate-200 dark:divide-darkmode-500">
                         </tbody>
                     </table>
+                </div>
+                {{-- Pagination controls --}}
+                <div id="tx-pagination" class="flex flex-col sm:flex-row items-center justify-between gap-3 border-t border-slate-200 dark:border-darkmode-500 px-4 sm:px-5 py-3 text-sm text-slate-600 dark:text-slate-400">
+                    <span id="tx-page-info">—</span>
+                    <div class="flex items-center gap-2">
+                        <button id="tx-prev" type="button" class="rounded-lg border border-slate-200 dark:border-darkmode-500 px-3 py-1.5 text-sm hover:bg-slate-50 dark:hover:bg-darkmode-600 disabled:opacity-40 disabled:cursor-not-allowed transition-colors touch-manipulation" disabled>← Prev</button>
+                        <span id="tx-page-btns" class="flex items-center gap-1"></span>
+                        <button id="tx-next" type="button" class="rounded-lg border border-slate-200 dark:border-darkmode-500 px-3 py-1.5 text-sm hover:bg-slate-50 dark:hover:bg-darkmode-600 disabled:opacity-40 disabled:cursor-not-allowed transition-colors touch-manipulation" disabled>Next →</button>
+                    </div>
                 </div>
             </div>
             {{-- END: Recent transactions --}}
@@ -612,21 +621,68 @@
         }
 
         var ctxMonthly = document.getElementById('chart-monthly-comparison');
-        if (ctxMonthly && monthly.length > 0) {
+        if (ctxMonthly) {
+            // Pad to always show all 12 months, filling 0 for months with no data
+            var thisYearData = Array(12).fill(0);
+            var lastYearData = Array(12).fill(0);
+            (monthly || []).forEach(function(r) {
+                var m = parseInt(r.month, 10);
+                if (m >= 1 && m <= 12) {
+                    thisYearData[m - 1] = parseFloat(r.this_year) || 0;
+                    lastYearData[m - 1] = parseFloat(r.last_year) || 0;
+                }
+            });
+            var curYear  = new Date().getFullYear();
+            var prevYear = curYear - 1;
             chartMonthly = new Chart(ctxMonthly, {
                 type: 'bar',
                 data: {
-                    labels: monthly.map(function(r) { return monthNames[r.month - 1]; }),
+                    labels: monthNames,
                     datasets: [
-                        { label: 'This year', data: monthly.map(function(r) { return r.this_year; }), backgroundColor: 'rgba(99, 102, 241, 0.8)' },
-                        { label: 'Last year', data: monthly.map(function(r) { return r.last_year; }), backgroundColor: 'rgba(148, 163, 184, 0.6)' }
+                        {
+                            label: String(curYear),
+                            data: thisYearData,
+                            backgroundColor: 'rgba(99,102,241,0.82)',
+                            borderColor: 'rgba(99,102,241,1)',
+                            borderWidth: 1.5,
+                            borderRadius: 4,
+                            borderSkipped: false,
+                        },
+                        {
+                            label: String(prevYear),
+                            data: lastYearData,
+                            backgroundColor: 'rgba(148,163,184,0.55)',
+                            borderColor: 'rgba(148,163,184,0.8)',
+                            borderWidth: 1.5,
+                            borderRadius: 4,
+                            borderSkipped: false,
+                        }
                     ]
                 },
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
-                    scales: { y: { beginAtZero: true } },
-                    plugins: { legend: { position: 'top' } }
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            grid: { color: 'rgba(148,163,184,0.15)' },
+                            ticks: { callback: function(v) { return '₱' + (v >= 1000 ? (v/1000).toFixed(0)+'k' : v); } }
+                        },
+                        x: { grid: { display: false } }
+                    },
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                            labels: { boxWidth: 12, padding: 16, font: { size: 12 } }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(ctx) {
+                                    return ' ' + ctx.dataset.label + ': ₱' + parseFloat(ctx.parsed.y).toLocaleString('en-PH', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+                                }
+                            }
+                        }
+                    }
                 }
             });
         }
@@ -647,18 +703,58 @@
 
         var ctxCash = document.getElementById('chart-top-cashiers');
         if (ctxCash && topCashiers.length > 0) {
+            var cashierPalette = [
+                { bg: 'rgba(16,185,129,0.85)',  border: 'rgba(16,185,129,1)'  },  // emerald
+                { bg: 'rgba(59,130,246,0.85)',  border: 'rgba(59,130,246,1)'  },  // blue
+                { bg: 'rgba(245,158,11,0.85)',  border: 'rgba(245,158,11,1)'  },  // amber
+                { bg: 'rgba(139,92,246,0.85)',  border: 'rgba(139,92,246,1)'  },  // violet
+                { bg: 'rgba(239,68,68,0.85)',   border: 'rgba(239,68,68,1)'   },  // red
+            ];
+            var cashBg  = topCashiers.map(function(_, i) { return cashierPalette[i % cashierPalette.length].bg; });
+            var cashBd  = topCashiers.map(function(_, i) { return cashierPalette[i % cashierPalette.length].border; });
             chartTopCashiers = new Chart(ctxCash, {
+                plugins: [ChartDataLabels],
                 type: 'bar',
                 data: {
                     labels: topCashiers.map(function(c) { return c.cashier_name || '—'; }),
-                    datasets: [{ label: 'Sales (₱)', data: topCashiers.map(function(c) { return c.total_sales; }), backgroundColor: 'rgba(34, 197, 94, 0.7)' }]
+                    datasets: [{
+                        label: 'Sales (₱)',
+                        data: topCashiers.map(function(c) { return c.total_sales; }),
+                        backgroundColor: cashBg,
+                        borderColor: cashBd,
+                        borderWidth: 2,
+                        borderRadius: 5,
+                        borderSkipped: false,
+                    }]
                 },
                 options: {
                     indexAxis: 'y',
                     responsive: true,
                     maintainAspectRatio: false,
-                    scales: { x: { beginAtZero: true } },
-                    plugins: { legend: { display: false } }
+                    scales: {
+                        x: {
+                            beginAtZero: true,
+                            grid: { color: 'rgba(148,163,184,0.15)' },
+                            ticks: { callback: function(v) { return '₱' + v.toLocaleString(); } }
+                        },
+                        y: { grid: { display: false }, ticks: { font: { size: 12 } } }
+                    },
+                    plugins: {
+                        legend: { display: false },
+                        datalabels: {
+                            anchor: 'end',
+                            align: 'end',
+                            offset: 4,
+                            color: function(ctx) { return cashBd[ctx.dataIndex]; },
+                            font: { weight: 'bold', size: 11 },
+                            formatter: function(v) { return '₱' + parseFloat(v).toLocaleString('en-PH', { minimumFractionDigits: 0, maximumFractionDigits: 0 }); }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(ctx) { return ' ₱' + parseFloat(ctx.parsed.x).toLocaleString('en-PH', { minimumFractionDigits: 2, maximumFractionDigits: 2 }); }
+                            }
+                        }
+                    }
                 }
             });
         }
@@ -739,27 +835,85 @@
         return '<span class="' + cls + ' bg-slate-100 text-slate-600 dark:bg-slate-600 dark:text-slate-300">' + escapeHtml(status) + '</span>';
     }
 
+    var txCurrentList = [];
+    var txPage = 1;
+    var txPerPage = 25;
+
     function filterTransactions() {
         if (!lastSummaryData) return;
         var q = (document.getElementById('transactions-search').value || '').toLowerCase().trim();
         var tx = lastSummaryData.recent_transactions || [];
-        var list = q ? tx.filter(function(t) {
+        txCurrentList = q ? tx.filter(function(t) {
             return (t.or_number || '').toLowerCase().indexOf(q) >= 0 ||
                 (t.branch_name || '').toLowerCase().indexOf(q) >= 0 ||
                 (t.cashier_name || '').toLowerCase().indexOf(q) >= 0;
         }) : tx;
-        renderTransactionsRows(list);
+        txPage = 1;
+        renderTransactionsRows(txCurrentList);
     }
 
     function renderTransactionsRows(list) {
+        txCurrentList = list;
+        var total = list.length;
+        var totalPages = Math.max(1, Math.ceil(total / txPerPage));
+        if (txPage > totalPages) txPage = totalPages;
+        var start = (txPage - 1) * txPerPage;
+        var end = Math.min(start + txPerPage, total);
+        var page = list.slice(start, end);
+
         var txBody = document.getElementById('summary-transactions-tbody');
-        txBody.innerHTML = list.length === 0
+        txBody.innerHTML = page.length === 0
             ? '<tr><td colspan="9" class="px-4 py-6 text-center text-slate-500 dark:text-slate-400">No transactions match.</td></tr>'
-            : list.map(function(t) {
+            : page.map(function(t) {
                 var date = t.created_at ? new Date(t.created_at).toLocaleString() : '—';
                 var pay = (t.payment_method || 'cash').charAt(0).toUpperCase() + (t.payment_method || 'cash').slice(1);
-                return '<tr><td class="py-3 font-medium">' + escapeHtml(t.or_number || '—') + '</td><td class="py-3">' + escapeHtml(t.branch_name || '—') + '</td><td class="py-3">' + escapeHtml(t.cashier_name || '—') + '</td><td class="py-3">' + escapeHtml(pay) + '</td><td class="py-3">' + statusBadge(t.status) + '</td><td class="py-3 text-right">₱' + formatMoney(t.total || 0) + '</td><td class="py-3 text-right">₱' + formatMoney(t.vat_amount || 0) + '</td><td class="py-3 text-right">₱' + formatMoney(t.discount_amount || 0) + '</td><td class="py-3 text-slate-500 dark:text-slate-400">' + date + '</td></tr>';
+                return '<tr class="hover:bg-slate-50 dark:hover:bg-darkmode-600/40 transition-colors">'
+                    + '<td class="py-3 pr-4 font-medium text-slate-800 dark:text-slate-100 whitespace-nowrap">' + escapeHtml(t.or_number || '—') + '</td>'
+                    + '<td class="py-3 pr-4 text-slate-600 dark:text-slate-400">' + escapeHtml(t.branch_name || '—') + '</td>'
+                    + '<td class="py-3 pr-4 text-slate-600 dark:text-slate-400">' + escapeHtml(t.cashier_name || '—') + '</td>'
+                    + '<td class="py-3 pr-4 text-slate-600 dark:text-slate-400">' + escapeHtml(pay) + '</td>'
+                    + '<td class="py-3 pr-4">' + statusBadge(t.status) + '</td>'
+                    + '<td class="py-3 pr-4 text-right font-semibold text-slate-800 dark:text-slate-100 whitespace-nowrap">₱' + formatMoney(t.total || 0) + '</td>'
+                    + '<td class="py-3 pr-4 text-right text-slate-500 dark:text-slate-400 whitespace-nowrap">₱' + formatMoney(t.vat_amount || 0) + '</td>'
+                    + '<td class="py-3 pr-4 text-right text-slate-500 dark:text-slate-400 whitespace-nowrap">₱' + formatMoney(t.discount_amount || 0) + '</td>'
+                    + '<td class="py-3 text-sm text-slate-500 dark:text-slate-400 whitespace-nowrap">' + date + '</td>'
+                    + '</tr>';
             }).join('');
+
+        // Update pagination info
+        var infoEl = document.getElementById('tx-page-info');
+        if (total === 0) {
+            infoEl.textContent = 'No transactions';
+        } else {
+            infoEl.textContent = 'Showing ' + (start + 1) + '–' + end + ' of ' + total.toLocaleString() + ' transactions';
+        }
+
+        // Prev / Next buttons
+        var prevBtn = document.getElementById('tx-prev');
+        var nextBtn = document.getElementById('tx-next');
+        prevBtn.disabled = txPage <= 1;
+        nextBtn.disabled = txPage >= totalPages;
+
+        // Page number buttons (show up to 7)
+        var btnsEl = document.getElementById('tx-page-btns');
+        var pages = [];
+        if (totalPages <= 7) {
+            for (var i = 1; i <= totalPages; i++) pages.push(i);
+        } else {
+            pages = [1];
+            var s = Math.max(2, txPage - 2), e = Math.min(totalPages - 1, txPage + 2);
+            if (s > 2) pages.push('…');
+            for (var j = s; j <= e; j++) pages.push(j);
+            if (e < totalPages - 1) pages.push('…');
+            pages.push(totalPages);
+        }
+        btnsEl.innerHTML = pages.map(function(p) {
+            if (p === '…') return '<span class="px-1 text-slate-400">…</span>';
+            var active = p === txPage;
+            return '<button type="button" data-page="' + p + '" class="rounded-lg min-w-[32px] px-2 py-1.5 text-sm font-medium transition-colors touch-manipulation '
+                + (active ? 'bg-primary text-white' : 'border border-slate-200 dark:border-darkmode-500 hover:bg-slate-50 dark:hover:bg-darkmode-600 text-slate-700 dark:text-slate-300')
+                + '">' + p + '</button>';
+        }).join('');
     }
 
     function exportTableToCSV(tbodyId, filename) {
@@ -838,8 +992,22 @@
                 tbody.innerHTML = branches.length === 0
                     ? '<tr><td colspan="7" class="px-4 py-6 text-center text-slate-500 dark:text-slate-400">No branches or no sales in this period.</td></tr>'
                     : branches.map(function(b) {
-                        var link = summaryUrlFn(companyId) + (b.id ? '?branch_id=' + b.id : '');
-                        return '<tr class="cursor-pointer hover:bg-slate-50 dark:hover:bg-darkmode-600/50" data-branch-id="' + (b.id || '') + '"><td class="py-3 font-medium text-slate-800 dark:text-slate-100">' + escapeHtml(b.name || '—') + '</td><td class="py-3 text-slate-600 dark:text-slate-400">' + escapeHtml(b.address || '—') + '</td><td class="py-3 text-right">' + (b.transaction_count || 0).toLocaleString() + '</td><td class="py-3 text-right font-medium">₱' + formatMoney(b.total_sales || 0) + '</td><td class="py-3 text-right">₱' + formatMoney(b.avg_transaction_value || 0) + '</td><td class="py-3 text-slate-600 dark:text-slate-400">' + escapeHtml(b.top_product_name || '—') + '</td><td class="py-3 text-right">' + (b.cashiers_count || 0) + '</td></tr>';
+                        var cashCount = b.cashiers_count || 0;
+                        var cashiersPill = cashCount > 0
+                            ? '<a href="' + escapeHtml(summaryUrlFn(companyId) + (b.id ? '?branch_id=' + b.id : '')) + '" class="inline-flex items-center gap-1 rounded-full bg-primary/10 px-2.5 py-0.5 text-xs font-semibold text-primary hover:bg-primary/20 transition-colors">' + cashCount + ' cashier' + (cashCount !== 1 ? 's' : '') + '</a>'
+                            : '<span class="text-slate-400">—</span>';
+                        var topProd = b.top_product_name
+                            ? '<span class="inline-flex items-center rounded bg-slate-100 dark:bg-darkmode-500 px-2 py-0.5 text-xs text-slate-700 dark:text-slate-300 max-w-[140px] truncate" title="' + escapeHtml(b.top_product_name) + '">' + escapeHtml(b.top_product_name) + '</span>'
+                            : '<span class="text-slate-400">—</span>';
+                        return '<tr class="cursor-pointer hover:bg-slate-50 dark:hover:bg-darkmode-600/50" data-branch-id="' + (b.id || '') + '">'
+                            + '<td class="py-3 font-medium text-slate-800 dark:text-slate-100">' + escapeHtml(b.name || '—') + '</td>'
+                            + '<td class="py-3 text-sm text-slate-500 dark:text-slate-400">' + escapeHtml(b.address || '—') + '</td>'
+                            + '<td class="py-3 text-right">' + (b.transaction_count || 0).toLocaleString() + '</td>'
+                            + '<td class="py-3 text-right font-semibold text-slate-800 dark:text-slate-100">₱' + formatMoney(b.total_sales || 0) + '</td>'
+                            + '<td class="py-3 text-right text-slate-600 dark:text-slate-400">₱' + formatMoney(b.avg_transaction_value || 0) + '</td>'
+                            + '<td class="py-3">' + topProd + '</td>'
+                            + '<td class="py-3 text-right">' + cashiersPill + '</td>'
+                            + '</tr>';
                     }).join('');
 
                 var inv = d.inventory_summary || {};
@@ -856,8 +1024,18 @@
 
                 var bir = d.bir_summary || {};
                 document.getElementById('widget-vat-month').textContent = 'VAT this month ₱' + formatMoney(bir.vat_this_month || 0);
-                var orRanges = (bir.or_ranges || []).map(function(r) { return (r.branch_name || '') + ': ' + (r.or_from || '—') + ' - ' + (r.or_to || '—'); }).join('; ');
-                document.getElementById('widget-or-range').textContent = orRanges || '—';
+                var orEl = document.getElementById('widget-or-range');
+                var orRanges = bir.or_ranges || [];
+                if (orRanges.length === 0) {
+                    orEl.innerHTML = '<span class="text-slate-400">No OR ranges configured</span>';
+                } else {
+                    orEl.innerHTML = orRanges.map(function(r) {
+                        return '<div class="flex items-center justify-between gap-2">'
+                            + '<span class="truncate font-medium text-slate-700 dark:text-slate-300">' + escapeHtml(r.branch_name || 'Branch') + '</span>'
+                            + '<span class="flex-shrink-0 rounded bg-slate-100 dark:bg-darkmode-500 px-2 py-0.5 text-xs text-slate-600 dark:text-slate-300">' + escapeHtml(r.or_from || '—') + ' – ' + escapeHtml(r.or_to || '—') + '</span>'
+                            + '</div>';
+                    }).join('');
+                }
 
                 var ua = d.user_activity || {};
                 document.getElementById('widget-active-cashiers').textContent = (ua.active_cashiers_today ?? 0) + ' active';
@@ -894,6 +1072,17 @@
     });
     var txSearch = document.getElementById('transactions-search');
     if (txSearch) txSearch.addEventListener('input', function() { filterTransactions(); });
+    document.getElementById('tx-prev').addEventListener('click', function() {
+        if (txPage > 1) { txPage--; renderTransactionsRows(txCurrentList); }
+    });
+    document.getElementById('tx-next').addEventListener('click', function() {
+        var totalPages = Math.max(1, Math.ceil(txCurrentList.length / txPerPage));
+        if (txPage < totalPages) { txPage++; renderTransactionsRows(txCurrentList); }
+    });
+    document.getElementById('tx-page-btns').addEventListener('click', function(e) {
+        var btn = e.target.closest('button[data-page]');
+        if (btn) { txPage = parseInt(btn.getAttribute('data-page'), 10); renderTransactionsRows(txCurrentList); }
+    });
     document.getElementById('branch-export-excel').addEventListener('click', function() { exportTableToCSV('summary-branches-tbody', 'branch-breakdown'); });
     document.getElementById('transactions-export-excel').addEventListener('click', function() { exportTableToCSV('summary-transactions-tbody', 'recent-transactions'); });
     document.getElementById('summary-branches-tbody').addEventListener('click', function(e) {
