@@ -1,0 +1,143 @@
+<?php
+
+namespace App\Http\Controllers\API;
+
+use App\Http\Controllers\Controller;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Validation\ValidationException;
+
+class AuthController extends Controller
+{
+    /**
+     * Login with email + password. Returns token, user, branch, permissions.
+     * When no account found or invalid credentials: 401 with standard error envelope.
+     */
+    public function login(Request $request): JsonResponse
+    {
+        $request->validate([
+            'email' => 'required|email',
+            'password' => 'required',
+        ]);
+
+        $user = \App\Models\User::where('email', $request->email)->first();
+
+        if (!$user || !Hash::check($request->password, $user->password)) {
+            return response()->json([
+                'status' => false,
+                'message' => 'The provided credentials are incorrect.',
+                'errors' => ['email' => ['The provided credentials are incorrect.']],
+            ], 401);
+        }
+
+        if (!$user->is_active) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Account is inactive.',
+                'errors' => ['email' => ['Account is inactive.']],
+            ], 403);
+        }
+
+        $user->tokens()->delete();
+        $token = $user->createToken('login')->plainTextToken;
+        $user->load('branch.company');
+
+        $permissions = $this->permissionsForRole($user->role);
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Login successful',
+            'data' => [
+                'token' => $token,
+                'user' => $user,
+                'branch' => $user->branch,
+                'permissions' => $permissions,
+            ],
+        ]);
+    }
+
+    /**
+     * Quick login for cashier terminals (PIN only, branch + PIN).
+     */
+    public function loginPin(Request $request): JsonResponse
+    {
+        $request->validate([
+            'branch_id' => 'required|exists:branches,id',
+            'pin' => 'required|string|size:4',
+        ]);
+
+        $user = \App\Models\User::where('branch_id', $request->branch_id)
+            ->where('is_active', true)
+            ->get()
+            ->first(fn ($u) => $u->pin_hash && Hash::check($request->pin, $u->pin_hash));
+
+        if (!$user) {
+            throw ValidationException::withMessages(['pin' => ['Invalid PIN or branch.']]);
+        }
+
+        $user->tokens()->delete();
+        $token = $user->createToken('pin-login')->plainTextToken;
+        $user->load('branch.company');
+        $permissions = $this->permissionsForRole($user->role);
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Login successful',
+            'data' => [
+                'token' => $token,
+                'user' => $user,
+                'branch' => $user->branch,
+                'permissions' => $permissions,
+            ],
+        ]);
+    }
+
+    /**
+     * Logout: revoke current token.
+     */
+    public function logout(Request $request): JsonResponse
+    {
+        $request->user()->currentAccessToken()->delete();
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Logged out.',
+            'data' => null,
+        ]);
+    }
+
+    /**
+     * Current authenticated user + branch (alias of GET /user with envelope).
+     */
+    public function me(Request $request): JsonResponse
+    {
+        $user = $request->user()->load('branch.company');
+        $permissions = $this->permissionsForRole($user->role);
+        return response()->json([
+            'status' => 'success',
+            'message' => null,
+            'data' => [
+                'user' => $user,
+                'branch' => $user->branch,
+                'permissions' => $permissions,
+            ],
+        ]);
+    }
+
+    /**
+     * Permissions per role.
+     * super_admin: all. admin: owner (company) – branches, BIR, create managers. manager: branch-scoped. pharmacist: inventory only. cashier: POS.
+     */
+    private function permissionsForRole(string $role): array
+    {
+        $map = [
+            'super_admin' => ['*'],
+            'admin' => ['dashboard', 'users', 'suppliers', 'products', 'categories', 'transactions', 'inventory', 'reports', 'branches', 'bir', 'receipts'],
+            'manager' => ['dashboard', 'users', 'suppliers', 'products', 'categories', 'transactions', 'inventory', 'reports', 'receipts'],
+            'inventory_manager' => ['products', 'inventory', 'reports', 'receipts', 'stock-levels', 'batches'],
+            'pharmacist' => ['inventory'],
+            'cashier' => ['transactions', 'receipts', 'products.lookup'],
+        ];
+        return $map[$role] ?? ['transactions', 'receipts', 'products.lookup'];
+    }
+}

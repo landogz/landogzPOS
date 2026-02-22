@@ -1,0 +1,158 @@
+<?php
+
+namespace App\Http\Controllers\API;
+
+use App\Http\Controllers\Controller;
+use App\Models\User;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
+
+class UserController extends Controller
+{
+    /** Roles a manager is allowed to create/assign for their branch. */
+    private const MANAGER_ALLOWED_ROLES = ['cashier', 'inventory_manager'];
+
+    public function index(Request $request): JsonResponse
+    {
+        $query = User::query()->with('branch:id,name');
+        $currentUser = $request->user();
+        if ($currentUser && $currentUser->role === 'manager' && $currentUser->branch_id) {
+            $query->where('branch_id', $currentUser->branch_id);
+        } elseif ($request->filled('branch_id')) {
+            $query->where('branch_id', $request->branch_id);
+        }
+        if ($request->filled('role')) {
+            $query->where('role', $request->role);
+        }
+        if ($request->filled('search')) {
+            $q = $request->search;
+            $query->where(fn ($qry) => $qry->where('name', 'like', "%{$q}%")->orWhere('email', 'like', "%{$q}%"));
+        }
+        $sortBy = $request->get('sort_by', 'created_at');
+        $sortDir = $request->get('sort_dir', 'desc');
+        $query->orderBy($sortBy, $sortDir);
+        $users = $query->paginate($request->get('per_page', 15));
+        return response()->json([
+            'status' => 'success',
+            'data' => $users,
+            'meta' => ['current_page' => $users->currentPage(), 'total' => $users->total(), 'per_page' => $users->perPage()],
+        ]);
+    }
+
+    public function store(Request $request): JsonResponse
+    {
+        $validated = $request->validate([
+            'branch_id' => 'nullable|exists:branches,id',
+            'name' => 'required|string|max:255',
+            'email' => 'required|email|unique:users,email',
+            'password' => 'required|string|min:8|confirmed',
+            'role' => 'required|string|in:super_admin,admin,manager,pharmacist,cashier,inventory_manager',
+            'pin' => 'nullable|string|size:4',
+            'is_active' => 'nullable|boolean',
+        ]);
+
+        $currentUser = $request->user();
+        if ($currentUser && $currentUser->role === 'manager') {
+            if (!$currentUser->branch_id) {
+                return response()->json(['status' => false, 'message' => 'Manager must be assigned to a branch to create users.'], 403);
+            }
+            if (!in_array($validated['role'], self::MANAGER_ALLOWED_ROLES, true)) {
+                return response()->json(['status' => false, 'message' => 'Manager can only create cashier or inventory_manager for their branch.'], 403);
+            }
+            $validated['branch_id'] = $currentUser->branch_id;
+        }
+
+        $validated['password'] = Hash::make($validated['password']);
+        if (!empty($validated['pin'])) {
+            $validated['pin_hash'] = Hash::make($validated['pin']);
+        }
+        unset($validated['pin']);
+        $validated['is_active'] = $validated['is_active'] ?? true;
+        $user = User::create($validated);
+        $this->assignRoleIfExists($user, $validated['role']);
+        $user->load('branch');
+        return response()->json([
+            'status' => 'success',
+            'message' => 'User created.',
+            'data' => $user,
+        ], 201);
+    }
+
+    public function show(Request $request, User $user): JsonResponse
+    {
+        $currentUser = $request->user();
+        if ($currentUser && $currentUser->role === 'manager' && $currentUser->branch_id && (int) $user->branch_id !== (int) $currentUser->branch_id) {
+            abort(404);
+        }
+        $user->load('branch.company');
+        return response()->json(['status' => 'success', 'data' => $user]);
+    }
+
+    public function update(Request $request, User $user): JsonResponse
+    {
+        $validated = $request->validate([
+            'branch_id' => 'nullable|exists:branches,id',
+            'name' => 'sometimes|string|max:255',
+            'email' => 'sometimes|email|unique:users,email,' . $user->id,
+            'password' => 'nullable|string|min:8|confirmed',
+            'role' => 'sometimes|string|in:super_admin,admin,manager,pharmacist,cashier,inventory_manager',
+            'pin' => 'nullable|string|size:4',
+            'is_active' => 'nullable|boolean',
+        ]);
+
+        $currentUser = $request->user();
+        if ($currentUser && $currentUser->role === 'manager') {
+            if (!$currentUser->branch_id || (int) $user->branch_id !== (int) $currentUser->branch_id) {
+                return response()->json(['status' => false, 'message' => 'You can only update users in your branch.'], 403);
+            }
+            if (array_key_exists('role', $validated) && !in_array($validated['role'], self::MANAGER_ALLOWED_ROLES, true)) {
+                return response()->json(['status' => false, 'message' => 'Manager can only assign role cashier or inventory_manager.'], 403);
+            }
+            $validated['branch_id'] = $currentUser->branch_id;
+        }
+
+        if (!empty($validated['password'])) {
+            $validated['password'] = Hash::make($validated['password']);
+        }
+        if (array_key_exists('pin', $validated)) {
+            $validated['pin_hash'] = $validated['pin'] ? Hash::make($validated['pin']) : null;
+        }
+        unset($validated['pin'], $validated['password_confirmation']);
+        $user->update($validated);
+        if (array_key_exists('role', $validated)) {
+            $this->assignRoleIfExists($user, $validated['role']);
+        }
+        $user->load('branch');
+        return response()->json([
+            'status' => 'success',
+            'message' => 'User updated.',
+            'data' => $user->fresh(),
+        ]);
+    }
+
+    public function destroy(Request $request, User $user): JsonResponse
+    {
+        $currentUser = $request->user();
+        if ($currentUser && $currentUser->role === 'manager') {
+            if (!$currentUser->branch_id || (int) $user->branch_id !== (int) $currentUser->branch_id) {
+                return response()->json(['status' => false, 'message' => 'You can only deactivate users in your branch.'], 403);
+            }
+        }
+        $user->tokens()->delete();
+        $user->update(['is_active' => false]);
+        return response()->json([
+            'status' => 'success',
+            'message' => 'User deactivated.',
+            'data' => null,
+        ]);
+    }
+
+    private function assignRoleIfExists(User $user, string $role): void
+    {
+        $roleModel = \Spatie\Permission\Models\Role::where('name', $role)->where('guard_name', 'web')->first();
+        if ($roleModel && !$user->hasRole($role)) {
+            $user->assignRole($roleModel);
+        }
+    }
+}

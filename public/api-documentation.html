@@ -1,0 +1,1570 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PharmaPOS / Landogz POS — API Documentation</title>
+  <style>
+    :root { --bg: #0f172a; --card: #1e293b; --text: #e2e8f0; --muted: #94a3b8; --accent: #38bdf8; --get: #22c55e; --post: #eab308; --put: #f97316; --del: #ef4444; --sidebar-w: 200px; }
+    * { box-sizing: border-box; }
+    body { font-family: 'Segoe UI', system-ui, sans-serif; background: var(--bg); color: var(--text); line-height: 1.6; margin: 0; padding: 0; display: flex; min-height: 100vh; }
+    .sidebar { position: fixed; left: 0; top: 0; width: var(--sidebar-w); height: 100vh; background: var(--card); padding: 1rem 0; overflow-y: auto; border-right: 1px solid rgba(255,255,255,0.06); z-index: 10; }
+    .sidebar nav { display: flex; flex-direction: column; gap: 2px; }
+    .sidebar nav a { color: var(--muted); text-decoration: none; padding: 0.5rem 1rem; border-radius: 0; border-left: 3px solid transparent; font-size: 0.9rem; transition: color .15s, background .15s, border-color .15s; }
+    .sidebar nav a:hover { color: var(--accent); background: rgba(56,189,248,0.08); }
+    .sidebar nav a.active { color: var(--accent); background: rgba(56,189,248,0.12); border-left-color: var(--accent); font-weight: 500; }
+    .main { flex: 1; margin-left: var(--sidebar-w); padding: 1.5rem 2rem 2rem; max-width: 100%; }
+    h1 { font-size: 1.75rem; margin-bottom: 0.5rem; }
+    .subtitle { color: var(--muted); margin-bottom: 2rem; }
+    h2 { font-size: 1.25rem; margin: 2rem 0 1rem; padding-bottom: 0.5rem; border-bottom: 1px solid var(--card); }
+    .endpoint { background: var(--card); border-radius: 8px; padding: 1rem 1.25rem; margin-bottom: 1rem; }
+    .endpoint-header { display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap; margin-bottom: 0.5rem; }
+    .method { font-size: 0.7rem; font-weight: 700; padding: 0.2rem 0.5rem; border-radius: 4px; }
+    .method.get { background: var(--get); color: #0f172a; }
+    .method.post { background: var(--post); color: #0f172a; }
+    .method.put { background: var(--put); color: #0f172a; }
+    .method.delete { background: var(--del); color: #fff; }
+    .path { font-family: ui-monospace, monospace; font-size: 0.9rem; }
+    .desc { color: var(--muted); font-size: 0.9rem; margin-bottom: 0.75rem; }
+    .tabs { display: flex; gap: 2px; margin-bottom: 0.5rem; flex-wrap: wrap; }
+    .tabs button { background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1); color: var(--muted); padding: 0.35rem 0.75rem; border-radius: 4px; cursor: pointer; font-size: 0.8rem; }
+    .tabs button:hover { color: var(--text); }
+    .tabs button.active { background: var(--accent); color: var(--bg); border-color: var(--accent); }
+    .tab-panel { display: none; }
+    .tab-panel.active { display: block; }
+    pre { margin: 0; padding: 1rem; background: #0f172a; border-radius: 6px; overflow-x: auto; font-size: 0.8rem; line-height: 1.5; }
+    code { font-family: ui-monospace, monospace; }
+    .body-json { font-size: 0.8rem; color: var(--muted); margin-bottom: 0.5rem; }
+    .body-json pre { padding: 0.5rem; font-size: 0.75rem; }
+    @media (max-width: 768px) {
+      .sidebar { width: 160px; }
+      .main { margin-left: 160px; padding: 1rem; }
+    }
+    @media (max-width: 640px) {
+      body { flex-direction: column; }
+      .sidebar { position: relative; width: 100%; height: auto; max-height: 40vh; }
+      .main { margin-left: 0; padding: 1rem; }
+    }
+  </style>
+</head>
+<body>
+  <aside class="sidebar">
+    <nav>
+      <a href="#auth" class="active">Auth</a>
+      <a href="#user">User</a>
+      <a href="#dashboard">Dashboard</a>
+      <a href="#users">Users</a>
+      <a href="#products">Products</a>
+      <a href="#transactions">Transactions</a>
+      <a href="#bir-receipts">BIR & Receipts</a>
+      <a href="#reports">Reports</a>
+      <a href="#branches">Branches</a>
+      <a href="#terminals">Terminals</a>
+      <a href="#inventory">Inventory</a>
+      <a href="#pos">POS</a>
+      <a href="#sync">Sync</a>
+    </nav>
+  </aside>
+
+  <main class="main">
+  <h1>PharmaPOS / Landogz POS — API Documentation</h1>
+  <p class="subtitle">Base URL: <code>http://localhost:8000</code> · Prefix: <code>/api/v1</code> · Auth: Bearer token (from POST /auth/login)</p>
+  <p class="desc">Single-page reference with example code in <strong>cURL, Ruby, Python, PHP, Java, C# (.NET), JavaScript</strong>. Use the language tabs above each request. Replace <code>YOUR_TOKEN</code> with <code>data.token</code> from the login response.</p>
+  <p class="desc"><strong>Branch scoping:</strong> <code>super_admin</code> and <code>admin</code> see all branches (products, inventory, reports). <code>manager</code>, <code>inventory_manager</code>, and <code>cashier</code> see only their assigned branch; they must have <code>branch_id</code> set (403 otherwise). List responses include <code>branch</code> / <code>branch_id</code> where applicable for grouping.</p>
+
+  <h2 id="auth">Authentication</h2>
+
+  <div class="endpoint">
+    <div class="endpoint-header"><span class="method post">POST</span><span class="path">/auth/login</span></div>
+    <p class="desc">Login with email and password. Returns token, user, branch, permissions.</p>
+    <div class="body-json"><strong>Body (JSON):</strong><pre>{"email":"admin@demo.pharmapos.test","password":"password"}</pre></div>
+    <div class="tabs">
+      <button type="button" class="active" data-lang="curl">cURL</button>
+      <button type="button" data-lang="ruby">Ruby</button>
+      <button type="button" data-lang="python">Python</button>
+      <button type="button" data-lang="php">PHP</button>
+      <button type="button" data-lang="java">Java</button>
+      <button type="button" data-lang="csharp">C#</button>
+      <button type="button" data-lang="javascript">JavaScript</button>
+    </div>
+    <div class="tab-panel active" data-lang="curl"><pre><code>curl -X POST "http://localhost:8000/api/v1/auth/login" \
+  -H "Content-Type: application/json" \
+  -H "Accept: application/json" \
+  -d '{"email":"admin@demo.pharmapos.test","password":"password"}'</code></pre></div>
+    <div class="tab-panel" data-lang="ruby"><pre><code>require 'net/http'
+uri = URI('http://localhost:8000/api/v1/auth/login')
+req = Net::HTTP::Post.new(uri)
+req['Content-Type'] = 'application/json'
+req['Accept'] = 'application/json'
+req.body = '{"email":"admin@demo.pharmapos.test","password":"password"}'
+res = Net::HTTP.start(uri.hostname, uri.port) { |h| h.request(req) }
+puts res.body</code></pre></div>
+    <div class="tab-panel" data-lang="python"><pre><code>import requests
+r = requests.post(
+    'http://localhost:8000/api/v1/auth/login',
+    json={'email': 'admin@demo.pharmapos.test', 'password': 'password'},
+    headers={'Accept': 'application/json'}
+)
+print(r.json())</code></pre></div>
+    <div class="tab-panel" data-lang="php"><pre><code>$ch = curl_init('http://localhost:8000/api/v1/auth/login');
+curl_setopt_array($ch, [
+    CURLOPT_POST => true,
+    CURLOPT_HTTPHEADER => ['Content-Type: application/json', 'Accept: application/json'],
+    CURLOPT_POSTFIELDS => json_encode(['email' => 'admin@demo.pharmapos.test', 'password' => 'password']),
+    CURLOPT_RETURNTRANSFER => true
+]);
+$res = curl_exec($ch);
+curl_close($ch);
+print_r(json_decode($res, true));</code></pre></div>
+    <div class="tab-panel" data-lang="java"><pre><code>HttpClient client = HttpClient.newHttpClient();
+HttpRequest request = HttpRequest.newBuilder()
+    .uri(URI.create("http://localhost:8000/api/v1/auth/login"))
+    .header("Content-Type", "application/json")
+    .header("Accept", "application/json")
+    .POST(HttpRequest.BodyPublishers.ofString(
+        "{\"email\":\"admin@demo.pharmapos.test\",\"password\":\"password\"}"))
+    .build();
+HttpResponse&lt;String&gt; response = client.send(request, HttpResponse.BodyHandlers.ofString());
+System.out.println(response.body());</code></pre></div>
+    <div class="tab-panel" data-lang="csharp"><pre><code>using var client = new HttpClient();
+var body = new { email = "admin@demo.pharmapos.test", password = "password" };
+var content = new StringContent(
+    System.Text.Json.JsonSerializer.Serialize(body),
+    Encoding.UTF8, "application/json");
+client.DefaultRequestHeaders.Accept.Add(
+    new MediaTypeWithQualityHeaderValue("application/json"));
+var response = await client.PostAsync(
+    "http://localhost:8000/api/v1/auth/login", content);
+Console.WriteLine(await response.Content.ReadAsStringAsync());</code></pre></div>
+    <div class="tab-panel" data-lang="javascript"><pre><code>const res = await fetch('http://localhost:8000/api/v1/auth/login', {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+  body: JSON.stringify({ email: 'admin@demo.pharmapos.test', password: 'password' })
+});
+const data = await res.json();
+console.log(data);</code></pre></div>
+  </div>
+
+  <div class="endpoint">
+    <div class="endpoint-header"><span class="method post">POST</span><span class="path">/auth/login-pin</span></div>
+    <p class="desc">Cashier quick login: branch_id + 4-digit PIN.</p>
+    <div class="body-json"><strong>Body:</strong><pre>{"branch_id":1,"pin":"1234"}</pre></div>
+    <div class="tabs">
+      <button type="button" class="active" data-lang="curl">cURL</button>
+      <button type="button" data-lang="ruby">Ruby</button>
+      <button type="button" data-lang="python">Python</button>
+      <button type="button" data-lang="php">PHP</button>
+      <button type="button" data-lang="java">Java</button>
+      <button type="button" data-lang="csharp">C#</button>
+      <button type="button" data-lang="javascript">JavaScript</button>
+    </div>
+    <div class="tab-panel active" data-lang="curl"><pre><code>curl -X POST "http://localhost:8000/api/v1/auth/login-pin" \
+  -H "Content-Type: application/json" -H "Accept: application/json" \
+  -d '{"branch_id":1,"pin":"1234"}'</code></pre></div>
+    <div class="tab-panel" data-lang="ruby"><pre><code>require 'net/http'
+uri = URI('http://localhost:8000/api/v1/auth/login-pin')
+req = Net::HTTP::Post.new(uri)
+req['Content-Type'] = 'application/json'
+req['Accept'] = 'application/json'
+req.body = '{"branch_id":1,"pin":"1234"}'
+res = Net::HTTP.start(uri.hostname, uri.port) { |h| h.request(req) }
+puts res.body</code></pre></div>
+    <div class="tab-panel" data-lang="python"><pre><code>import requests
+r = requests.post('http://localhost:8000/api/v1/auth/login-pin',
+    json={'branch_id': 1, 'pin': '1234'},
+    headers={'Accept': 'application/json'})
+print(r.json())</code></pre></div>
+    <div class="tab-panel" data-lang="php"><pre><code>$ch = curl_init('http://localhost:8000/api/v1/auth/login-pin');
+curl_setopt_array($ch, [
+    CURLOPT_POST => true,
+    CURLOPT_HTTPHEADER => ['Content-Type: application/json', 'Accept: application/json'],
+    CURLOPT_POSTFIELDS => json_encode(['branch_id' => 1, 'pin' => '1234']),
+    CURLOPT_RETURNTRANSFER => true
+]);
+$res = curl_exec($ch);
+curl_close($ch);
+print_r(json_decode($res, true));</code></pre></div>
+    <div class="tab-panel" data-lang="java"><pre><code>HttpClient client = HttpClient.newHttpClient();
+HttpRequest request = HttpRequest.newBuilder()
+    .uri(URI.create("http://localhost:8000/api/v1/auth/login-pin"))
+    .header("Content-Type", "application/json")
+    .header("Accept", "application/json")
+    .POST(HttpRequest.BodyPublishers.ofString("{\"branch_id\":1,\"pin\":\"1234\"}"))
+    .build();
+HttpResponse&lt;String&gt; response = client.send(request, HttpResponse.BodyHandlers.ofString());
+System.out.println(response.body());</code></pre></div>
+    <div class="tab-panel" data-lang="csharp"><pre><code>using var client = new HttpClient();
+var body = new { branch_id = 1, pin = "1234" };
+var content = new StringContent(
+    System.Text.Json.JsonSerializer.Serialize(body),
+    Encoding.UTF8, "application/json");
+client.DefaultRequestHeaders.Accept.Add(
+    new MediaTypeWithQualityHeaderValue("application/json"));
+var response = await client.PostAsync(
+    "http://localhost:8000/api/v1/auth/login-pin", content);
+Console.WriteLine(await response.Content.ReadAsStringAsync());</code></pre></div>
+    <div class="tab-panel" data-lang="javascript"><pre><code>const res = await fetch('http://localhost:8000/api/v1/auth/login-pin', {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+  body: JSON.stringify({ branch_id: 1, pin: '1234' })
+});
+const data = await res.json();
+console.log(data);</code></pre></div>
+  </div>
+
+  <div class="endpoint">
+    <div class="endpoint-header"><span class="method get">GET</span><span class="path">/auth/me</span></div>
+    <p class="desc">Current user, branch, permissions. Requires Bearer token.</p>
+    <div class="tabs">
+      <button type="button" class="active" data-lang="curl">cURL</button>
+      <button type="button" data-lang="ruby">Ruby</button>
+      <button type="button" data-lang="python">Python</button>
+      <button type="button" data-lang="php">PHP</button>
+      <button type="button" data-lang="java">Java</button>
+      <button type="button" data-lang="csharp">C#</button>
+      <button type="button" data-lang="javascript">JavaScript</button>
+    </div>
+    <div class="tab-panel active" data-lang="curl"><pre><code>curl -X GET "http://localhost:8000/api/v1/auth/me" \
+  -H "Authorization: Bearer YOUR_TOKEN" -H "Accept: application/json"</code></pre></div>
+    <div class="tab-panel" data-lang="ruby"><pre><code>require 'net/http'
+uri = URI('http://localhost:8000/api/v1/auth/me')
+req = Net::HTTP::Get.new(uri)
+req['Authorization'] = 'Bearer YOUR_TOKEN'
+req['Accept'] = 'application/json'
+res = Net::HTTP.start(uri.hostname, uri.port) { |h| h.request(req) }
+puts res.body</code></pre></div>
+    <div class="tab-panel" data-lang="python"><pre><code>import requests
+r = requests.get('http://localhost:8000/api/v1/auth/me',
+    headers={'Authorization': 'Bearer YOUR_TOKEN', 'Accept': 'application/json'})
+print(r.json())</code></pre></div>
+    <div class="tab-panel" data-lang="php"><pre><code>$ch = curl_init('http://localhost:8000/api/v1/auth/me');
+curl_setopt_array($ch, [
+    CURLOPT_HTTPHEADER => ['Authorization: Bearer YOUR_TOKEN', 'Accept: application/json'],
+    CURLOPT_RETURNTRANSFER => true
+]);
+$res = curl_exec($ch);
+curl_close($ch);
+print_r(json_decode($res, true));</code></pre></div>
+    <div class="tab-panel" data-lang="java"><pre><code>HttpClient client = HttpClient.newHttpClient();
+HttpRequest request = HttpRequest.newBuilder()
+    .uri(URI.create("http://localhost:8000/api/v1/auth/me"))
+    .header("Authorization", "Bearer YOUR_TOKEN")
+    .header("Accept", "application/json")
+    .GET().build();
+HttpResponse&lt;String&gt; response = client.send(request, HttpResponse.BodyHandlers.ofString());
+System.out.println(response.body());</code></pre></div>
+    <div class="tab-panel" data-lang="csharp"><pre><code>using var client = new HttpClient();
+client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", "YOUR_TOKEN");
+client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+var response = await client.GetAsync("http://localhost:8000/api/v1/auth/me");
+Console.WriteLine(await response.Content.ReadAsStringAsync());</code></pre></div>
+    <div class="tab-panel" data-lang="javascript"><pre><code>const res = await fetch('http://localhost:8000/api/v1/auth/me', {
+  headers: { 'Authorization': 'Bearer YOUR_TOKEN', 'Accept': 'application/json' }
+});
+const data = await res.json();
+console.log(data);</code></pre></div>
+  </div>
+
+  <div class="endpoint">
+    <div class="endpoint-header"><span class="method post">POST</span><span class="path">/auth/logout</span></div>
+    <p class="desc">Revoke current token. Requires Bearer token.</p>
+    <div class="tabs">
+      <button type="button" class="active" data-lang="curl">cURL</button>
+      <button type="button" data-lang="ruby">Ruby</button>
+      <button type="button" data-lang="python">Python</button>
+      <button type="button" data-lang="php">PHP</button>
+      <button type="button" data-lang="java">Java</button>
+      <button type="button" data-lang="csharp">C#</button>
+      <button type="button" data-lang="javascript">JavaScript</button>
+    </div>
+    <div class="tab-panel active" data-lang="curl"><pre><code>curl -X POST "http://localhost:8000/api/v1/auth/logout" \
+  -H "Authorization: Bearer YOUR_TOKEN" -H "Accept: application/json"</code></pre></div>
+    <div class="tab-panel" data-lang="ruby"><pre><code>require 'net/http'
+uri = URI('http://localhost:8000/api/v1/auth/logout')
+req = Net::HTTP::Post.new(uri)
+req['Authorization'] = 'Bearer YOUR_TOKEN'
+req['Accept'] = 'application/json'
+res = Net::HTTP.start(uri.hostname, uri.port) { |h| h.request(req) }
+puts res.body</code></pre></div>
+    <div class="tab-panel" data-lang="python"><pre><code>import requests
+r = requests.post('http://localhost:8000/api/v1/auth/logout',
+    headers={'Authorization': 'Bearer YOUR_TOKEN', 'Accept': 'application/json'})
+print(r.status_code, r.json())</code></pre></div>
+    <div class="tab-panel" data-lang="php"><pre><code>$ch = curl_init('http://localhost:8000/api/v1/auth/logout');
+curl_setopt_array($ch, [
+    CURLOPT_POST => true,
+    CURLOPT_HTTPHEADER => ['Authorization: Bearer YOUR_TOKEN', 'Accept: application/json'],
+    CURLOPT_RETURNTRANSFER => true
+]);
+$res = curl_exec($ch);
+curl_close($ch);
+print_r(json_decode($res, true));</code></pre></div>
+    <div class="tab-panel" data-lang="java"><pre><code>HttpClient client = HttpClient.newHttpClient();
+HttpRequest request = HttpRequest.newBuilder()
+    .uri(URI.create("http://localhost:8000/api/v1/auth/logout"))
+    .header("Authorization", "Bearer YOUR_TOKEN")
+    .header("Accept", "application/json")
+    .POST(HttpRequest.BodyPublishers.noBody())
+    .build();
+HttpResponse&lt;String&gt; response = client.send(request, HttpResponse.BodyHandlers.ofString());
+System.out.println(response.body());</code></pre></div>
+    <div class="tab-panel" data-lang="csharp"><pre><code>using var client = new HttpClient();
+client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", "YOUR_TOKEN");
+client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+var response = await client.PostAsync("http://localhost:8000/api/v1/auth/logout", null);
+Console.WriteLine(await response.Content.ReadAsStringAsync());</code></pre></div>
+    <div class="tab-panel" data-lang="javascript"><pre><code>const res = await fetch('http://localhost:8000/api/v1/auth/logout', {
+  method: 'POST',
+  headers: { 'Authorization': 'Bearer YOUR_TOKEN', 'Accept': 'application/json' }
+});
+const data = await res.json();
+console.log(data);</code></pre></div>
+  </div>
+
+  <h2 id="user">User</h2>
+  <div class="endpoint">
+    <div class="endpoint-header"><span class="method get">GET</span><span class="path">/user</span></div>
+    <p class="desc">Current user with branch and company. Requires Bearer token.</p>
+    <div class="tabs">
+      <button type="button" class="active" data-lang="curl">cURL</button>
+      <button type="button" data-lang="ruby">Ruby</button>
+      <button type="button" data-lang="python">Python</button>
+      <button type="button" data-lang="php">PHP</button>
+      <button type="button" data-lang="java">Java</button>
+      <button type="button" data-lang="csharp">C#</button>
+      <button type="button" data-lang="javascript">JavaScript</button>
+    </div>
+    <div class="tab-panel active" data-lang="curl"><pre><code>curl -X GET "http://localhost:8000/api/v1/user" \
+  -H "Authorization: Bearer YOUR_TOKEN" -H "Accept: application/json"</code></pre></div>
+    <div class="tab-panel" data-lang="ruby"><pre><code>require 'net/http'
+uri = URI('http://localhost:8000/api/v1/user')
+req = Net::HTTP::Get.new(uri)
+req['Authorization'] = 'Bearer YOUR_TOKEN'
+req['Accept'] = 'application/json'
+res = Net::HTTP.start(uri.hostname, uri.port) { |h| h.request(req) }
+puts res.body</code></pre></div>
+    <div class="tab-panel" data-lang="python"><pre><code>import requests
+r = requests.get('http://localhost:8000/api/v1/user',
+    headers={'Authorization': 'Bearer YOUR_TOKEN', 'Accept': 'application/json'})
+print(r.json())</code></pre></div>
+    <div class="tab-panel" data-lang="php"><pre><code>$ch = curl_init('http://localhost:8000/api/v1/user');
+curl_setopt_array($ch, [
+    CURLOPT_HTTPHEADER => ['Authorization: Bearer YOUR_TOKEN', 'Accept: application/json'],
+    CURLOPT_RETURNTRANSFER => true
+]);
+$res = curl_exec($ch);
+curl_close($ch);
+print_r(json_decode($res, true));</code></pre></div>
+    <div class="tab-panel" data-lang="java"><pre><code>HttpClient client = HttpClient.newHttpClient();
+HttpRequest request = HttpRequest.newBuilder()
+    .uri(URI.create("http://localhost:8000/api/v1/user"))
+    .header("Authorization", "Bearer YOUR_TOKEN")
+    .header("Accept", "application/json")
+    .GET().build();
+HttpResponse&lt;String&gt; response = client.send(request, HttpResponse.BodyHandlers.ofString());
+System.out.println(response.body());</code></pre></div>
+    <div class="tab-panel" data-lang="csharp"><pre><code>using var client = new HttpClient();
+client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", "YOUR_TOKEN");
+client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+var response = await client.GetAsync("http://localhost:8000/api/v1/user");
+Console.WriteLine(await response.Content.ReadAsStringAsync());</code></pre></div>
+    <div class="tab-panel" data-lang="javascript"><pre><code>const res = await fetch('http://localhost:8000/api/v1/user', {
+  headers: { 'Authorization': 'Bearer YOUR_TOKEN', 'Accept': 'application/json' }
+});
+const data = await res.json();
+console.log(data);</code></pre></div>
+  </div>
+
+  <h2 id="dashboard">Dashboard</h2>
+  <div class="endpoint">
+    <div class="endpoint-header"><span class="method get">GET</span><span class="path">/dashboard/summary</span></div>
+    <p class="desc">Sales today, transaction count, low-stock and expiring counts. Auth required.</p>
+    <div class="tabs">
+      <button type="button" class="active" data-lang="curl">cURL</button>
+      <button type="button" data-lang="ruby">Ruby</button>
+      <button type="button" data-lang="python">Python</button>
+      <button type="button" data-lang="php">PHP</button>
+      <button type="button" data-lang="java">Java</button>
+      <button type="button" data-lang="csharp">C#</button>
+      <button type="button" data-lang="javascript">JavaScript</button>
+    </div>
+    <div class="tab-panel active" data-lang="curl"><pre><code>curl -X GET "http://localhost:8000/api/v1/dashboard/summary" \
+  -H "Authorization: Bearer YOUR_TOKEN" -H "Accept: application/json"</code></pre></div>
+    <div class="tab-panel" data-lang="ruby"><pre><code>require 'net/http'
+uri = URI('http://localhost:8000/api/v1/dashboard/summary')
+req = Net::HTTP::Get.new(uri)
+req['Authorization'] = 'Bearer YOUR_TOKEN'
+req['Accept'] = 'application/json'
+res = Net::HTTP.start(uri.hostname, uri.port) { |h| h.request(req) }
+puts res.body</code></pre></div>
+    <div class="tab-panel" data-lang="python"><pre><code>import requests
+r = requests.get('http://localhost:8000/api/v1/dashboard/summary',
+    headers={'Authorization': 'Bearer YOUR_TOKEN', 'Accept': 'application/json'})
+print(r.json())</code></pre></div>
+    <div class="tab-panel" data-lang="php"><pre><code>$ch = curl_init('http://localhost:8000/api/v1/dashboard/summary');
+curl_setopt_array($ch, [
+    CURLOPT_HTTPHEADER => ['Authorization: Bearer YOUR_TOKEN', 'Accept: application/json'],
+    CURLOPT_RETURNTRANSFER => true
+]);
+$res = curl_exec($ch);
+curl_close($ch);
+print_r(json_decode($res, true));</code></pre></div>
+    <div class="tab-panel" data-lang="java"><pre><code>HttpClient client = HttpClient.newHttpClient();
+HttpRequest request = HttpRequest.newBuilder()
+    .uri(URI.create("http://localhost:8000/api/v1/dashboard/summary"))
+    .header("Authorization", "Bearer YOUR_TOKEN")
+    .header("Accept", "application/json")
+    .GET().build();
+HttpResponse&lt;String&gt; response = client.send(request, HttpResponse.BodyHandlers.ofString());
+System.out.println(response.body());</code></pre></div>
+    <div class="tab-panel" data-lang="csharp"><pre><code>using var client = new HttpClient();
+client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", "YOUR_TOKEN");
+client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+var response = await client.GetAsync("http://localhost:8000/api/v1/dashboard/summary");
+Console.WriteLine(await response.Content.ReadAsStringAsync());</code></pre></div>
+    <div class="tab-panel" data-lang="javascript"><pre><code>const res = await fetch('http://localhost:8000/api/v1/dashboard/summary', {
+  headers: { 'Authorization': 'Bearer YOUR_TOKEN', 'Accept': 'application/json' }
+});
+const data = await res.json();
+console.log(data);</code></pre></div>
+  </div>
+  <p class="desc">Other dashboard endpoints: <code>GET /dashboard/sales-today</code>, <code>/dashboard/low-stock-alerts</code>, <code>/dashboard/expiring-soon?days=30</code>, <code>/dashboard/branch-overview</code>. Same headers.</p>
+
+  <h2 id="users">Users</h2>
+  <div class="endpoint">
+    <div class="endpoint-header"><span class="method get">GET</span><span class="path">/users</span></div>
+    <p class="desc">List users. Query: per_page, page, branch_id, role, search, sort_by, sort_dir.</p>
+    <div class="tabs">
+      <button type="button" class="active" data-lang="curl">cURL</button>
+      <button type="button" data-lang="ruby">Ruby</button>
+      <button type="button" data-lang="python">Python</button>
+      <button type="button" data-lang="php">PHP</button>
+      <button type="button" data-lang="java">Java</button>
+      <button type="button" data-lang="csharp">C#</button>
+      <button type="button" data-lang="javascript">JavaScript</button>
+    </div>
+    <div class="tab-panel active" data-lang="curl"><pre><code>curl -X GET "http://localhost:8000/api/v1/users?per_page=15&page=1&branch_id=1&role=cashier" \
+  -H "Authorization: Bearer YOUR_TOKEN" -H "Accept: application/json"</code></pre></div>
+    <div class="tab-panel" data-lang="ruby"><pre><code>uri = URI('http://localhost:8000/api/v1/users?per_page=15&page=1&branch_id=1&role=cashier')
+req = Net::HTTP::Get.new(uri)
+req['Authorization'] = 'Bearer YOUR_TOKEN'
+req['Accept'] = 'application/json'
+res = Net::HTTP.start(uri.hostname, uri.port) { |h| h.request(req) }
+puts res.body</code></pre></div>
+    <div class="tab-panel" data-lang="python"><pre><code>r = requests.get('http://localhost:8000/api/v1/users',
+    params={'per_page': 15, 'page': 1, 'branch_id': 1, 'role': 'cashier'},
+    headers={'Authorization': 'Bearer YOUR_TOKEN', 'Accept': 'application/json'})
+print(r.json())</code></pre></div>
+    <div class="tab-panel" data-lang="php"><pre><code>$ch = curl_init('http://localhost:8000/api/v1/users?per_page=15&page=1&branch_id=1&role=cashier');
+curl_setopt_array($ch, [
+    CURLOPT_HTTPHEADER => ['Authorization: Bearer YOUR_TOKEN', 'Accept: application/json'],
+    CURLOPT_RETURNTRANSFER => true
+]);
+$res = curl_exec($ch);
+curl_close($ch);
+print_r(json_decode($res, true));</code></pre></div>
+    <div class="tab-panel" data-lang="java"><pre><code>HttpRequest request = HttpRequest.newBuilder()
+    .uri(URI.create("http://localhost:8000/api/v1/users?per_page=15&page=1&branch_id=1&role=cashier"))
+    .header("Authorization", "Bearer YOUR_TOKEN")
+    .header("Accept", "application/json")
+    .GET().build();
+HttpResponse&lt;String&gt; response = client.send(request, HttpResponse.BodyHandlers.ofString());
+System.out.println(response.body());</code></pre></div>
+    <div class="tab-panel" data-lang="csharp"><pre><code>var response = await client.GetAsync("http://localhost:8000/api/v1/users?per_page=15&page=1&branch_id=1&role=cashier");
+Console.WriteLine(await response.Content.ReadAsStringAsync());</code></pre></div>
+    <div class="tab-panel" data-lang="javascript"><pre><code>const res = await fetch('http://localhost:8000/api/v1/users?per_page=15&page=1&branch_id=1&role=cashier', {
+  headers: { 'Authorization': 'Bearer YOUR_TOKEN', 'Accept': 'application/json' }
+});
+const data = await res.json();
+console.log(data);</code></pre></div>
+  </div>
+  <div class="endpoint">
+    <div class="endpoint-header"><span class="method post">POST</span><span class="path">/users</span></div>
+    <p class="desc">Create user. Manager can only create cashier or inventory_manager for their branch.</p>
+    <div class="body-json"><strong>Body:</strong><pre>{"branch_id":1,"name":"New Cashier","email":"new@demo.test","password":"password123","password_confirmation":"password123","role":"cashier","pin":"5678","is_active":true}</pre></div>
+    <div class="tabs">
+      <button type="button" class="active" data-lang="curl">cURL</button>
+      <button type="button" data-lang="ruby">Ruby</button>
+      <button type="button" data-lang="python">Python</button>
+      <button type="button" data-lang="php">PHP</button>
+      <button type="button" data-lang="java">Java</button>
+      <button type="button" data-lang="csharp">C#</button>
+      <button type="button" data-lang="javascript">JavaScript</button>
+    </div>
+    <div class="tab-panel active" data-lang="curl"><pre><code>curl -X POST "http://localhost:8000/api/v1/users" \
+  -H "Authorization: Bearer YOUR_TOKEN" -H "Content-Type: application/json" -H "Accept: application/json" \
+  -d '{"branch_id":1,"name":"New Cashier","email":"new@demo.test","password":"password123","password_confirmation":"password123","role":"cashier","is_active":true}'</code></pre></div>
+    <div class="tab-panel" data-lang="ruby"><pre><code>uri = URI('http://localhost:8000/api/v1/users')
+req = Net::HTTP::Post.new(uri)
+req['Authorization'] = 'Bearer YOUR_TOKEN'
+req['Content-Type'] = 'application/json'
+req['Accept'] = 'application/json'
+req.body = '{"branch_id":1,"name":"New Cashier","email":"new@demo.test","password":"password123","password_confirmation":"password123","role":"cashier","is_active":true}'
+res = Net::HTTP.start(uri.hostname, uri.port) { |h| h.request(req) }
+puts res.body</code></pre></div>
+    <div class="tab-panel" data-lang="python"><pre><code>r = requests.post('http://localhost:8000/api/v1/users',
+    json={'branch_id': 1, 'name': 'New Cashier', 'email': 'new@demo.test', 'password': 'password123',
+          'password_confirmation': 'password123', 'role': 'cashier', 'is_active': True},
+    headers={'Authorization': 'Bearer YOUR_TOKEN', 'Content-Type': 'application/json', 'Accept': 'application/json'})
+print(r.json())</code></pre></div>
+    <div class="tab-panel" data-lang="php"><pre><code>$ch = curl_init('http://localhost:8000/api/v1/users');
+curl_setopt_array($ch, [
+    CURLOPT_POST => true,
+    CURLOPT_HTTPHEADER => ['Authorization: Bearer YOUR_TOKEN', 'Content-Type: application/json', 'Accept: application/json'],
+    CURLOPT_POSTFIELDS => json_encode(['branch_id' => 1, 'name' => 'New Cashier', 'email' => 'new@demo.test', 'password' => 'password123', 'password_confirmation' => 'password123', 'role' => 'cashier', 'is_active' => true]),
+    CURLOPT_RETURNTRANSFER => true
+]);
+$res = curl_exec($ch);
+curl_close($ch);
+print_r(json_decode($res, true));</code></pre></div>
+    <div class="tab-panel" data-lang="java"><pre><code>HttpRequest request = HttpRequest.newBuilder()
+    .uri(URI.create("http://localhost:8000/api/v1/users"))
+    .header("Authorization", "Bearer YOUR_TOKEN")
+    .header("Content-Type", "application/json")
+    .header("Accept", "application/json")
+    .POST(HttpRequest.BodyPublishers.ofString("{\"branch_id\":1,\"name\":\"New Cashier\",\"email\":\"new@demo.test\",\"password\":\"password123\",\"password_confirmation\":\"password123\",\"role\":\"cashier\",\"is_active\":true}"))
+    .build();
+HttpResponse&lt;String&gt; response = client.send(request, HttpResponse.BodyHandlers.ofString());
+System.out.println(response.body());</code></pre></div>
+    <div class="tab-panel" data-lang="csharp"><pre><code>var body = new { branch_id = 1, name = "New Cashier", email = "new@demo.test", password = "password123", password_confirmation = "password123", role = "cashier", is_active = true };
+var content = new StringContent(System.Text.Json.JsonSerializer.Serialize(body), Encoding.UTF8, "application/json");
+client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", "YOUR_TOKEN");
+var response = await client.PostAsync("http://localhost:8000/api/v1/users", content);
+Console.WriteLine(await response.Content.ReadAsStringAsync());</code></pre></div>
+    <div class="tab-panel" data-lang="javascript"><pre><code>const res = await fetch('http://localhost:8000/api/v1/users', {
+  method: 'POST',
+  headers: { 'Authorization': 'Bearer YOUR_TOKEN', 'Content-Type': 'application/json', 'Accept': 'application/json' },
+  body: JSON.stringify({ branch_id: 1, name: 'New Cashier', email: 'new@demo.test', password: 'password123', password_confirmation: 'password123', role: 'cashier', is_active: true })
+});
+const data = await res.json();
+console.log(data);</code></pre></div>
+  </div>
+  <p class="desc"><code>GET /users/{id}</code>, <code>PUT /users/{id}</code>, <code>DELETE /users/{id}</code> — same auth headers.</p>
+
+  <h2 id="products">Products</h2>
+  <p class="desc">Super admin and admin see all branches; manager, inventory_manager, and cashier see only their assigned branch. Responses may include <code>branch</code> / <code>branch_id</code> for grouping.</p>
+  <div class="endpoint">
+    <div class="endpoint-header"><span class="method get">GET</span><span class="path">/products</span></div>
+    <p class="desc">List products. Query: per_page, page, branch_id.</p>
+    <div class="tabs">
+      <button type="button" class="active" data-lang="curl">cURL</button>
+      <button type="button" data-lang="ruby">Ruby</button>
+      <button type="button" data-lang="python">Python</button>
+      <button type="button" data-lang="php">PHP</button>
+      <button type="button" data-lang="java">Java</button>
+      <button type="button" data-lang="csharp">C#</button>
+      <button type="button" data-lang="javascript">JavaScript</button>
+    </div>
+    <div class="tab-panel active" data-lang="curl"><pre><code>curl -X GET "http://localhost:8000/api/v1/products?per_page=15&branch_id=1" \
+  -H "Authorization: Bearer YOUR_TOKEN" -H "Accept: application/json"</code></pre></div>
+    <div class="tab-panel" data-lang="ruby"><pre><code>uri = URI('http://localhost:8000/api/v1/products?per_page=15&branch_id=1')
+req = Net::HTTP::Get.new(uri)
+req['Authorization'] = 'Bearer YOUR_TOKEN'
+req['Accept'] = 'application/json'
+res = Net::HTTP.start(uri.hostname, uri.port) { |h| h.request(req) }
+puts res.body</code></pre></div>
+    <div class="tab-panel" data-lang="python"><pre><code>r = requests.get('http://localhost:8000/api/v1/products', params={'per_page': 15, 'branch_id': 1},
+    headers={'Authorization': 'Bearer YOUR_TOKEN', 'Accept': 'application/json'})
+print(r.json())</code></pre></div>
+    <div class="tab-panel" data-lang="php"><pre><code>$ch = curl_init('http://localhost:8000/api/v1/products?per_page=15&branch_id=1');
+curl_setopt_array($ch, [CURLOPT_HTTPHEADER => ['Authorization: Bearer YOUR_TOKEN', 'Accept: application/json'], CURLOPT_RETURNTRANSFER => true]);
+$res = curl_exec($ch); curl_close($ch);
+print_r(json_decode($res, true));</code></pre></div>
+    <div class="tab-panel" data-lang="java"><pre><code>HttpRequest request = HttpRequest.newBuilder()
+    .uri(URI.create("http://localhost:8000/api/v1/products?per_page=15&branch_id=1"))
+    .header("Authorization", "Bearer YOUR_TOKEN").header("Accept", "application/json")
+    .GET().build();
+HttpResponse&lt;String&gt; response = client.send(request, HttpResponse.BodyHandlers.ofString());
+System.out.println(response.body());</code></pre></div>
+    <div class="tab-panel" data-lang="csharp"><pre><code>var response = await client.GetAsync("http://localhost:8000/api/v1/products?per_page=15&branch_id=1");
+Console.WriteLine(await response.Content.ReadAsStringAsync());</code></pre></div>
+    <div class="tab-panel" data-lang="javascript"><pre><code>const res = await fetch('http://localhost:8000/api/v1/products?per_page=15&branch_id=1', {
+  headers: { 'Authorization': 'Bearer YOUR_TOKEN', 'Accept': 'application/json' }
+});
+console.log(await res.json());</code></pre></div>
+  </div>
+  <div class="endpoint">
+    <div class="endpoint-header"><span class="method get">GET</span><span class="path">/products/{id}</span></div>
+    <p class="desc">Get one product. Branch-scoped users can only view products in their branch.</p>
+    <div class="tabs">
+      <button type="button" class="active" data-lang="curl">cURL</button>
+      <button type="button" data-lang="ruby">Ruby</button>
+      <button type="button" data-lang="python">Python</button>
+      <button type="button" data-lang="php">PHP</button>
+      <button type="button" data-lang="java">Java</button>
+      <button type="button" data-lang="csharp">C#</button>
+      <button type="button" data-lang="javascript">JavaScript</button>
+    </div>
+    <div class="tab-panel active" data-lang="curl"><pre><code>curl -X GET "http://localhost:8000/api/v1/products/1" \
+  -H "Authorization: Bearer YOUR_TOKEN" -H "Accept: application/json"</code></pre></div>
+    <div class="tab-panel" data-lang="ruby"><pre><code>uri = URI('http://localhost:8000/api/v1/products/1')
+req = Net::HTTP::Get.new(uri)
+req['Authorization'] = 'Bearer YOUR_TOKEN'
+req['Accept'] = 'application/json'
+res = Net::HTTP.start(uri.hostname, uri.port) { |h| h.request(req) }
+puts res.body</code></pre></div>
+    <div class="tab-panel" data-lang="python"><pre><code>r = requests.get('http://localhost:8000/api/v1/products/1',
+    headers={'Authorization': 'Bearer YOUR_TOKEN', 'Accept': 'application/json'})
+print(r.json())</code></pre></div>
+    <div class="tab-panel" data-lang="php"><pre><code>$ch = curl_init('http://localhost:8000/api/v1/products/1');
+curl_setopt_array($ch, [CURLOPT_HTTPHEADER => ['Authorization: Bearer YOUR_TOKEN', 'Accept: application/json'], CURLOPT_RETURNTRANSFER => true]);
+$res = curl_exec($ch); curl_close($ch);
+print_r(json_decode($res, true));</code></pre></div>
+    <div class="tab-panel" data-lang="java"><pre><code>HttpRequest request = HttpRequest.newBuilder()
+    .uri(URI.create("http://localhost:8000/api/v1/products/1"))
+    .header("Authorization", "Bearer YOUR_TOKEN").header("Accept", "application/json")
+    .GET().build();
+HttpResponse&lt;String&gt; response = client.send(request, HttpResponse.BodyHandlers.ofString());
+System.out.println(response.body());</code></pre></div>
+    <div class="tab-panel" data-lang="csharp"><pre><code>var response = await client.GetAsync("http://localhost:8000/api/v1/products/1");
+Console.WriteLine(await response.Content.ReadAsStringAsync());</code></pre></div>
+    <div class="tab-panel" data-lang="javascript"><pre><code>const res = await fetch('http://localhost:8000/api/v1/products/1', {
+  headers: { 'Authorization': 'Bearer YOUR_TOKEN', 'Accept': 'application/json' }
+});
+console.log(await res.json());</code></pre></div>
+  </div>
+
+  <h2 id="transactions">Transactions</h2>
+  <p class="desc"><code>GET /transactions?per_page=15&page=1&branch_id=1</code>, <code>GET /transactions/{id}</code>. Auth headers required.</p>
+
+  <h2 id="bir-receipts">BIR & Receipts</h2>
+  <div class="endpoint">
+    <div class="endpoint-header"><span class="method get">GET</span><span class="path">/bir/settings</span></div>
+    <p class="desc">Get BIR settings. Query: branch_id.</p>
+    <div class="tabs">
+      <button type="button" class="active" data-lang="curl">cURL</button>
+      <button type="button" data-lang="ruby">Ruby</button>
+      <button type="button" data-lang="python">Python</button>
+      <button type="button" data-lang="php">PHP</button>
+      <button type="button" data-lang="java">Java</button>
+      <button type="button" data-lang="csharp">C#</button>
+      <button type="button" data-lang="javascript">JavaScript</button>
+    </div>
+    <div class="tab-panel active" data-lang="curl"><pre><code>curl -X GET "http://localhost:8000/api/v1/bir/settings?branch_id=1" \
+  -H "Authorization: Bearer YOUR_TOKEN" -H "Accept: application/json"</code></pre></div>
+    <div class="tab-panel" data-lang="ruby"><pre><code>uri = URI('http://localhost:8000/api/v1/bir/settings?branch_id=1')
+req = Net::HTTP::Get.new(uri)
+req['Authorization'] = 'Bearer YOUR_TOKEN'
+req['Accept'] = 'application/json'
+res = Net::HTTP.start(uri.hostname, uri.port) { |h| h.request(req) }
+puts res.body</code></pre></div>
+    <div class="tab-panel" data-lang="python"><pre><code>r = requests.get('http://localhost:8000/api/v1/bir/settings', params={'branch_id': 1},
+    headers={'Authorization': 'Bearer YOUR_TOKEN', 'Accept': 'application/json'})
+print(r.json())</code></pre></div>
+    <div class="tab-panel" data-lang="php"><pre><code>$ch = curl_init('http://localhost:8000/api/v1/bir/settings?branch_id=1');
+curl_setopt_array($ch, [CURLOPT_HTTPHEADER => ['Authorization: Bearer YOUR_TOKEN', 'Accept: application/json'], CURLOPT_RETURNTRANSFER => true]);
+$res = curl_exec($ch); curl_close($ch);
+print_r(json_decode($res, true));</code></pre></div>
+    <div class="tab-panel" data-lang="java"><pre><code>HttpRequest request = HttpRequest.newBuilder()
+    .uri(URI.create("http://localhost:8000/api/v1/bir/settings?branch_id=1"))
+    .header("Authorization", "Bearer YOUR_TOKEN").header("Accept", "application/json")
+    .GET().build();
+HttpResponse&lt;String&gt; response = client.send(request, HttpResponse.BodyHandlers.ofString());
+System.out.println(response.body());</code></pre></div>
+    <div class="tab-panel" data-lang="csharp"><pre><code>var response = await client.GetAsync("http://localhost:8000/api/v1/bir/settings?branch_id=1");
+Console.WriteLine(await response.Content.ReadAsStringAsync());</code></pre></div>
+    <div class="tab-panel" data-lang="javascript"><pre><code>const res = await fetch('http://localhost:8000/api/v1/bir/settings?branch_id=1', {
+  headers: { 'Authorization': 'Bearer YOUR_TOKEN', 'Accept': 'application/json' }
+});
+console.log(await res.json());</code></pre></div>
+  </div>
+  <div class="endpoint">
+    <div class="endpoint-header"><span class="method put">PUT</span><span class="path">/bir/settings</span></div>
+    <p class="desc">Update BIR settings. Body: branch_id, tin, accreditation_number, series_start, series_end, valid_from, valid_until, footer_text.</p>
+    <div class="tabs">
+      <button type="button" class="active" data-lang="curl">cURL</button>
+      <button type="button" data-lang="ruby">Ruby</button>
+      <button type="button" data-lang="python">Python</button>
+      <button type="button" data-lang="php">PHP</button>
+      <button type="button" data-lang="java">Java</button>
+      <button type="button" data-lang="csharp">C#</button>
+      <button type="button" data-lang="javascript">JavaScript</button>
+    </div>
+    <div class="tab-panel active" data-lang="curl"><pre><code>curl -X PUT "http://localhost:8000/api/v1/bir/settings" \
+  -H "Authorization: Bearer YOUR_TOKEN" -H "Content-Type: application/json" \
+  -d '{"branch_id":1,"tin":"123-456-789-000","accreditation_number":"BIR-ACC-001","series_start":"0001","series_end":"0999"}'</code></pre></div>
+    <div class="tab-panel" data-lang="ruby"><pre><code>uri = URI('http://localhost:8000/api/v1/bir/settings')
+req = Net::HTTP::Put.new(uri)
+req['Authorization'] = 'Bearer YOUR_TOKEN'
+req['Content-Type'] = 'application/json'
+req.body = '{"branch_id":1,"tin":"123-456-789-000","accreditation_number":"BIR-ACC-001","series_start":"0001","series_end":"0999"}'
+res = Net::HTTP.start(uri.hostname, uri.port) { |h| h.request(req) }
+puts res.body</code></pre></div>
+    <div class="tab-panel" data-lang="python"><pre><code>r = requests.put('http://localhost:8000/api/v1/bir/settings',
+    json={'branch_id': 1, 'tin': '123-456-789-000', 'accreditation_number': 'BIR-ACC-001', 'series_start': '0001', 'series_end': '0999'},
+    headers={'Authorization': 'Bearer YOUR_TOKEN', 'Content-Type': 'application/json'})
+print(r.json())</code></pre></div>
+    <div class="tab-panel" data-lang="php"><pre><code>$ch = curl_init('http://localhost:8000/api/v1/bir/settings');
+curl_setopt_array($ch, [
+    CURLOPT_CUSTOMREQUEST => 'PUT',
+    CURLOPT_HTTPHEADER => ['Authorization: Bearer YOUR_TOKEN', 'Content-Type: application/json'],
+    CURLOPT_POSTFIELDS => json_encode(['branch_id' => 1, 'tin' => '123-456-789-000', 'accreditation_number' => 'BIR-ACC-001', 'series_start' => '0001', 'series_end' => '0999']),
+    CURLOPT_RETURNTRANSFER => true
+]);
+$res = curl_exec($ch); curl_close($ch);
+print_r(json_decode($res, true));</code></pre></div>
+    <div class="tab-panel" data-lang="java"><pre><code>HttpRequest request = HttpRequest.newBuilder()
+    .uri(URI.create("http://localhost:8000/api/v1/bir/settings"))
+    .header("Authorization", "Bearer YOUR_TOKEN").header("Content-Type", "application/json")
+    .PUT(HttpRequest.BodyPublishers.ofString("{\"branch_id\":1,\"tin\":\"123-456-789-000\",\"accreditation_number\":\"BIR-ACC-001\",\"series_start\":\"0001\",\"series_end\":\"0999\"}"))
+    .build();
+HttpResponse&lt;String&gt; response = client.send(request, HttpResponse.BodyHandlers.ofString());
+System.out.println(response.body());</code></pre></div>
+    <div class="tab-panel" data-lang="csharp"><pre><code>var body = new { branch_id = 1, tin = "123-456-789-000", accreditation_number = "BIR-ACC-001", series_start = "0001", series_end = "0999" };
+var content = new StringContent(System.Text.Json.JsonSerializer.Serialize(body), Encoding.UTF8, "application/json");
+var response = await client.PutAsync("http://localhost:8000/api/v1/bir/settings", content);
+Console.WriteLine(await response.Content.ReadAsStringAsync());</code></pre></div>
+    <div class="tab-panel" data-lang="javascript"><pre><code>const res = await fetch('http://localhost:8000/api/v1/bir/settings', {
+  method: 'PUT',
+  headers: { 'Authorization': 'Bearer YOUR_TOKEN', 'Content-Type': 'application/json' },
+  body: JSON.stringify({ branch_id: 1, tin: '123-456-789-000', accreditation_number: 'BIR-ACC-001', series_start: '0001', series_end: '0999' })
+});
+console.log(await res.json());</code></pre></div>
+  </div>
+  <p class="desc"><code>GET /receipts/{transaction_id}</code>, <code>POST /receipts/reprint/{id}</code>. Auth required.</p>
+
+  <h2 id="reports">Reports</h2>
+  <p class="desc">All GET; add query params. Base: <code>Authorization: Bearer YOUR_TOKEN</code>, <code>Accept: application/json</code>.</p>
+  <ul style="color: var(--muted); font-size: 0.9rem;">
+    <li><code>/reports/sales</code> — date_from, date_to, group_by (day|month|branch), branch_id</li>
+    <li><code>/reports/inventory</code> — branch_id, category_id</li>
+    <li><code>/reports/profit-margin</code>, <code>/reports/top-selling</code>, <code>/reports/expiring-products</code> — date_from, date_to, branch_id</li>
+    <li><code>/reports/cashier-summary</code>, <code>/reports/vat-summary</code>, <code>/reports/audit-log</code></li>
+  </ul>
+  <div class="endpoint">
+    <div class="endpoint-header"><span class="method get">GET</span><span class="path">/reports/sales</span></div>
+    <div class="tabs">
+      <button type="button" class="active" data-lang="curl">cURL</button>
+      <button type="button" data-lang="ruby">Ruby</button>
+      <button type="button" data-lang="python">Python</button>
+      <button type="button" data-lang="php">PHP</button>
+      <button type="button" data-lang="java">Java</button>
+      <button type="button" data-lang="csharp">C#</button>
+      <button type="button" data-lang="javascript">JavaScript</button>
+    </div>
+    <div class="tab-panel active" data-lang="curl"><pre><code>curl -X GET "http://localhost:8000/api/v1/reports/sales?date_from=2025-02-01&date_to=2025-02-20&group_by=day" \
+  -H "Authorization: Bearer YOUR_TOKEN" -H "Accept: application/json"</code></pre></div>
+    <div class="tab-panel" data-lang="ruby"><pre><code>uri = URI('http://localhost:8000/api/v1/reports/sales?date_from=2025-02-01&date_to=2025-02-20&group_by=day')
+req = Net::HTTP::Get.new(uri)
+req['Authorization'] = 'Bearer YOUR_TOKEN'
+req['Accept'] = 'application/json'
+res = Net::HTTP.start(uri.hostname, uri.port) { |h| h.request(req) }
+puts res.body</code></pre></div>
+    <div class="tab-panel" data-lang="python"><pre><code>r = requests.get('http://localhost:8000/api/v1/reports/sales',
+    params={'date_from': '2025-02-01', 'date_to': '2025-02-20', 'group_by': 'day'},
+    headers={'Authorization': 'Bearer YOUR_TOKEN', 'Accept': 'application/json'})
+print(r.json())</code></pre></div>
+    <div class="tab-panel" data-lang="php"><pre><code>$ch = curl_init('http://localhost:8000/api/v1/reports/sales?date_from=2025-02-01&date_to=2025-02-20&group_by=day');
+curl_setopt_array($ch, [CURLOPT_HTTPHEADER => ['Authorization: Bearer YOUR_TOKEN', 'Accept: application/json'], CURLOPT_RETURNTRANSFER => true]);
+$res = curl_exec($ch); curl_close($ch);
+print_r(json_decode($res, true));</code></pre></div>
+    <div class="tab-panel" data-lang="java"><pre><code>HttpRequest request = HttpRequest.newBuilder()
+    .uri(URI.create("http://localhost:8000/api/v1/reports/sales?date_from=2025-02-01&date_to=2025-02-20&group_by=day"))
+    .header("Authorization", "Bearer YOUR_TOKEN").header("Accept", "application/json")
+    .GET().build();
+HttpResponse&lt;String&gt; response = client.send(request, HttpResponse.BodyHandlers.ofString());
+System.out.println(response.body());</code></pre></div>
+    <div class="tab-panel" data-lang="csharp"><pre><code>using var client = new HttpClient();
+client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", "YOUR_TOKEN");
+var response = await client.GetAsync("http://localhost:8000/api/v1/reports/sales?date_from=2025-02-01&date_to=2025-02-20&group_by=day");
+Console.WriteLine(await response.Content.ReadAsStringAsync());</code></pre></div>
+    <div class="tab-panel" data-lang="javascript"><pre><code>const res = await fetch('http://localhost:8000/api/v1/reports/sales?date_from=2025-02-01&date_to=2025-02-20&group_by=day', {
+  headers: { 'Authorization': 'Bearer YOUR_TOKEN', 'Accept': 'application/json' }
+});
+console.log(await res.json());</code></pre></div>
+  </div>
+
+  <h2 id="branches">Branches</h2>
+  <p class="desc">Only super_admin and admin can create branches. Others see only their branch.</p>
+  <div class="endpoint">
+    <div class="endpoint-header"><span class="method get">GET</span><span class="path">/branches</span></div>
+    <div class="tabs">
+      <button type="button" class="active" data-lang="curl">cURL</button>
+      <button type="button" data-lang="ruby">Ruby</button>
+      <button type="button" data-lang="python">Python</button>
+      <button type="button" data-lang="php">PHP</button>
+      <button type="button" data-lang="java">Java</button>
+      <button type="button" data-lang="csharp">C#</button>
+      <button type="button" data-lang="javascript">JavaScript</button>
+    </div>
+    <div class="tab-panel active" data-lang="curl"><pre><code>curl -X GET "http://localhost:8000/api/v1/branches" \
+  -H "Authorization: Bearer YOUR_TOKEN" -H "Accept: application/json"</code></pre></div>
+    <div class="tab-panel" data-lang="ruby"><pre><code>uri = URI('http://localhost:8000/api/v1/branches')
+req = Net::HTTP::Get.new(uri)
+req['Authorization'] = 'Bearer YOUR_TOKEN'
+req['Accept'] = 'application/json'
+res = Net::HTTP.start(uri.hostname, uri.port) { |h| h.request(req) }
+puts res.body</code></pre></div>
+    <div class="tab-panel" data-lang="python"><pre><code>r = requests.get('http://localhost:8000/api/v1/branches',
+    headers={'Authorization': 'Bearer YOUR_TOKEN', 'Accept': 'application/json'})
+print(r.json())</code></pre></div>
+    <div class="tab-panel" data-lang="php"><pre><code>$ch = curl_init('http://localhost:8000/api/v1/branches');
+curl_setopt_array($ch, [CURLOPT_HTTPHEADER => ['Authorization: Bearer YOUR_TOKEN', 'Accept: application/json'], CURLOPT_RETURNTRANSFER => true]);
+$res = curl_exec($ch); curl_close($ch);
+print_r(json_decode($res, true));</code></pre></div>
+    <div class="tab-panel" data-lang="java"><pre><code>HttpRequest request = HttpRequest.newBuilder()
+    .uri(URI.create("http://localhost:8000/api/v1/branches"))
+    .header("Authorization", "Bearer YOUR_TOKEN").header("Accept", "application/json")
+    .GET().build();
+HttpResponse&lt;String&gt; response = client.send(request, HttpResponse.BodyHandlers.ofString());
+System.out.println(response.body());</code></pre></div>
+    <div class="tab-panel" data-lang="csharp"><pre><code>var response = await client.GetAsync("http://localhost:8000/api/v1/branches");
+Console.WriteLine(await response.Content.ReadAsStringAsync());</code></pre></div>
+    <div class="tab-panel" data-lang="javascript"><pre><code>const res = await fetch('http://localhost:8000/api/v1/branches', {
+  headers: { 'Authorization': 'Bearer YOUR_TOKEN', 'Accept': 'application/json' }
+});
+console.log(await res.json());</code></pre></div>
+  </div>
+  <div class="endpoint">
+    <div class="endpoint-header"><span class="method post">POST</span><span class="path">/branches</span></div>
+    <p class="desc">Create branch (super_admin/admin only). Body: company_id, name, address, tin, bir_series_start, bir_series_end.</p>
+    <div class="tabs">
+      <button type="button" class="active" data-lang="curl">cURL</button>
+      <button type="button" data-lang="ruby">Ruby</button>
+      <button type="button" data-lang="python">Python</button>
+      <button type="button" data-lang="php">PHP</button>
+      <button type="button" data-lang="java">Java</button>
+      <button type="button" data-lang="csharp">C#</button>
+      <button type="button" data-lang="javascript">JavaScript</button>
+    </div>
+    <div class="tab-panel active" data-lang="curl"><pre><code>curl -X POST "http://localhost:8000/api/v1/branches" \
+  -H "Authorization: Bearer YOUR_TOKEN" -H "Content-Type: application/json" \
+  -d '{"company_id":1,"name":"Branch 4","address":"456 New St","tin":"123-456-789-004"}'</code></pre></div>
+    <div class="tab-panel" data-lang="ruby"><pre><code>uri = URI('http://localhost:8000/api/v1/branches')
+req = Net::HTTP::Post.new(uri)
+req['Authorization'] = 'Bearer YOUR_TOKEN'
+req['Content-Type'] = 'application/json'
+req.body = '{"company_id":1,"name":"Branch 4","address":"456 New St","tin":"123-456-789-004"}'
+res = Net::HTTP.start(uri.hostname, uri.port) { |h| h.request(req) }
+puts res.body</code></pre></div>
+    <div class="tab-panel" data-lang="python"><pre><code>r = requests.post('http://localhost:8000/api/v1/branches',
+    json={'company_id': 1, 'name': 'Branch 4', 'address': '456 New St', 'tin': '123-456-789-004'},
+    headers={'Authorization': 'Bearer YOUR_TOKEN', 'Content-Type': 'application/json'})
+print(r.json())</code></pre></div>
+    <div class="tab-panel" data-lang="php"><pre><code>$ch = curl_init('http://localhost:8000/api/v1/branches');
+curl_setopt_array($ch, [
+    CURLOPT_POST => true,
+    CURLOPT_HTTPHEADER => ['Authorization: Bearer YOUR_TOKEN', 'Content-Type: application/json'],
+    CURLOPT_POSTFIELDS => json_encode(['company_id' => 1, 'name' => 'Branch 4', 'address' => '456 New St', 'tin' => '123-456-789-004']),
+    CURLOPT_RETURNTRANSFER => true
+]);
+$res = curl_exec($ch); curl_close($ch);
+print_r(json_decode($res, true));</code></pre></div>
+    <div class="tab-panel" data-lang="java"><pre><code>HttpRequest request = HttpRequest.newBuilder()
+    .uri(URI.create("http://localhost:8000/api/v1/branches"))
+    .header("Authorization", "Bearer YOUR_TOKEN").header("Content-Type", "application/json")
+    .POST(HttpRequest.BodyPublishers.ofString("{\"company_id\":1,\"name\":\"Branch 4\",\"address\":\"456 New St\",\"tin\":\"123-456-789-004\"}"))
+    .build();
+HttpResponse&lt;String&gt; response = client.send(request, HttpResponse.BodyHandlers.ofString());
+System.out.println(response.body());</code></pre></div>
+    <div class="tab-panel" data-lang="csharp"><pre><code>var body = new { company_id = 1, name = "Branch 4", address = "456 New St", tin = "123-456-789-004" };
+var content = new StringContent(System.Text.Json.JsonSerializer.Serialize(body), Encoding.UTF8, "application/json");
+var response = await client.PostAsync("http://localhost:8000/api/v1/branches", content);
+Console.WriteLine(await response.Content.ReadAsStringAsync());</code></pre></div>
+    <div class="tab-panel" data-lang="javascript"><pre><code>const res = await fetch('http://localhost:8000/api/v1/branches', {
+  method: 'POST',
+  headers: { 'Authorization': 'Bearer YOUR_TOKEN', 'Content-Type': 'application/json' },
+  body: JSON.stringify({ company_id: 1, name: 'Branch 4', address: '456 New St', tin: '123-456-789-004' })
+});
+console.log(await res.json());</code></pre></div>
+  </div>
+  <p class="desc"><code>GET /branches/{id}</code>, <code>GET /branches/{id}/dashboard</code>, <code>GET /branches/{id}/stock</code>, <code>POST /branches/{id}/replenishment-request</code> (body: product_id, quantity_requested).</p>
+
+  <h2 id="terminals">Terminals (POS terminal settings)</h2>
+  <p class="desc">POS terminals must be registered per branch. <strong>Only Super Admin</strong> can add, edit, or delete terminals (Settings → add POS terminals per branch). If a terminal is not registered or is inactive, POS will respond with &quot;POS is not registered&quot; and will not allow session open or sales.</p>
+  <div class="endpoint">
+    <div class="endpoint-header"><span class="method get">GET</span><span class="path">/branches/{branch}/terminals</span></div>
+    <p class="desc">List terminals for a branch.</p>
+    <div class="tabs">
+      <button type="button" class="active" data-lang="curl">cURL</button>
+      <button type="button" data-lang="ruby">Ruby</button>
+      <button type="button" data-lang="python">Python</button>
+      <button type="button" data-lang="php">PHP</button>
+      <button type="button" data-lang="java">Java</button>
+      <button type="button" data-lang="csharp">C#</button>
+      <button type="button" data-lang="javascript">JavaScript</button>
+    </div>
+    <div class="tab-panel active" data-lang="curl"><pre><code>curl -X GET "http://localhost:8000/api/v1/branches/1/terminals" \
+  -H "Authorization: Bearer YOUR_TOKEN" -H "Accept: application/json"</code></pre></div>
+    <div class="tab-panel" data-lang="ruby"><pre><code>uri = URI('http://localhost:8000/api/v1/branches/1/terminals')
+req = Net::HTTP::Get.new(uri)
+req['Authorization'] = 'Bearer YOUR_TOKEN'
+req['Accept'] = 'application/json'
+res = Net::HTTP.start(uri.hostname, uri.port) { |h| h.request(req) }
+puts res.body</code></pre></div>
+    <div class="tab-panel" data-lang="python"><pre><code>r = requests.get('http://localhost:8000/api/v1/branches/1/terminals',
+    headers={'Authorization': 'Bearer YOUR_TOKEN', 'Accept': 'application/json'})
+print(r.json())</code></pre></div>
+    <div class="tab-panel" data-lang="php"><pre><code>$ch = curl_init('http://localhost:8000/api/v1/branches/1/terminals');
+curl_setopt_array($ch, [CURLOPT_HTTPHEADER => ['Authorization: Bearer YOUR_TOKEN', 'Accept: application/json'], CURLOPT_RETURNTRANSFER => true]);
+$res = curl_exec($ch); curl_close($ch);
+print_r(json_decode($res, true));</code></pre></div>
+    <div class="tab-panel" data-lang="java"><pre><code>HttpRequest request = HttpRequest.newBuilder()
+    .uri(URI.create("http://localhost:8000/api/v1/branches/1/terminals"))
+    .header("Authorization", "Bearer YOUR_TOKEN").header("Accept", "application/json")
+    .GET().build();
+HttpResponse&lt;String&gt; response = client.send(request, HttpResponse.BodyHandlers.ofString());
+System.out.println(response.body());</code></pre></div>
+    <div class="tab-panel" data-lang="csharp"><pre><code>var response = await client.GetAsync("http://localhost:8000/api/v1/branches/1/terminals");
+Console.WriteLine(await response.Content.ReadAsStringAsync());</code></pre></div>
+    <div class="tab-panel" data-lang="javascript"><pre><code>const res = await fetch('http://localhost:8000/api/v1/branches/1/terminals', {
+  headers: { 'Authorization': 'Bearer YOUR_TOKEN', 'Accept': 'application/json' }
+});
+console.log(await res.json());</code></pre></div>
+  </div>
+  <div class="endpoint">
+    <div class="endpoint-header"><span class="method post">POST</span><span class="path">/branches/{branch}/terminals</span></div>
+    <p class="desc">Create terminal. <strong>Super Admin only.</strong> Body: code, name, is_active.</p>
+    <div class="tabs">
+      <button type="button" class="active" data-lang="curl">cURL</button>
+      <button type="button" data-lang="ruby">Ruby</button>
+      <button type="button" data-lang="python">Python</button>
+      <button type="button" data-lang="php">PHP</button>
+      <button type="button" data-lang="java">Java</button>
+      <button type="button" data-lang="csharp">C#</button>
+      <button type="button" data-lang="javascript">JavaScript</button>
+    </div>
+    <div class="tab-panel active" data-lang="curl"><pre><code>curl -X POST "http://localhost:8000/api/v1/branches/1/terminals" \
+  -H "Authorization: Bearer YOUR_TOKEN" -H "Content-Type: application/json" \
+  -d '{"code":"T1","name":"Counter 1","is_active":true}'</code></pre></div>
+    <div class="tab-panel" data-lang="ruby"><pre><code>uri = URI('http://localhost:8000/api/v1/branches/1/terminals')
+req = Net::HTTP::Post.new(uri)
+req['Authorization'] = 'Bearer YOUR_TOKEN'
+req['Content-Type'] = 'application/json'
+req.body = '{"code":"T1","name":"Counter 1","is_active":true}'
+res = Net::HTTP.start(uri.hostname, uri.port) { |h| h.request(req) }
+puts res.body</code></pre></div>
+    <div class="tab-panel" data-lang="python"><pre><code>r = requests.post('http://localhost:8000/api/v1/branches/1/terminals',
+    json={'code': 'T1', 'name': 'Counter 1', 'is_active': True},
+    headers={'Authorization': 'Bearer YOUR_TOKEN', 'Content-Type': 'application/json'})
+print(r.json())</code></pre></div>
+    <div class="tab-panel" data-lang="php"><pre><code>$ch = curl_init('http://localhost:8000/api/v1/branches/1/terminals');
+curl_setopt_array($ch, [
+    CURLOPT_POST => true,
+    CURLOPT_HTTPHEADER => ['Authorization: Bearer YOUR_TOKEN', 'Content-Type: application/json'],
+    CURLOPT_POSTFIELDS => json_encode(['code' => 'T1', 'name' => 'Counter 1', 'is_active' => true]),
+    CURLOPT_RETURNTRANSFER => true
+]);
+$res = curl_exec($ch); curl_close($ch);
+print_r(json_decode($res, true));</code></pre></div>
+    <div class="tab-panel" data-lang="java"><pre><code>HttpRequest request = HttpRequest.newBuilder()
+    .uri(URI.create("http://localhost:8000/api/v1/branches/1/terminals"))
+    .header("Authorization", "Bearer YOUR_TOKEN").header("Content-Type", "application/json")
+    .POST(HttpRequest.BodyPublishers.ofString("{\"code\":\"T1\",\"name\":\"Counter 1\",\"is_active\":true}"))
+    .build();
+HttpResponse&lt;String&gt; response = client.send(request, HttpResponse.BodyHandlers.ofString());
+System.out.println(response.body());</code></pre></div>
+    <div class="tab-panel" data-lang="csharp"><pre><code>var body = new { code = "T1", name = "Counter 1", is_active = true };
+var content = new StringContent(System.Text.Json.JsonSerializer.Serialize(body), Encoding.UTF8, "application/json");
+var response = await client.PostAsync("http://localhost:8000/api/v1/branches/1/terminals", content);
+Console.WriteLine(await response.Content.ReadAsStringAsync());</code></pre></div>
+    <div class="tab-panel" data-lang="javascript"><pre><code>const res = await fetch('http://localhost:8000/api/v1/branches/1/terminals', {
+  method: 'POST',
+  headers: { 'Authorization': 'Bearer YOUR_TOKEN', 'Content-Type': 'application/json' },
+  body: JSON.stringify({ code: 'T1', name: 'Counter 1', is_active: true })
+});
+console.log(await res.json());</code></pre></div>
+  </div>
+  <p class="desc"><code>GET /branches/{id}/terminals/{tid}</code>, <code>PUT</code>, <code>DELETE</code>. Create/update/delete are Super Admin only. Same auth.</p>
+
+  <h2 id="inventory">Inventory (local node)</h2>
+  <p class="desc">Requires NODE_TYPE=local. <strong>Branch scoping:</strong> Super admin and admin see all products and inventory across branches (responses include <code>branch</code> / <code>branch_id</code>). Manager and inventory_manager must have an assigned branch and see only that branch; 403 if not assigned. Create/update/stock-in/out/receive-delivery use the user's branch; product must belong to that branch.</p>
+  <div class="endpoint">
+    <div class="endpoint-header"><span class="method get">GET</span><span class="path">/inventory/products</span></div>
+    <p class="desc">List inventory products. Query: per_page, page. Includes category and branch.</p>
+    <div class="tabs">
+      <button type="button" class="active" data-lang="curl">cURL</button>
+      <button type="button" data-lang="ruby">Ruby</button>
+      <button type="button" data-lang="python">Python</button>
+      <button type="button" data-lang="php">PHP</button>
+      <button type="button" data-lang="java">Java</button>
+      <button type="button" data-lang="csharp">C#</button>
+      <button type="button" data-lang="javascript">JavaScript</button>
+    </div>
+    <div class="tab-panel active" data-lang="curl"><pre><code>curl -X GET "http://localhost:8000/api/v1/inventory/products?per_page=15" \
+  -H "Authorization: Bearer YOUR_TOKEN" -H "Accept: application/json"</code></pre></div>
+    <div class="tab-panel" data-lang="ruby"><pre><code>uri = URI('http://localhost:8000/api/v1/inventory/products?per_page=15')
+req = Net::HTTP::Get.new(uri)
+req['Authorization'] = 'Bearer YOUR_TOKEN'
+req['Accept'] = 'application/json'
+res = Net::HTTP.start(uri.hostname, uri.port) { |h| h.request(req) }
+puts res.body</code></pre></div>
+    <div class="tab-panel" data-lang="python"><pre><code>r = requests.get('http://localhost:8000/api/v1/inventory/products', params={'per_page': 15},
+    headers={'Authorization': 'Bearer YOUR_TOKEN', 'Accept': 'application/json'})
+print(r.json())</code></pre></div>
+    <div class="tab-panel" data-lang="php"><pre><code>$ch = curl_init('http://localhost:8000/api/v1/inventory/products?per_page=15');
+curl_setopt_array($ch, [CURLOPT_HTTPHEADER => ['Authorization: Bearer YOUR_TOKEN', 'Accept: application/json'], CURLOPT_RETURNTRANSFER => true]);
+$res = curl_exec($ch); curl_close($ch);
+print_r(json_decode($res, true));</code></pre></div>
+    <div class="tab-panel" data-lang="java"><pre><code>HttpRequest request = HttpRequest.newBuilder()
+    .uri(URI.create("http://localhost:8000/api/v1/inventory/products?per_page=15"))
+    .header("Authorization", "Bearer YOUR_TOKEN").header("Accept", "application/json")
+    .GET().build();
+HttpResponse&lt;String&gt; response = client.send(request, HttpResponse.BodyHandlers.ofString());
+System.out.println(response.body());</code></pre></div>
+    <div class="tab-panel" data-lang="csharp"><pre><code>var response = await client.GetAsync("http://localhost:8000/api/v1/inventory/products?per_page=15");
+Console.WriteLine(await response.Content.ReadAsStringAsync());</code></pre></div>
+    <div class="tab-panel" data-lang="javascript"><pre><code>const res = await fetch('http://localhost:8000/api/v1/inventory/products?per_page=15', {
+  headers: { 'Authorization': 'Bearer YOUR_TOKEN', 'Accept': 'application/json' }
+});
+console.log(await res.json());</code></pre></div>
+  </div>
+  <div class="endpoint">
+    <div class="endpoint-header"><span class="method post">POST</span><span class="path">/inventory/products</span></div>
+    <p class="desc">Create product in user's branch. Body: barcode, name, generic_name, brand, category_id, unit, price, cost, reorder_level.</p>
+    <div class="tabs">
+      <button type="button" class="active" data-lang="curl">cURL</button>
+      <button type="button" data-lang="ruby">Ruby</button>
+      <button type="button" data-lang="python">Python</button>
+      <button type="button" data-lang="php">PHP</button>
+      <button type="button" data-lang="java">Java</button>
+      <button type="button" data-lang="csharp">C#</button>
+      <button type="button" data-lang="javascript">JavaScript</button>
+    </div>
+    <div class="tab-panel active" data-lang="curl"><pre><code>curl -X POST "http://localhost:8000/api/v1/inventory/products" \
+  -H "Authorization: Bearer YOUR_TOKEN" -H "Content-Type: application/json" \
+  -d '{"name":"Paracetamol 500mg","price":25,"cost":15,"reorder_level":10}'</code></pre></div>
+    <div class="tab-panel" data-lang="ruby"><pre><code>uri = URI('http://localhost:8000/api/v1/inventory/products')
+req = Net::HTTP::Post.new(uri)
+req['Authorization'] = 'Bearer YOUR_TOKEN'
+req['Content-Type'] = 'application/json'
+req.body = '{"name":"Paracetamol 500mg","price":25,"cost":15,"reorder_level":10}'
+res = Net::HTTP.start(uri.hostname, uri.port) { |h| h.request(req) }
+puts res.body</code></pre></div>
+    <div class="tab-panel" data-lang="python"><pre><code>r = requests.post('http://localhost:8000/api/v1/inventory/products',
+    json={'name': 'Paracetamol 500mg', 'price': 25, 'cost': 15, 'reorder_level': 10},
+    headers={'Authorization': 'Bearer YOUR_TOKEN', 'Content-Type': 'application/json'})
+print(r.json())</code></pre></div>
+    <div class="tab-panel" data-lang="php"><pre><code>$ch = curl_init('http://localhost:8000/api/v1/inventory/products');
+curl_setopt_array($ch, [
+    CURLOPT_POST => true,
+    CURLOPT_HTTPHEADER => ['Authorization: Bearer YOUR_TOKEN', 'Content-Type: application/json'],
+    CURLOPT_POSTFIELDS => json_encode(['name' => 'Paracetamol 500mg', 'price' => 25, 'cost' => 15, 'reorder_level' => 10]),
+    CURLOPT_RETURNTRANSFER => true
+]);
+$res = curl_exec($ch); curl_close($ch);
+print_r(json_decode($res, true));</code></pre></div>
+    <div class="tab-panel" data-lang="java"><pre><code>HttpRequest request = HttpRequest.newBuilder()
+    .uri(URI.create("http://localhost:8000/api/v1/inventory/products"))
+    .header("Authorization", "Bearer YOUR_TOKEN").header("Content-Type", "application/json")
+    .POST(HttpRequest.BodyPublishers.ofString("{\"name\":\"Paracetamol 500mg\",\"price\":25,\"cost\":15,\"reorder_level\":10}"))
+    .build();
+HttpResponse&lt;String&gt; response = client.send(request, HttpResponse.BodyHandlers.ofString());
+System.out.println(response.body());</code></pre></div>
+    <div class="tab-panel" data-lang="csharp"><pre><code>var body = new { name = "Paracetamol 500mg", price = 25, cost = 15, reorder_level = 10 };
+var content = new StringContent(System.Text.Json.JsonSerializer.Serialize(body), Encoding.UTF8, "application/json");
+var response = await client.PostAsync("http://localhost:8000/api/v1/inventory/products", content);
+Console.WriteLine(await response.Content.ReadAsStringAsync());</code></pre></div>
+    <div class="tab-panel" data-lang="javascript"><pre><code>const res = await fetch('http://localhost:8000/api/v1/inventory/products', {
+  method: 'POST',
+  headers: { 'Authorization': 'Bearer YOUR_TOKEN', 'Content-Type': 'application/json' },
+  body: JSON.stringify({ name: 'Paracetamol 500mg', price: 25, cost: 15, reorder_level: 10 })
+});
+console.log(await res.json());</code></pre></div>
+  </div>
+  <p class="desc"><code>GET/PUT/DELETE /inventory/products/{id}</code> — branch-scoped users can only access products in their branch. <code>GET /inventory/stock-levels</code> — per-branch; response includes branch_id/branch when viewing all. <code>GET /inventory/batches/{product_id}</code> — branch-scoped users only for products in their branch.</p>
+  <div class="endpoint">
+    <div class="endpoint-header"><span class="method post">POST</span><span class="path">/inventory/stock-in</span></div>
+    <p class="desc">Record stock-in for user's branch. Product must belong to that branch. Body: product_id, supplier_id, quantity, cost, batch_number, expiry_date, product_batch_id (optional).</p>
+    <div class="tabs">
+      <button type="button" class="active" data-lang="curl">cURL</button>
+      <button type="button" data-lang="ruby">Ruby</button>
+      <button type="button" data-lang="python">Python</button>
+      <button type="button" data-lang="php">PHP</button>
+      <button type="button" data-lang="java">Java</button>
+      <button type="button" data-lang="csharp">C#</button>
+      <button type="button" data-lang="javascript">JavaScript</button>
+    </div>
+    <div class="tab-panel active" data-lang="curl"><pre><code>curl -X POST "http://localhost:8000/api/v1/inventory/stock-in" \
+  -H "Authorization: Bearer YOUR_TOKEN" -H "Content-Type: application/json" \
+  -d '{"product_id":1,"supplier_id":1,"quantity":100,"cost":10.5,"batch_number":"BATCH-001","expiry_date":"2026-12-31"}'</code></pre></div>
+    <div class="tab-panel" data-lang="ruby"><pre><code>uri = URI('http://localhost:8000/api/v1/inventory/stock-in')
+req = Net::HTTP::Post.new(uri)
+req['Authorization'] = 'Bearer YOUR_TOKEN'
+req['Content-Type'] = 'application/json'
+req.body = '{"product_id":1,"supplier_id":1,"quantity":100,"cost":10.5,"batch_number":"BATCH-001","expiry_date":"2026-12-31"}'
+res = Net::HTTP.start(uri.hostname, uri.port) { |h| h.request(req) }
+puts res.body</code></pre></div>
+    <div class="tab-panel" data-lang="python"><pre><code>r = requests.post('http://localhost:8000/api/v1/inventory/stock-in',
+    json={'product_id': 1, 'supplier_id': 1, 'quantity': 100, 'cost': 10.5, 'batch_number': 'BATCH-001', 'expiry_date': '2026-12-31'},
+    headers={'Authorization': 'Bearer YOUR_TOKEN', 'Content-Type': 'application/json'})
+print(r.json())</code></pre></div>
+    <div class="tab-panel" data-lang="php"><pre><code>$ch = curl_init('http://localhost:8000/api/v1/inventory/stock-in');
+curl_setopt_array($ch, [
+    CURLOPT_POST => true,
+    CURLOPT_HTTPHEADER => ['Authorization: Bearer YOUR_TOKEN', 'Content-Type: application/json'],
+    CURLOPT_POSTFIELDS => json_encode(['product_id' => 1, 'supplier_id' => 1, 'quantity' => 100, 'cost' => 10.5, 'batch_number' => 'BATCH-001', 'expiry_date' => '2026-12-31']),
+    CURLOPT_RETURNTRANSFER => true
+]);
+$res = curl_exec($ch); curl_close($ch);
+print_r(json_decode($res, true));</code></pre></div>
+    <div class="tab-panel" data-lang="java"><pre><code>HttpRequest request = HttpRequest.newBuilder()
+    .uri(URI.create("http://localhost:8000/api/v1/inventory/stock-in"))
+    .header("Authorization", "Bearer YOUR_TOKEN").header("Content-Type", "application/json")
+    .POST(HttpRequest.BodyPublishers.ofString("{\"product_id\":1,\"supplier_id\":1,\"quantity\":100,\"cost\":10.5,\"batch_number\":\"BATCH-001\",\"expiry_date\":\"2026-12-31\"}"))
+    .build();
+HttpResponse&lt;String&gt; response = client.send(request, HttpResponse.BodyHandlers.ofString());
+System.out.println(response.body());</code></pre></div>
+    <div class="tab-panel" data-lang="csharp"><pre><code>var body = new { product_id = 1, supplier_id = 1, quantity = 100, cost = 10.5, batch_number = "BATCH-001", expiry_date = "2026-12-31" };
+var content = new StringContent(System.Text.Json.JsonSerializer.Serialize(body), Encoding.UTF8, "application/json");
+var response = await client.PostAsync("http://localhost:8000/api/v1/inventory/stock-in", content);
+Console.WriteLine(await response.Content.ReadAsStringAsync());</code></pre></div>
+    <div class="tab-panel" data-lang="javascript"><pre><code>const res = await fetch('http://localhost:8000/api/v1/inventory/stock-in', {
+  method: 'POST',
+  headers: { 'Authorization': 'Bearer YOUR_TOKEN', 'Content-Type': 'application/json' },
+  body: JSON.stringify({ product_id: 1, supplier_id: 1, quantity: 100, cost: 10.5, batch_number: 'BATCH-001', expiry_date: '2026-12-31' })
+});
+console.log(await res.json());</code></pre></div>
+  </div>
+  <div class="endpoint">
+    <div class="endpoint-header"><span class="method post">POST</span><span class="path">/inventory/stock-out</span></div>
+    <p class="desc">Record stock-out for user's branch. Product must belong to that branch. Body: product_id, product_batch_id, quantity, reason.</p>
+    <div class="tabs">
+      <button type="button" class="active" data-lang="curl">cURL</button>
+      <button type="button" data-lang="ruby">Ruby</button>
+      <button type="button" data-lang="python">Python</button>
+      <button type="button" data-lang="php">PHP</button>
+      <button type="button" data-lang="java">Java</button>
+      <button type="button" data-lang="csharp">C#</button>
+      <button type="button" data-lang="javascript">JavaScript</button>
+    </div>
+    <div class="tab-panel active" data-lang="curl"><pre><code>curl -X POST "http://localhost:8000/api/v1/inventory/stock-out" \
+  -H "Authorization: Bearer YOUR_TOKEN" -H "Content-Type: application/json" \
+  -d '{"product_id":1,"product_batch_id":1,"quantity":5,"reason":"Expired"}'</code></pre></div>
+    <div class="tab-panel" data-lang="ruby"><pre><code>uri = URI('http://localhost:8000/api/v1/inventory/stock-out')
+req = Net::HTTP::Post.new(uri)
+req['Authorization'] = 'Bearer YOUR_TOKEN'
+req['Content-Type'] = 'application/json'
+req.body = '{"product_id":1,"product_batch_id":1,"quantity":5,"reason":"Expired"}'
+res = Net::HTTP.start(uri.hostname, uri.port) { |h| h.request(req) }
+puts res.body</code></pre></div>
+    <div class="tab-panel" data-lang="python"><pre><code>r = requests.post('http://localhost:8000/api/v1/inventory/stock-out',
+    json={'product_id': 1, 'product_batch_id': 1, 'quantity': 5, 'reason': 'Expired'},
+    headers={'Authorization': 'Bearer YOUR_TOKEN', 'Content-Type': 'application/json'})
+print(r.json())</code></pre></div>
+    <div class="tab-panel" data-lang="php"><pre><code>$ch = curl_init('http://localhost:8000/api/v1/inventory/stock-out');
+curl_setopt_array($ch, [
+    CURLOPT_POST => true,
+    CURLOPT_HTTPHEADER => ['Authorization: Bearer YOUR_TOKEN', 'Content-Type: application/json'],
+    CURLOPT_POSTFIELDS => json_encode(['product_id' => 1, 'product_batch_id' => 1, 'quantity' => 5, 'reason' => 'Expired']),
+    CURLOPT_RETURNTRANSFER => true
+]);
+$res = curl_exec($ch); curl_close($ch);
+print_r(json_decode($res, true));</code></pre></div>
+    <div class="tab-panel" data-lang="java"><pre><code>HttpRequest request = HttpRequest.newBuilder()
+    .uri(URI.create("http://localhost:8000/api/v1/inventory/stock-out"))
+    .header("Authorization", "Bearer YOUR_TOKEN").header("Content-Type", "application/json")
+    .POST(HttpRequest.BodyPublishers.ofString("{\"product_id\":1,\"product_batch_id\":1,\"quantity\":5,\"reason\":\"Expired\"}"))
+    .build();
+HttpResponse&lt;String&gt; response = client.send(request, HttpResponse.BodyHandlers.ofString());
+System.out.println(response.body());</code></pre></div>
+    <div class="tab-panel" data-lang="csharp"><pre><code>var body = new { product_id = 1, product_batch_id = 1, quantity = 5, reason = "Expired" };
+var content = new StringContent(System.Text.Json.JsonSerializer.Serialize(body), Encoding.UTF8, "application/json");
+var response = await client.PostAsync("http://localhost:8000/api/v1/inventory/stock-out", content);
+Console.WriteLine(await response.Content.ReadAsStringAsync());</code></pre></div>
+    <div class="tab-panel" data-lang="javascript"><pre><code>const res = await fetch('http://localhost:8000/api/v1/inventory/stock-out', {
+  method: 'POST',
+  headers: { 'Authorization': 'Bearer YOUR_TOKEN', 'Content-Type': 'application/json' },
+  body: JSON.stringify({ product_id: 1, product_batch_id: 1, quantity: 5, reason: 'Expired' })
+});
+console.log(await res.json());</code></pre></div>
+  </div>
+  <div class="endpoint">
+    <div class="endpoint-header"><span class="method post">POST</span><span class="path">/inventory/stock-transfer</span></div>
+    <p class="desc">Create transfer. Manager/inventory_manager can only set from_branch_id to their assigned branch (403 otherwise). Body: from_branch_id, to_branch_id, product_id, product_batch_id, quantity.</p>
+    <div class="tabs">
+      <button type="button" class="active" data-lang="curl">cURL</button>
+      <button type="button" data-lang="ruby">Ruby</button>
+      <button type="button" data-lang="python">Python</button>
+      <button type="button" data-lang="php">PHP</button>
+      <button type="button" data-lang="java">Java</button>
+      <button type="button" data-lang="csharp">C#</button>
+      <button type="button" data-lang="javascript">JavaScript</button>
+    </div>
+    <div class="tab-panel active" data-lang="curl"><pre><code>curl -X POST "http://localhost:8000/api/v1/inventory/stock-transfer" \
+  -H "Authorization: Bearer YOUR_TOKEN" -H "Content-Type: application/json" \
+  -d '{"from_branch_id":1,"to_branch_id":2,"product_id":1,"product_batch_id":1,"quantity":20}'</code></pre></div>
+    <div class="tab-panel" data-lang="ruby"><pre><code>uri = URI('http://localhost:8000/api/v1/inventory/stock-transfer')
+req = Net::HTTP::Post.new(uri)
+req['Authorization'] = 'Bearer YOUR_TOKEN'
+req['Content-Type'] = 'application/json'
+req.body = '{"from_branch_id":1,"to_branch_id":2,"product_id":1,"product_batch_id":1,"quantity":20}'
+res = Net::HTTP.start(uri.hostname, uri.port) { |h| h.request(req) }
+puts res.body</code></pre></div>
+    <div class="tab-panel" data-lang="python"><pre><code>r = requests.post('http://localhost:8000/api/v1/inventory/stock-transfer',
+    json={'from_branch_id': 1, 'to_branch_id': 2, 'product_id': 1, 'product_batch_id': 1, 'quantity': 20},
+    headers={'Authorization': 'Bearer YOUR_TOKEN', 'Content-Type': 'application/json'})
+print(r.json())</code></pre></div>
+    <div class="tab-panel" data-lang="php"><pre><code>$ch = curl_init('http://localhost:8000/api/v1/inventory/stock-transfer');
+curl_setopt_array($ch, [
+    CURLOPT_POST => true,
+    CURLOPT_HTTPHEADER => ['Authorization: Bearer YOUR_TOKEN', 'Content-Type: application/json'],
+    CURLOPT_POSTFIELDS => json_encode(['from_branch_id' => 1, 'to_branch_id' => 2, 'product_id' => 1, 'product_batch_id' => 1, 'quantity' => 20]),
+    CURLOPT_RETURNTRANSFER => true
+]);
+$res = curl_exec($ch); curl_close($ch);
+print_r(json_decode($res, true));</code></pre></div>
+    <div class="tab-panel" data-lang="java"><pre><code>HttpRequest request = HttpRequest.newBuilder()
+    .uri(URI.create("http://localhost:8000/api/v1/inventory/stock-transfer"))
+    .header("Authorization", "Bearer YOUR_TOKEN").header("Content-Type", "application/json")
+    .POST(HttpRequest.BodyPublishers.ofString("{\"from_branch_id\":1,\"to_branch_id\":2,\"product_id\":1,\"product_batch_id\":1,\"quantity\":20}"))
+    .build();
+HttpResponse&lt;String&gt; response = client.send(request, HttpResponse.BodyHandlers.ofString());
+System.out.println(response.body());</code></pre></div>
+    <div class="tab-panel" data-lang="csharp"><pre><code>var body = new { from_branch_id = 1, to_branch_id = 2, product_id = 1, product_batch_id = 1, quantity = 20 };
+var content = new StringContent(System.Text.Json.JsonSerializer.Serialize(body), Encoding.UTF8, "application/json");
+var response = await client.PostAsync("http://localhost:8000/api/v1/inventory/stock-transfer", content);
+Console.WriteLine(await response.Content.ReadAsStringAsync());</code></pre></div>
+    <div class="tab-panel" data-lang="javascript"><pre><code>const res = await fetch('http://localhost:8000/api/v1/inventory/stock-transfer', {
+  method: 'POST',
+  headers: { 'Authorization': 'Bearer YOUR_TOKEN', 'Content-Type': 'application/json' },
+  body: JSON.stringify({ from_branch_id: 1, to_branch_id: 2, product_id: 1, product_batch_id: 1, quantity: 20 })
+});
+console.log(await res.json());</code></pre></div>
+  </div>
+  <p class="desc"><code>GET /inventory/expiring?days=90</code>, <code>GET /inventory/low-stock</code>, <code>GET /inventory/valuation</code> — scoped by role (all branches for super_admin/admin). <code>POST /inventory/receive-delivery</code> — product must belong to user's branch. <code>GET /inventory/purchase-history?per_page=15</code> — stock-in history, scoped by branch for non-admin.</p>
+
+  <h2 id="pos">POS (local node)</h2>
+  <p class="desc">Requires NODE_TYPE=local. Products and transactions are scoped to the cashier's branch. <strong>Terminal must be registered</strong> (by Super Admin in Terminals settings); otherwise POS returns 403 &quot;POS is not registered. Please register this terminal in Settings.&quot; Use <code>GET /pos/terminal/check?terminal_id=1</code> on startup to verify.</p>
+  <div class="endpoint">
+    <div class="endpoint-header"><span class="method get">GET</span><span class="path">/pos/terminal/check</span></div>
+    <p class="desc">Check if a terminal is registered and active for the cashier's branch. Query: terminal_id. Returns 200 with terminal data if OK; 403 &quot;POS is not registered&quot; if not.</p>
+    <div class="tabs">
+      <button type="button" class="active" data-lang="curl">cURL</button>
+      <button type="button" data-lang="ruby">Ruby</button>
+      <button type="button" data-lang="python">Python</button>
+      <button type="button" data-lang="php">PHP</button>
+      <button type="button" data-lang="java">Java</button>
+      <button type="button" data-lang="csharp">C#</button>
+      <button type="button" data-lang="javascript">JavaScript</button>
+    </div>
+    <div class="tab-panel active" data-lang="curl"><pre><code>curl -X GET "http://localhost:8000/api/v1/pos/terminal/check?terminal_id=1" \
+  -H "Authorization: Bearer YOUR_TOKEN" -H "Accept: application/json"</code></pre></div>
+    <div class="tab-panel" data-lang="ruby"><pre><code>uri = URI('http://localhost:8000/api/v1/pos/terminal/check?terminal_id=1')
+req = Net::HTTP::Get.new(uri)
+req['Authorization'] = 'Bearer YOUR_TOKEN'
+req['Accept'] = 'application/json'
+res = Net::HTTP.start(uri.hostname, uri.port) { |h| h.request(req) }
+puts res.body</code></pre></div>
+    <div class="tab-panel" data-lang="python"><pre><code>r = requests.get('http://localhost:8000/api/v1/pos/terminal/check', params={'terminal_id': 1},
+    headers={'Authorization': 'Bearer YOUR_TOKEN', 'Accept': 'application/json'})
+print(r.json())</code></pre></div>
+    <div class="tab-panel" data-lang="php"><pre><code>$ch = curl_init('http://localhost:8000/api/v1/pos/terminal/check?terminal_id=1');
+curl_setopt_array($ch, [CURLOPT_HTTPHEADER => ['Authorization: Bearer YOUR_TOKEN', 'Accept: application/json'], CURLOPT_RETURNTRANSFER => true]);
+$res = curl_exec($ch); curl_close($ch);
+print_r(json_decode($res, true));</code></pre></div>
+    <div class="tab-panel" data-lang="java"><pre><code>HttpRequest request = HttpRequest.newBuilder()
+    .uri(URI.create("http://localhost:8000/api/v1/pos/terminal/check?terminal_id=1"))
+    .header("Authorization", "Bearer YOUR_TOKEN").header("Accept", "application/json")
+    .GET().build();
+HttpResponse&lt;String&gt; response = client.send(request, HttpResponse.BodyHandlers.ofString());
+System.out.println(response.body());</code></pre></div>
+    <div class="tab-panel" data-lang="csharp"><pre><code>var response = await client.GetAsync("http://localhost:8000/api/v1/pos/terminal/check?terminal_id=1");
+Console.WriteLine(await response.Content.ReadAsStringAsync());</code></pre></div>
+    <div class="tab-panel" data-lang="javascript"><pre><code>const res = await fetch('http://localhost:8000/api/v1/pos/terminal/check?terminal_id=1', {
+  headers: { 'Authorization': 'Bearer YOUR_TOKEN', 'Accept': 'application/json' }
+});
+console.log(await res.json());</code></pre></div>
+  </div>
+  <div class="endpoint">
+    <div class="endpoint-header"><span class="method post">POST</span><span class="path">/pos/session/open</span></div>
+    <p class="desc">Open cashier session. <strong>terminal_id required</strong> (must be a registered, active terminal for the branch). Body: terminal_id (required), opening_cash.</p>
+    <div class="tabs">
+      <button type="button" class="active" data-lang="curl">cURL</button>
+      <button type="button" data-lang="ruby">Ruby</button>
+      <button type="button" data-lang="python">Python</button>
+      <button type="button" data-lang="php">PHP</button>
+      <button type="button" data-lang="java">Java</button>
+      <button type="button" data-lang="csharp">C#</button>
+      <button type="button" data-lang="javascript">JavaScript</button>
+    </div>
+    <div class="tab-panel active" data-lang="curl"><pre><code>curl -X POST "http://localhost:8000/api/v1/pos/session/open" \
+  -H "Authorization: Bearer YOUR_TOKEN" -H "Content-Type: application/json" \
+  -d '{"terminal_id":1,"opening_cash":1000}'</code></pre></div>
+    <div class="tab-panel" data-lang="ruby"><pre><code>uri = URI('http://localhost:8000/api/v1/pos/session/open')
+req = Net::HTTP::Post.new(uri)
+req['Authorization'] = 'Bearer YOUR_TOKEN'
+req['Content-Type'] = 'application/json'
+req.body = '{"terminal_id":1,"opening_cash":1000}'
+res = Net::HTTP.start(uri.hostname, uri.port) { |h| h.request(req) }
+puts res.body</code></pre></div>
+    <div class="tab-panel" data-lang="python"><pre><code>r = requests.post('http://localhost:8000/api/v1/pos/session/open',
+    json={'terminal_id': 1, 'opening_cash': 1000},
+    headers={'Authorization': 'Bearer YOUR_TOKEN', 'Content-Type': 'application/json'})
+print(r.json())</code></pre></div>
+    <div class="tab-panel" data-lang="php"><pre><code>$ch = curl_init('http://localhost:8000/api/v1/pos/session/open');
+curl_setopt_array($ch, [
+    CURLOPT_POST => true,
+    CURLOPT_HTTPHEADER => ['Authorization: Bearer YOUR_TOKEN', 'Content-Type: application/json'],
+    CURLOPT_POSTFIELDS => json_encode(['terminal_id' => 1, 'opening_cash' => 1000]),
+    CURLOPT_RETURNTRANSFER => true
+]);
+$res = curl_exec($ch); curl_close($ch);
+print_r(json_decode($res, true));</code></pre></div>
+    <div class="tab-panel" data-lang="java"><pre><code>HttpRequest request = HttpRequest.newBuilder()
+    .uri(URI.create("http://localhost:8000/api/v1/pos/session/open"))
+    .header("Authorization", "Bearer YOUR_TOKEN").header("Content-Type", "application/json")
+    .POST(HttpRequest.BodyPublishers.ofString("{\"terminal_id\":1,\"opening_cash\":1000}"))
+    .build();
+HttpResponse&lt;String&gt; response = client.send(request, HttpResponse.BodyHandlers.ofString());
+System.out.println(response.body());</code></pre></div>
+    <div class="tab-panel" data-lang="csharp"><pre><code>var body = new { terminal_id = 1, opening_cash = 1000 };
+var content = new StringContent(System.Text.Json.JsonSerializer.Serialize(body), Encoding.UTF8, "application/json");
+var response = await client.PostAsync("http://localhost:8000/api/v1/pos/session/open", content);
+Console.WriteLine(await response.Content.ReadAsStringAsync());</code></pre></div>
+    <div class="tab-panel" data-lang="javascript"><pre><code>const res = await fetch('http://localhost:8000/api/v1/pos/session/open', {
+  method: 'POST',
+  headers: { 'Authorization': 'Bearer YOUR_TOKEN', 'Content-Type': 'application/json' },
+  body: JSON.stringify({ terminal_id: 1, opening_cash: 1000 })
+});
+console.log(await res.json());</code></pre></div>
+  </div>
+  <p class="desc">If terminal is not registered or inactive, response is 403: &quot;POS is not registered. Please register this terminal in Settings.&quot;</p>
+  <div class="endpoint">
+    <div class="endpoint-header"><span class="method post">POST</span><span class="path">/pos/session/close</span></div>
+    <p class="desc">Body: session_id, closing_cash.</p>
+    <div class="tabs">
+      <button type="button" class="active" data-lang="curl">cURL</button>
+      <button type="button" data-lang="ruby">Ruby</button>
+      <button type="button" data-lang="python">Python</button>
+      <button type="button" data-lang="php">PHP</button>
+      <button type="button" data-lang="java">Java</button>
+      <button type="button" data-lang="csharp">C#</button>
+      <button type="button" data-lang="javascript">JavaScript</button>
+    </div>
+    <div class="tab-panel active" data-lang="curl"><pre><code>curl -X POST "http://localhost:8000/api/v1/pos/session/close" \
+  -H "Authorization: Bearer YOUR_TOKEN" -H "Content-Type: application/json" \
+  -d '{"session_id":1,"closing_cash":1500}'</code></pre></div>
+    <div class="tab-panel" data-lang="ruby"><pre><code>uri = URI('http://localhost:8000/api/v1/pos/session/close')
+req = Net::HTTP::Post.new(uri)
+req['Authorization'] = 'Bearer YOUR_TOKEN'
+req['Content-Type'] = 'application/json'
+req.body = '{"session_id":1,"closing_cash":1500}'
+res = Net::HTTP.start(uri.hostname, uri.port) { |h| h.request(req) }
+puts res.body</code></pre></div>
+    <div class="tab-panel" data-lang="python"><pre><code>r = requests.post('http://localhost:8000/api/v1/pos/session/close',
+    json={'session_id': 1, 'closing_cash': 1500},
+    headers={'Authorization': 'Bearer YOUR_TOKEN', 'Content-Type': 'application/json'})
+print(r.json())</code></pre></div>
+    <div class="tab-panel" data-lang="php"><pre><code>$ch = curl_init('http://localhost:8000/api/v1/pos/session/close');
+curl_setopt_array($ch, [
+    CURLOPT_POST => true,
+    CURLOPT_HTTPHEADER => ['Authorization: Bearer YOUR_TOKEN', 'Content-Type: application/json'],
+    CURLOPT_POSTFIELDS => json_encode(['session_id' => 1, 'closing_cash' => 1500]),
+    CURLOPT_RETURNTRANSFER => true
+]);
+$res = curl_exec($ch); curl_close($ch);
+print_r(json_decode($res, true));</code></pre></div>
+    <div class="tab-panel" data-lang="java"><pre><code>HttpRequest request = HttpRequest.newBuilder()
+    .uri(URI.create("http://localhost:8000/api/v1/pos/session/close"))
+    .header("Authorization", "Bearer YOUR_TOKEN").header("Content-Type", "application/json")
+    .POST(HttpRequest.BodyPublishers.ofString("{\"session_id\":1,\"closing_cash\":1500}"))
+    .build();
+HttpResponse&lt;String&gt; response = client.send(request, HttpResponse.BodyHandlers.ofString());
+System.out.println(response.body());</code></pre></div>
+    <div class="tab-panel" data-lang="csharp"><pre><code>var body = new { session_id = 1, closing_cash = 1500 };
+var content = new StringContent(System.Text.Json.JsonSerializer.Serialize(body), Encoding.UTF8, "application/json");
+var response = await client.PostAsync("http://localhost:8000/api/v1/pos/session/close", content);
+Console.WriteLine(await response.Content.ReadAsStringAsync());</code></pre></div>
+    <div class="tab-panel" data-lang="javascript"><pre><code>const res = await fetch('http://localhost:8000/api/v1/pos/session/close', {
+  method: 'POST',
+  headers: { 'Authorization': 'Bearer YOUR_TOKEN', 'Content-Type': 'application/json' },
+  body: JSON.stringify({ session_id: 1, closing_cash: 1500 })
+});
+console.log(await res.json());</code></pre></div>
+  </div>
+  <div class="endpoint">
+    <div class="endpoint-header"><span class="method get">GET</span><span class="path">/pos/products/search</span></div>
+    <p class="desc">Query: q (barcode or name).</p>
+    <div class="tabs">
+      <button type="button" class="active" data-lang="curl">cURL</button>
+      <button type="button" data-lang="ruby">Ruby</button>
+      <button type="button" data-lang="python">Python</button>
+      <button type="button" data-lang="php">PHP</button>
+      <button type="button" data-lang="java">Java</button>
+      <button type="button" data-lang="csharp">C#</button>
+      <button type="button" data-lang="javascript">JavaScript</button>
+    </div>
+    <div class="tab-panel active" data-lang="curl"><pre><code>curl -X GET "http://localhost:8000/api/v1/pos/products/search?q=paracetamol" \
+  -H "Authorization: Bearer YOUR_TOKEN" -H "Accept: application/json"</code></pre></div>
+    <div class="tab-panel" data-lang="ruby"><pre><code>uri = URI('http://localhost:8000/api/v1/pos/products/search?q=paracetamol')
+req = Net::HTTP::Get.new(uri)
+req['Authorization'] = 'Bearer YOUR_TOKEN'
+req['Accept'] = 'application/json'
+res = Net::HTTP.start(uri.hostname, uri.port) { |h| h.request(req) }
+puts res.body</code></pre></div>
+    <div class="tab-panel" data-lang="python"><pre><code>r = requests.get('http://localhost:8000/api/v1/pos/products/search', params={'q': 'paracetamol'},
+    headers={'Authorization': 'Bearer YOUR_TOKEN', 'Accept': 'application/json'})
+print(r.json())</code></pre></div>
+    <div class="tab-panel" data-lang="php"><pre><code>$ch = curl_init('http://localhost:8000/api/v1/pos/products/search?q=paracetamol');
+curl_setopt_array($ch, [CURLOPT_HTTPHEADER => ['Authorization: Bearer YOUR_TOKEN', 'Accept: application/json'], CURLOPT_RETURNTRANSFER => true]);
+$res = curl_exec($ch); curl_close($ch);
+print_r(json_decode($res, true));</code></pre></div>
+    <div class="tab-panel" data-lang="java"><pre><code>HttpRequest request = HttpRequest.newBuilder()
+    .uri(URI.create("http://localhost:8000/api/v1/pos/products/search?q=paracetamol"))
+    .header("Authorization", "Bearer YOUR_TOKEN").header("Accept", "application/json")
+    .GET().build();
+HttpResponse&lt;String&gt; response = client.send(request, HttpResponse.BodyHandlers.ofString());
+System.out.println(response.body());</code></pre></div>
+    <div class="tab-panel" data-lang="csharp"><pre><code>var response = await client.GetAsync("http://localhost:8000/api/v1/pos/products/search?q=paracetamol");
+Console.WriteLine(await response.Content.ReadAsStringAsync());</code></pre></div>
+    <div class="tab-panel" data-lang="javascript"><pre><code>const res = await fetch('http://localhost:8000/api/v1/pos/products/search?q=paracetamol', {
+  headers: { 'Authorization': 'Bearer YOUR_TOKEN', 'Accept': 'application/json' }
+});
+console.log(await res.json());</code></pre></div>
+  </div>
+  <div class="endpoint">
+    <div class="endpoint-header"><span class="method post">POST</span><span class="path">/pos/transactions</span></div>
+    <p class="desc">Complete sale. <strong>terminal_id required</strong> (must be registered and active). Body: items (array of product_id, product_batch_id, quantity, unit_price), payment_method, discount_amount, terminal_id (required).</p>
+    <div class="body-json"><strong>Body:</strong><pre>{"items":[{"product_id":1,"product_batch_id":1,"quantity":2,"unit_price":25}],"payment_method":"cash","discount_amount":0,"terminal_id":1}</pre></div>
+    <div class="tabs">
+      <button type="button" class="active" data-lang="curl">cURL</button>
+      <button type="button" data-lang="ruby">Ruby</button>
+      <button type="button" data-lang="python">Python</button>
+      <button type="button" data-lang="php">PHP</button>
+      <button type="button" data-lang="java">Java</button>
+      <button type="button" data-lang="csharp">C#</button>
+      <button type="button" data-lang="javascript">JavaScript</button>
+    </div>
+    <div class="tab-panel active" data-lang="curl"><pre><code>curl -X POST "http://localhost:8000/api/v1/pos/transactions" \
+  -H "Authorization: Bearer YOUR_TOKEN" -H "Content-Type: application/json" \
+  -d '{"items":[{"product_id":1,"product_batch_id":1,"quantity":2,"unit_price":25}],"payment_method":"cash","terminal_id":1}'</code></pre></div>
+    <div class="tab-panel" data-lang="ruby"><pre><code>uri = URI('http://localhost:8000/api/v1/pos/transactions')
+req = Net::HTTP::Post.new(uri)
+req['Authorization'] = 'Bearer YOUR_TOKEN'
+req['Content-Type'] = 'application/json'
+req.body = '{"items":[{"product_id":1,"product_batch_id":1,"quantity":2,"unit_price":25}],"payment_method":"cash","terminal_id":1}'
+res = Net::HTTP.start(uri.hostname, uri.port) { |h| h.request(req) }
+puts res.body</code></pre></div>
+    <div class="tab-panel" data-lang="python"><pre><code>r = requests.post('http://localhost:8000/api/v1/pos/transactions',
+    json={'items': [{'product_id': 1, 'product_batch_id': 1, 'quantity': 2, 'unit_price': 25}], 'payment_method': 'cash', 'terminal_id': 1},
+    headers={'Authorization': 'Bearer YOUR_TOKEN', 'Content-Type': 'application/json'})
+print(r.json())</code></pre></div>
+    <div class="tab-panel" data-lang="php"><pre><code>$ch = curl_init('http://localhost:8000/api/v1/pos/transactions');
+curl_setopt_array($ch, [
+    CURLOPT_POST => true,
+    CURLOPT_HTTPHEADER => ['Authorization: Bearer YOUR_TOKEN', 'Content-Type: application/json'],
+    CURLOPT_POSTFIELDS => json_encode(['items' => [['product_id' => 1, 'product_batch_id' => 1, 'quantity' => 2, 'unit_price' => 25]], 'payment_method' => 'cash', 'terminal_id' => 1]),
+    CURLOPT_RETURNTRANSFER => true
+]);
+$res = curl_exec($ch); curl_close($ch);
+print_r(json_decode($res, true));</code></pre></div>
+    <div class="tab-panel" data-lang="java"><pre><code>HttpRequest request = HttpRequest.newBuilder()
+    .uri(URI.create("http://localhost:8000/api/v1/pos/transactions"))
+    .header("Authorization", "Bearer YOUR_TOKEN").header("Content-Type", "application/json")
+    .POST(HttpRequest.BodyPublishers.ofString("{\"items\":[{\"product_id\":1,\"product_batch_id\":1,\"quantity\":2,\"unit_price\":25}],\"payment_method\":\"cash\",\"terminal_id\":1}"))
+    .build();
+HttpResponse&lt;String&gt; response = client.send(request, HttpResponse.BodyHandlers.ofString());
+System.out.println(response.body());</code></pre></div>
+    <div class="tab-panel" data-lang="csharp"><pre><code>var body = new { items = new[] { new { product_id = 1, product_batch_id = 1, quantity = 2, unit_price = 25 } }, payment_method = "cash", terminal_id = 1 };
+var content = new StringContent(System.Text.Json.JsonSerializer.Serialize(body), Encoding.UTF8, "application/json");
+var response = await client.PostAsync("http://localhost:8000/api/v1/pos/transactions", content);
+Console.WriteLine(await response.Content.ReadAsStringAsync());</code></pre></div>
+    <div class="tab-panel" data-lang="javascript"><pre><code>const res = await fetch('http://localhost:8000/api/v1/pos/transactions', {
+  method: 'POST',
+  headers: { 'Authorization': 'Bearer YOUR_TOKEN', 'Content-Type': 'application/json' },
+  body: JSON.stringify({ items: [{ product_id: 1, product_batch_id: 1, quantity: 2, unit_price: 25 }], payment_method: 'cash', terminal_id: 1 })
+});
+console.log(await res.json());</code></pre></div>
+  </div>
+  <p class="desc"><code>GET /pos/transactions/{id}/receipt</code>, <code>POST /pos/transactions/{id}/void</code>, <code>GET /pos/cashier/summary</code>.</p>
+
+  <h2 id="sync">Sync (local node)</h2>
+  <div class="endpoint">
+    <div class="endpoint-header"><span class="method post">POST</span><span class="path">/sync/push</span></div>
+    <p class="desc">Push local data to cloud. Auth required.</p>
+    <div class="tabs">
+      <button type="button" class="active" data-lang="curl">cURL</button>
+      <button type="button" data-lang="ruby">Ruby</button>
+      <button type="button" data-lang="python">Python</button>
+      <button type="button" data-lang="php">PHP</button>
+      <button type="button" data-lang="java">Java</button>
+      <button type="button" data-lang="csharp">C#</button>
+      <button type="button" data-lang="javascript">JavaScript</button>
+    </div>
+    <div class="tab-panel active" data-lang="curl"><pre><code>curl -X POST "http://localhost:8000/api/v1/sync/push" \
+  -H "Authorization: Bearer YOUR_TOKEN" -H "Accept: application/json"</code></pre></div>
+    <div class="tab-panel" data-lang="ruby"><pre><code>uri = URI('http://localhost:8000/api/v1/sync/push')
+req = Net::HTTP::Post.new(uri)
+req['Authorization'] = 'Bearer YOUR_TOKEN'
+req['Accept'] = 'application/json'
+res = Net::HTTP.start(uri.hostname, uri.port) { |h| h.request(req) }
+puts res.body</code></pre></div>
+    <div class="tab-panel" data-lang="python"><pre><code>r = requests.post('http://localhost:8000/api/v1/sync/push',
+    headers={'Authorization': 'Bearer YOUR_TOKEN', 'Accept': 'application/json'})
+print(r.json())</code></pre></div>
+    <div class="tab-panel" data-lang="php"><pre><code>$ch = curl_init('http://localhost:8000/api/v1/sync/push');
+curl_setopt_array($ch, [
+    CURLOPT_POST => true,
+    CURLOPT_HTTPHEADER => ['Authorization: Bearer YOUR_TOKEN', 'Accept: application/json'],
+    CURLOPT_RETURNTRANSFER => true
+]);
+$res = curl_exec($ch); curl_close($ch);
+print_r(json_decode($res, true));</code></pre></div>
+    <div class="tab-panel" data-lang="java"><pre><code>HttpRequest request = HttpRequest.newBuilder()
+    .uri(URI.create("http://localhost:8000/api/v1/sync/push"))
+    .header("Authorization", "Bearer YOUR_TOKEN").header("Accept", "application/json")
+    .POST(HttpRequest.BodyPublishers.noBody())
+    .build();
+HttpResponse&lt;String&gt; response = client.send(request, HttpResponse.BodyHandlers.ofString());
+System.out.println(response.body());</code></pre></div>
+    <div class="tab-panel" data-lang="csharp"><pre><code>using var client = new HttpClient();
+client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", "YOUR_TOKEN");
+client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+var response = await client.PostAsync("http://localhost:8000/api/v1/sync/push", null);
+Console.WriteLine(await response.Content.ReadAsStringAsync());</code></pre></div>
+    <div class="tab-panel" data-lang="javascript"><pre><code>const res = await fetch('http://localhost:8000/api/v1/sync/push', {
+  method: 'POST',
+  headers: { 'Authorization': 'Bearer YOUR_TOKEN', 'Accept': 'application/json' }
+});
+console.log(await res.json());</code></pre></div>
+  </div>
+  <p class="desc"><code>GET /sync/pull</code>, <code>POST /sync/heartbeat</code> (body optional: branch_id, node_id).</p>
+
+  <hr style="border-color: var(--card); margin: 2rem 0;">
+  <p class="subtitle">Replace <code>YOUR_TOKEN</code> with <code>data.token</code> from <code>POST /auth/login</code>. Demo: admin@demo.pharmapos.test / password. Cashier PIN login: branch_id=1, pin=1234.</p>
+  </main>
+
+  <script>
+    (function() {
+      var nav = document.querySelector('.sidebar nav');
+      var links = nav && nav.querySelectorAll('a[href^="#"]');
+      if (!links || !links.length) return;
+      function setActive(id) {
+        links.forEach(function(a) {
+          var href = a.getAttribute('href');
+          a.classList.toggle('active', href === '#' + id);
+        });
+      }
+      links.forEach(function(a) {
+        a.addEventListener('click', function() { setActive(a.getAttribute('href').slice(1)); });
+      });
+      function onScroll() {
+        var ids = ['auth','user','dashboard','users','products','transactions','bir-receipts','reports','branches','terminals','inventory','pos','sync'];
+        var top = window.scrollY || document.documentElement.scrollTop;
+        var found = null;
+        for (var i = ids.length - 1; i >= 0; i--) {
+          var el = document.getElementById(ids[i]);
+          if (el && el.getBoundingClientRect().top <= 120) { found = ids[i]; break; }
+        }
+        if (found) setActive(found);
+      }
+      window.addEventListener('scroll', onScroll, { passive: true });
+      if (window.location.hash) setActive(window.location.hash.slice(1));
+    })();
+    document.querySelectorAll('.tabs').forEach(function(tabBar) {
+      var panels = tabBar.parentElement.querySelectorAll('.tab-panel');
+      tabBar.querySelectorAll('button').forEach(function(btn) {
+        btn.addEventListener('click', function() {
+          var lang = this.getAttribute('data-lang');
+          tabBar.querySelectorAll('button').forEach(function(b) { b.classList.remove('active'); });
+          this.classList.add('active');
+          panels.forEach(function(p) {
+            p.classList.toggle('active', p.getAttribute('data-lang') === lang);
+          });
+        });
+      });
+    });
+  </script>
+</body>
+</html>
