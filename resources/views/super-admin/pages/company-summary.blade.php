@@ -374,9 +374,13 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js" crossorigin="anonymous"></script>
 <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0/dist/chartjs-plugin-datalabels.min.js" crossorigin="anonymous"></script>
 <script>
-    // CDN auto-registers ChartDataLabels globally — unregister so it only applies
-    // to charts that explicitly pass plugins:[ChartDataLabels] in their config.
-    if (typeof ChartDataLabels !== 'undefined') { Chart.unregister(ChartDataLabels); }
+    // Keep ChartDataLabels registered but globally hidden by default.
+    // Charts that need it explicitly set plugins: { datalabels: { display: true, ... } }.
+    // This avoids any scale/axis interference caused by the plugin running on all charts.
+    if (typeof ChartDataLabels !== 'undefined' && typeof Chart !== 'undefined') {
+        if (!Chart.defaults.plugins.datalabels) Chart.defaults.plugins.datalabels = {};
+        Chart.defaults.plugins.datalabels.display = false;
+    }
 </script>
 <script>
 (function() {
@@ -599,13 +603,15 @@
                     scales: {
                         y: {
                             type: 'linear',
-                            beginAtZero: true,
+                            min: 0,
                             grid: { color: 'rgba(148,163,184,0.15)' },
                             ticks: {
                                 callback: function(v) {
-                                    if (v >= 1000000) return '₱' + (v / 1000000).toFixed(1) + 'M';
-                                    if (v >= 1000)    return '₱' + (v / 1000).toFixed(0) + 'k';
-                                    return '₱' + parseFloat(v).toLocaleString('en-PH', { maximumFractionDigits: 0 });
+                                    var n = Math.round(parseFloat(v));
+                                    if (isNaN(n)) return '';
+                                    if (n >= 1000000) return '\u20B1' + (n / 1000000).toFixed(1) + 'M';
+                                    if (n >= 1000)    return '\u20B1' + Math.round(n / 1000) + 'k';
+                                    return '\u20B1' + n;
                                 }
                             }
                         },
@@ -664,6 +670,9 @@
             });
             var curYear  = new Date().getFullYear();
             var prevYear = curYear - 1;
+            // Ensure Y-axis has a sensible max even when all data is zero
+            var monthlyMax = Math.max.apply(null, thisYearData.concat(lastYearData));
+            var monthlySuggestedMax = monthlyMax > 0 ? undefined : 5000;
             chartMonthly = new Chart(ctxMonthly, {
                 type: 'bar',
                 data: {
@@ -695,13 +704,17 @@
                     scales: {
                         y: {
                             type: 'linear',
-                            beginAtZero: true,
+                            min: 0,
+                            suggestedMax: monthlySuggestedMax,
                             grid: { color: 'rgba(148,163,184,0.15)' },
                             ticks: {
+                                // Use pure arithmetic — avoids locale-specific %/comma issues
                                 callback: function(v) {
-                                    if (v >= 1000000) return '₱' + (v / 1000000).toFixed(1) + 'M';
-                                    if (v >= 1000)    return '₱' + (v / 1000).toFixed(0) + 'k';
-                                    return '₱' + parseFloat(v).toLocaleString('en-PH', { maximumFractionDigits: 0 });
+                                    var n = Math.round(parseFloat(v));
+                                    if (isNaN(n)) return '';
+                                    if (n >= 1000000) return '\u20B1' + (n / 1000000).toFixed(1) + 'M';
+                                    if (n >= 1000)    return '\u20B1' + Math.round(n / 1000) + 'k';
+                                    return '\u20B1' + n;
                                 }
                             }
                         },
@@ -780,6 +793,7 @@
                     plugins: {
                         legend: { display: false },
                         datalabels: {
+                            display: true,
                             anchor: 'end',
                             align: 'right',
                             clamp: false,
@@ -790,7 +804,10 @@
                             borderRadius: 4,
                             padding: { left: 5, right: 5, top: 2, bottom: 2 },
                             font: { weight: 'bold', size: 11 },
-                            formatter: function(v) { return '₱' + parseFloat(v).toLocaleString('en-PH', { minimumFractionDigits: 0, maximumFractionDigits: 0 }); }
+                            formatter: function(v) {
+                                var n = Math.round(parseFloat(v));
+                                return '\u20B1' + n.toLocaleString();
+                            }
                         },
                         tooltip: {
                             callbacks: {
@@ -849,6 +866,7 @@
                     plugins: {
                         legend: { display: false },
                         datalabels: {
+                            display: true,
                             anchor: 'end',
                             align: 'end',
                             clamp: false,
@@ -859,7 +877,9 @@
                             borderRadius: 4,
                             padding: { left: 5, right: 5, top: 2, bottom: 2 },
                             font: { weight: 'bold', size: 11 },
-                            formatter: function(value) { return value.toLocaleString() + ' sold'; }
+                            formatter: function(value) {
+                                return Math.round(parseFloat(value)).toLocaleString() + ' sold';
+                            }
                         },
                         tooltip: {
                             callbacks: {
@@ -1079,8 +1099,8 @@
                 } else {
                     orEl.innerHTML = orRanges.map(function(r) {
                         return '<div class="flex items-center justify-between gap-2">'
-                            + '<span class="truncate font-medium text-slate-700 dark:text-slate-300">' + escapeHtml(r.branch_name || 'Branch') + '</span>'
-                            + '<span class="flex-shrink-0 rounded bg-slate-100 dark:bg-darkmode-500 px-2 py-0.5 text-xs text-slate-600 dark:text-slate-300">' + escapeHtml(r.or_from || '—') + ' – ' + escapeHtml(r.or_to || '—') + '</span>'
+                            + '<span class="truncate text-sm font-semibold text-slate-700 dark:text-slate-300">' + escapeHtml(r.branch_name || 'Branch') + '</span>'
+                            + '<span class="flex-shrink-0 rounded bg-primary/10 px-2.5 py-0.5 text-sm font-semibold text-primary dark:bg-primary/20 dark:text-primary">' + escapeHtml(r.or_from || '—') + ' – ' + escapeHtml(r.or_to || '—') + '</span>'
                             + '</div>';
                     }).join('');
                 }
