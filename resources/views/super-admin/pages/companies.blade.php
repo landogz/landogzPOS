@@ -140,15 +140,18 @@
                     <label for="company-contact" class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">Contact</label>
                     <input type="text" id="company-contact" name="contact" class="w-full rounded-lg border border-slate-200 dark:border-darkmode-500 bg-white dark:bg-darkmode-700 px-4 py-2.5 text-slate-800 dark:text-slate-200 placeholder-slate-400 dark:placeholder-slate-500 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition dark:focus:border-primary" placeholder="Phone or email">
                 </div>
-                {{-- VAT toggle --}}
-                <div class="flex items-center justify-between rounded-xl border border-slate-200 dark:border-darkmode-500 bg-slate-50/50 dark:bg-darkmode-700/30 px-5 py-4">
+                {{-- VAT toggle (track + thumb so on/off is clearly visible) --}}
+                <div class="flex items-center justify-between gap-4 rounded-xl border border-slate-200 dark:border-darkmode-500 bg-slate-50/50 dark:bg-darkmode-700/30 px-5 py-4">
                     <div>
                         <p class="text-sm font-medium text-slate-700 dark:text-slate-300">VAT Registered</p>
                         <p class="mt-0.5 text-xs text-slate-500 dark:text-slate-400">Company is subject to Value-Added Tax (12%)</p>
                     </div>
-                    <label class="relative inline-flex cursor-pointer items-center">
-                        <input type="checkbox" id="company-is-vat" name="is_vat" value="1" class="peer sr-only" checked>
-                        <div class="peer h-6 w-11 rounded-full bg-slate-200 dark:bg-darkmode-400 transition-colors after:absolute after:left-[2px] after:top-[2px] after:h-5 after:w-5 after:rounded-full after:bg-white after:shadow after:transition-all after:content-[''] peer-checked:bg-primary peer-checked:after:translate-x-full peer-focus:ring-2 peer-focus:ring-primary/30"></div>
+                    <label class="inline-flex cursor-pointer items-center gap-3">
+                        <input type="checkbox" id="company-is-vat" name="is_vat" value="1" class="sr-only" checked>
+                        <span id="company-is-vat-label" class="text-sm font-semibold min-w-[4.5rem]">VAT</span>
+                        <span id="company-is-vat-track" class="relative inline-block h-7 w-12 flex-shrink-0 rounded-full border-2 border-slate-300 dark:border-darkmode-500 bg-slate-200 dark:bg-darkmode-400 transition-colors">
+                            <span id="company-is-vat-thumb" class="absolute left-0.5 top-0.5 h-5 w-5 rounded-full bg-white shadow-md ring-1 ring-black/10 transition-transform duration-200 translate-x-5"></span>
+                        </span>
                     </label>
                 </div>
             </div>
@@ -390,8 +393,7 @@
                 +     '<span>' + branchCount + ' ' + (branchCount === 1 ? 'Branch' : 'Branches') + '</span>'
                 +   '</div>'
                 +   '<div class="h-4 w-px flex-shrink-0 bg-slate-200 dark:bg-darkmode-500"></div>'
-                +   '<div class="flex items-center gap-1.5 text-sm font-semibold text-emerald-600 dark:text-emerald-400">'
-                +     '<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="flex-shrink-0"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>'
+                +   '<div class="flex items-center text-sm font-semibold text-emerald-600 dark:text-emerald-400">'
                 +     '<span>' + formatMoney(totalSales) + '</span>'
                 +   '</div>'
                 + '</div>'
@@ -508,6 +510,31 @@
     }
 
     var vatCheckbox = document.getElementById('company-is-vat');
+    var vatLabelEl  = document.getElementById('company-is-vat-label');
+    var vatTrackEl  = document.getElementById('company-is-vat-track');
+    var vatThumbEl  = document.getElementById('company-is-vat-thumb');
+
+    function updateVatToggleDisplay() {
+        if (!vatCheckbox || !vatLabelEl || !vatTrackEl || !vatThumbEl) return;
+        var checked = vatCheckbox.checked;
+        vatLabelEl.textContent = checked ? 'VAT' : 'Non-VAT';
+        vatLabelEl.classList.toggle('text-primary', checked);
+        vatLabelEl.classList.toggle('text-slate-500', !checked);
+        vatLabelEl.classList.toggle('dark:text-slate-400', !checked);
+        vatTrackEl.classList.toggle('border-primary', checked);
+        vatTrackEl.classList.toggle('bg-primary', checked);
+        vatTrackEl.classList.toggle('border-slate-300', !checked);
+        vatTrackEl.classList.toggle('dark:border-darkmode-500', !checked);
+        vatTrackEl.classList.toggle('bg-slate-200', !checked);
+        vatTrackEl.classList.toggle('dark:bg-darkmode-400', !checked);
+        if (checked) {
+            vatThumbEl.classList.remove('translate-x-0.5');
+            vatThumbEl.classList.add('translate-x-5');
+        } else {
+            vatThumbEl.classList.remove('translate-x-5');
+            vatThumbEl.classList.add('translate-x-0.5');
+        }
+    }
 
     function openAdd() {
         document.getElementById('company-id').value = '';
@@ -516,7 +543,7 @@
         document.getElementById('company-bir').value = '';
         document.getElementById('company-address').value = '';
         document.getElementById('company-contact').value = '';
-        if (vatCheckbox) vatCheckbox.checked = true; // default VAT = true
+        if (vatCheckbox) { vatCheckbox.checked = true; updateVatToggleDisplay(); }
         if (logoInput) logoInput.value = '';
         if (logoLabel) logoLabel.textContent = 'Choose file';
         setLogoPreview(null);
@@ -532,7 +559,7 @@
         document.getElementById('company-bir').value = c.bir_accreditation || '';
         document.getElementById('company-address').value = c.address || '';
         document.getElementById('company-contact').value = c.contact || '';
-        if (vatCheckbox) vatCheckbox.checked = (c.is_vat !== false);
+        if (vatCheckbox) { vatCheckbox.checked = (c.is_vat !== false); updateVatToggleDisplay(); }
         if (logoInput) logoInput.value = '';
         if (logoLabel) logoLabel.textContent = 'Choose file';
         setLogoPreview(c.logo_url || null);
@@ -633,6 +660,7 @@
     }
 
     // ── Event bindings ────────────────────────────────────────────────────
+    if (vatCheckbox) vatCheckbox.addEventListener('change', updateVatToggleDisplay);
     document.getElementById('companies-add-btn').addEventListener('click', openAdd);
     statusFilter.addEventListener('change', loadCompanies);
     searchInput.addEventListener('input', function () {
