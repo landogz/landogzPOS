@@ -253,7 +253,7 @@
             {{-- Widgets row: Inventory, Top products, BIR, User activity (equal height cards) --}}
             <div class="col-span-12 mt-8 grid grid-cols-12 gap-6 items-stretch">
                 <div class="intro-y col-span-12 sm:col-span-6 2xl:col-span-3 flex">
-                    <div class="box zoom-in p-6 h-full w-full flex flex-col min-h-[200px]">
+                    <div class="box zoom-in p-6 h-full w-full flex flex-col min-h-[230px]">
                         <div class="flex items-start flex-shrink-0 gap-4">
                             <div class="flex-1 min-w-0">
                                 <div class="text-base font-semibold text-slate-800 dark:text-slate-100">Inventory Summary</div>
@@ -269,7 +269,7 @@
                     </div>
                 </div>
                 <div class="intro-y col-span-12 sm:col-span-6 2xl:col-span-3 flex">
-                    <div class="box zoom-in p-6 h-full w-full flex flex-col min-h-[200px]">
+                    <div class="box zoom-in p-6 h-full w-full flex flex-col min-h-[230px]">
                         <div class="flex items-start flex-shrink-0 gap-4">
                             <div class="flex-1 min-w-0">
                                 <div class="text-base font-semibold text-slate-800 dark:text-slate-100">Top Products</div>
@@ -286,7 +286,7 @@
                     </div>
                 </div>
                 <div class="intro-y col-span-12 sm:col-span-6 2xl:col-span-3 flex">
-                    <div class="box zoom-in p-6 h-full w-full flex flex-col min-h-[200px]">
+                    <div class="box zoom-in p-6 h-full w-full flex flex-col min-h-[230px]">
                         <div class="flex items-start flex-shrink-0 gap-4">
                             <div class="flex-1 min-w-0">
                                 <div class="text-base font-semibold text-slate-800 dark:text-slate-100">BIR Compliance</div>
@@ -303,7 +303,7 @@
                     </div>
                 </div>
                 <div class="intro-y col-span-12 sm:col-span-6 2xl:col-span-3 flex">
-                    <div class="box zoom-in p-6 h-full w-full flex flex-col min-h-[200px]">
+                    <div class="box zoom-in p-6 h-full w-full flex flex-col min-h-[230px]">
                         <div class="flex items-start flex-shrink-0 gap-4">
                             <div class="flex-1 min-w-0">
                                 <div class="text-base font-semibold text-slate-800 dark:text-slate-100">User Activity</div>
@@ -373,6 +373,11 @@
 @push('scripts')
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js" crossorigin="anonymous"></script>
 <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0/dist/chartjs-plugin-datalabels.min.js" crossorigin="anonymous"></script>
+<script>
+    // CDN auto-registers ChartDataLabels globally — unregister so it only applies
+    // to charts that explicitly pass plugins:[ChartDataLabels] in their config.
+    if (typeof ChartDataLabels !== 'undefined') { Chart.unregister(ChartDataLabels); }
+</script>
 <script>
 (function() {
     var companyId = {{ $company->id }};
@@ -587,8 +592,33 @@
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
-                    plugins: { legend: { display: false } },
-                    scales: { y: { beginAtZero: true } }
+                    plugins: {
+                        legend: { display: false },
+                        datalabels: { display: false }
+                    },
+                    scales: {
+                        y: {
+                            type: 'linear',
+                            beginAtZero: true,
+                            grid: { color: 'rgba(148,163,184,0.15)' },
+                            ticks: {
+                                callback: function(v) {
+                                    if (v >= 1000000) return '₱' + (v / 1000000).toFixed(1) + 'M';
+                                    if (v >= 1000)    return '₱' + (v / 1000).toFixed(0) + 'k';
+                                    return '₱' + parseFloat(v).toLocaleString('en-PH', { maximumFractionDigits: 0 });
+                                }
+                            }
+                        },
+                        x: {
+                            grid: { display: false },
+                            ticks: {
+                                maxRotation: 45,
+                                minRotation: 30,
+                                maxTicksLimit: 14,
+                                font: { size: 11 }
+                            }
+                        }
+                    }
                 }
             });
         } else if (ctxLine) {
@@ -664,9 +694,16 @@
                     maintainAspectRatio: false,
                     scales: {
                         y: {
+                            type: 'linear',
                             beginAtZero: true,
                             grid: { color: 'rgba(148,163,184,0.15)' },
-                            ticks: { callback: function(v) { return '₱' + (v >= 1000 ? (v/1000).toFixed(0)+'k' : v); } }
+                            ticks: {
+                                callback: function(v) {
+                                    if (v >= 1000000) return '₱' + (v / 1000000).toFixed(1) + 'M';
+                                    if (v >= 1000)    return '₱' + (v / 1000).toFixed(0) + 'k';
+                                    return '₱' + parseFloat(v).toLocaleString('en-PH', { maximumFractionDigits: 0 });
+                                }
+                            }
                         },
                         x: { grid: { display: false } }
                     },
@@ -681,7 +718,8 @@
                                     return ' ' + ctx.dataset.label + ': ₱' + parseFloat(ctx.parsed.y).toLocaleString('en-PH', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
                                 }
                             }
-                        }
+                        },
+                        datalabels: { display: false }
                     }
                 }
             });
@@ -743,9 +781,14 @@
                         legend: { display: false },
                         datalabels: {
                             anchor: 'end',
-                            align: 'end',
-                            offset: 4,
-                            color: function(ctx) { return cashBd[ctx.dataIndex]; },
+                            align: 'right',
+                            clamp: false,
+                            clip: false,
+                            offset: 6,
+                            color: '#1e293b',
+                            backgroundColor: 'rgba(255,255,255,0.92)',
+                            borderRadius: 4,
+                            padding: { left: 5, right: 5, top: 2, bottom: 2 },
                             font: { weight: 'bold', size: 11 },
                             formatter: function(v) { return '₱' + parseFloat(v).toLocaleString('en-PH', { minimumFractionDigits: 0, maximumFractionDigits: 0 }); }
                         },
@@ -808,10 +851,15 @@
                         datalabels: {
                             anchor: 'end',
                             align: 'end',
-                            offset: 2,
-                            color: function(ctx) { return bdColors[ctx.dataIndex]; },
-                            font: { weight: 'bold', size: 12 },
-                            formatter: function(value) { return value.toLocaleString(); }
+                            clamp: false,
+                            clip: false,
+                            offset: 3,
+                            color: '#1e293b',
+                            backgroundColor: 'rgba(255,255,255,0.92)',
+                            borderRadius: 4,
+                            padding: { left: 5, right: 5, top: 2, bottom: 2 },
+                            font: { weight: 'bold', size: 11 },
+                            formatter: function(value) { return value.toLocaleString() + ' sold'; }
                         },
                         tooltip: {
                             callbacks: {
