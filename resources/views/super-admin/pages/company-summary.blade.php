@@ -363,6 +363,7 @@
 
 @push('scripts')
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0/dist/chartjs-plugin-datalabels.min.js" crossorigin="anonymous"></script>
 <script>
 (function() {
     var companyId = {{ $company->id }};
@@ -664,17 +665,66 @@
 
         var ctxProd = document.getElementById('chart-top-products');
         if (ctxProd && topProducts.length > 0) {
+            var barColors = [
+                { bg: 'rgba(59,130,246,0.85)',  border: 'rgba(59,130,246,1)'  },  // blue
+                { bg: 'rgba(16,185,129,0.85)',  border: 'rgba(16,185,129,1)'  },  // emerald
+                { bg: 'rgba(245,158,11,0.85)',  border: 'rgba(245,158,11,1)'  },  // amber
+                { bg: 'rgba(239,68,68,0.85)',   border: 'rgba(239,68,68,1)'   },  // red
+                { bg: 'rgba(139,92,246,0.85)',  border: 'rgba(139,92,246,1)'  },  // violet
+            ];
+            var bgColors    = topProducts.map(function(_, i) { return barColors[i % barColors.length].bg; });
+            var bdColors    = topProducts.map(function(_, i) { return barColors[i % barColors.length].border; });
             chartTopProducts = new Chart(ctxProd, {
+                plugins: [ChartDataLabels],
                 type: 'bar',
                 data: {
-                    labels: topProducts.map(function(p) { return (p.product_name || '—').slice(0, 20); }),
-                    datasets: [{ label: 'Qty sold', data: topProducts.map(function(p) { return p.quantity_sold; }), backgroundColor: 'rgba(139, 92, 246, 0.7)' }]
+                    labels: topProducts.map(function(p) { return (p.product_name || '—').slice(0, 22); }),
+                    datasets: [{
+                        label: 'Qty sold',
+                        data: topProducts.map(function(p) { return p.quantity_sold; }),
+                        backgroundColor: bgColors,
+                        borderColor: bdColors,
+                        borderWidth: 2,
+                        borderRadius: 6,
+                        borderSkipped: false,
+                    }]
                 },
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
-                    scales: { y: { beginAtZero: true } },
-                    plugins: { legend: { display: false } }
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            grid: { color: 'rgba(148,163,184,0.15)' },
+                            ticks: { precision: 0 }
+                        },
+                        x: {
+                            grid: { display: false },
+                            ticks: {
+                                maxRotation: 30,
+                                minRotation: 0,
+                                font: { size: 11 }
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: { display: false },
+                        datalabels: {
+                            anchor: 'end',
+                            align: 'end',
+                            offset: 2,
+                            color: function(ctx) { return bdColors[ctx.dataIndex]; },
+                            font: { weight: 'bold', size: 12 },
+                            formatter: function(value) { return value.toLocaleString(); }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(ctx) {
+                                    return ' ' + ctx.parsed.y.toLocaleString() + ' units sold';
+                                }
+                            }
+                        }
+                    }
                 }
             });
         }
