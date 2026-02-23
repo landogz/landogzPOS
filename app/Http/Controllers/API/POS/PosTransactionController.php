@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Branch;
 use App\Models\Transaction;
 use App\Models\TransactionItem;
+use App\Services\SyncService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
@@ -89,6 +90,10 @@ class PosTransactionController extends Controller
             'vat_amount' => $vatAmount,
         ]);
 
+        if (env('SYNC_MODE') === 'direct_db' && config('database.connections.mysql_cloud.host')) {
+            app(SyncService::class)->enqueueTransaction($transaction->fresh());
+        }
+
         $transaction->load('items.product');
         return response()->json([
             'status' => true,
@@ -116,6 +121,9 @@ class PosTransactionController extends Controller
                 \App\Models\ProductBatch::where('id', $item->product_batch_id)
                     ->increment('quantity', $item->quantity);
             }
+        }
+        if (env('SYNC_MODE') === 'direct_db' && config('database.connections.mysql_cloud.host')) {
+            app(SyncService::class)->enqueueTransaction($transaction->fresh());
         }
         return response()->json(['status' => true, 'message' => 'Transaction voided.', 'data' => $transaction->fresh()]);
     }

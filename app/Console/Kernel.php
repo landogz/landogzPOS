@@ -14,14 +14,21 @@ class Kernel extends ConsoleKernel
     {
         if (env('NODE_TYPE') === 'local') {
             $schedule->call(fn () => app(\App\Services\SyncService::class)->pushToCloud())
-                ->everyFiveMinutes()
+                ->everyMinute()
                 ->name('sync-push')
                 ->withoutOverlapping();
 
             $schedule->call(fn () => app(\App\Services\SyncService::class)->pullFromCloud())
-                ->everyFifteenMinutes()
+                ->everyMinute()
                 ->name('sync-pull')
                 ->withoutOverlapping();
+
+            if (env('SYNC_MODE') === 'direct_db') {
+                $schedule->call(fn () => app(\App\Services\SyncService::class)->pullMasterDataFromCloudDirectDb())
+                    ->everyMinute()
+                    ->name('sync-pull-master')
+                    ->withoutOverlapping();
+            }
 
             $schedule->call(fn () => app(\App\Services\SyncService::class)->heartbeat())
                 ->everyMinute()

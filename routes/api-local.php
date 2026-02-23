@@ -37,9 +37,10 @@ Route::get('pos/transactions/{transaction}/receipt', [\App\Http\Controllers\API\
 Route::post('pos/transactions/{transaction}/void', [\App\Http\Controllers\API\POS\PosTransactionController::class, 'void']);
 Route::get('pos/cashier/summary', [\App\Http\Controllers\API\POS\PosCashierController::class, 'summary']);
 
-// Sync (local pushes to cloud)
+// Sync (local pushes to cloud; pull master data from cloud when SYNC_MODE=direct_db)
 Route::post('sync/push', [\App\Http\Controllers\API\Sync\SyncController::class, 'push']);
 Route::get('sync/pull', [\App\Http\Controllers\API\Sync\SyncController::class, 'pull']);
+Route::post('sync/pull-master', [\App\Http\Controllers\API\Sync\SyncController::class, 'pullMaster']);
 Route::post('sync/heartbeat', [\App\Http\Controllers\API\Sync\SyncController::class, 'heartbeat']);
 
 // Receipts

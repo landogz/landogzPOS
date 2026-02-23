@@ -4,11 +4,54 @@ namespace App\Services;
 
 use App\Models\PendingSyncQueue;
 use App\Models\SyncLog;
+use App\Models\Transaction;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Storage;
 
 class SyncService
 {
+    /**
+     * Enqueue a transaction and its items for sync to cloud (push).
+     * Call after creating or updating a transaction locally.
+     */
+    public function enqueueTransaction(Transaction $transaction): void
+    {
+        $transaction->load('items');
+        $payload = $transaction->getAttributes();
+        $this->normalizePayloadForSync($payload);
+        PendingSyncQueue::create([
+            'model_type' => 'transactions',
+            'record_id' => $transaction->id,
+            'action' => 'update',
+            'payload' => $payload,
+            'status' => PendingSyncQueue::STATUS_PENDING,
+        ]);
+        foreach ($transaction->items as $item) {
+            $itemPayload = $item->getAttributes();
+            $this->normalizePayloadForSync($itemPayload);
+            PendingSyncQueue::create([
+                'model_type' => 'transaction_items',
+                'record_id' => $item->id,
+                'action' => 'update',
+                'payload' => $itemPayload,
+                'status' => PendingSyncQueue::STATUS_PENDING,
+            ]);
+        }
+    }
+
+    /**
+     * Ensure payload is JSON-serializable (e.g. Carbon to string).
+     */
+    protected function normalizePayloadForSync(array &$payload): void
+    {
+        foreach ($payload as $key => $value) {
+            if ($value instanceof \DateTimeInterface) {
+                $payload[$key] = $value->format('Y-m-d H:i:s');
+            }
+        }
+    }
+
     /**
      * Push pending records to cloud. Called by scheduler (e.g. every 5 min).
      */
@@ -95,7 +138,84 @@ class SyncService
     }
 
     /**
-     * Pull updates from cloud (e.g. product/price updates from HQ). Called by scheduler.
+     * Pull companies, branches, and terminals from cloud DB into local (direct_db only).
+     * Source of truth is online DB; all local nodes get the same master data.
+     * Order: companies → branches → terminals (respects FKs).
+     */
+    public function pullMasterDataFromCloudDirectDb(): array
+    {
+        $host = config('database.connections.mysql_cloud.host');
+        if (env('SYNC_MODE') !== 'direct_db' || ! $host) {
+            return ['companies' => 0, 'branches' => 0, 'terminals' => 0];
+        }
+
+        $cloud = DB::connection('mysql_cloud');
+        $counts = ['companies' => 0, 'branches' => 0, 'terminals' => 0];
+
+        foreach (['companies', 'branches', 'terminals'] as $table) {
+            try {
+                $rows = $cloud->table($table)->get();
+                $arr = $rows->map(fn ($r) => (array) $r)->toArray();
+                if (! empty($arr)) {
+                    $columns = array_keys($arr[0]);
+                    DB::table($table)->upsert($arr, ['id'], $columns);
+                }
+                $counts[$table] = count($arr);
+            } catch (\Throwable $e) {
+                report($e);
+            }
+        }
+
+        $this->syncCompanyLogosFromCloud($cloud);
+
+        $total = array_sum($counts);
+        if ($total > 0) {
+            SyncLog::create([
+                'branch_id' => config('app.branch_id'),
+                'direction' => 'pull_master',
+                'status' => 'success',
+                'records_synced' => $total,
+                'synced_at' => now(),
+            ]);
+        }
+
+        return $counts;
+    }
+
+    /**
+     * Download company logo files from cloud app URL to local storage (so /storage/companies/xxx.png works locally).
+     */
+    protected function syncCompanyLogosFromCloud($cloudConnection): void
+    {
+        $baseUrl = rtrim((string) env('CLOUD_APP_URL', ''), '/');
+        if ($baseUrl === '') {
+            return;
+        }
+
+        $companies = $cloudConnection->table('companies')
+            ->whereNotNull('logo')
+            ->where('logo', '!=', '')
+            ->get();
+
+        foreach ($companies as $row) {
+            $logoPath = $row->logo;
+            if (! is_string($logoPath) || $logoPath === '') {
+                continue;
+            }
+            try {
+                $url = $baseUrl . '/storage/' . ltrim($logoPath, '/');
+                $response = Http::timeout(15)->get($url);
+                if ($response->successful() && $response->body() !== '') {
+                    Storage::disk('public')->put($logoPath, $response->body());
+                }
+            } catch (\Throwable $e) {
+                report($e);
+            }
+        }
+    }
+
+    /**
+     * Pull updates from cloud (e.g. product/price updates from HQ). Called by scheduler (API mode).
      */
     public function pullFromCloud(): void
     {

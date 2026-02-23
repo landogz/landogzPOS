@@ -22,6 +22,19 @@ class SyncController extends Controller
     }
 
     /**
+     * Pull companies, branches, terminals from cloud DB to local (direct_db only). Auth required.
+     */
+    public function pullMaster(Request $request): JsonResponse
+    {
+        $counts = app(SyncService::class)->pullMasterDataFromCloudDirectDb();
+        return response()->json([
+            'status' => true,
+            'message' => 'Master data pull completed.',
+            'data' => $counts,
+        ]);
+    }
+
+    /**
      * POST /api/v1/sync/heartbeat — terminal/local reports online status.
      */
     public function heartbeat(Request $request): JsonResponse
