@@ -57,12 +57,12 @@ class SuperAdminViewController extends Controller
 
     public function branches(): View
     {
-        return view('super-admin.pages.placeholder', ['title' => 'Branches', 'breadcrumb' => 'Branches', 'apiModule' => 'branches']);
+        return view('super-admin.pages.branches');
     }
 
     public function terminals(): View
     {
-        return view('super-admin.pages.placeholder', ['title' => 'Terminals', 'breadcrumb' => 'Terminals', 'apiModule' => 'terminals']);
+        return view('super-admin.pages.terminals');
     }
 
     public function birSettings(): View

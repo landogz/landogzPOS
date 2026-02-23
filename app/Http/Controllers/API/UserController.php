@@ -15,12 +15,15 @@ class UserController extends Controller
 
     public function index(Request $request): JsonResponse
     {
-        $query = User::query()->with('branch:id,name');
+        $query = User::query()->with('branch:id,name')->with('company:id,name');
         $currentUser = $request->user();
         if ($currentUser && $currentUser->role === 'manager' && $currentUser->branch_id) {
             $query->where('branch_id', $currentUser->branch_id);
         } elseif ($request->filled('branch_id')) {
             $query->where('branch_id', $request->branch_id);
+        }
+        if ($request->filled('company_id')) {
+            $query->where('company_id', $request->company_id);
         }
         if ($request->filled('role')) {
             $query->where('role', $request->role);
@@ -43,9 +46,11 @@ class UserController extends Controller
     public function store(Request $request): JsonResponse
     {
         $validated = $request->validate([
+            'company_id' => 'nullable|exists:companies,id',
             'branch_id' => 'nullable|exists:branches,id',
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email',
+            'phone_number' => 'nullable|string|max:20',
             'password' => 'required|string|min:8|confirmed',
             'role' => 'required|string|in:super_admin,admin,manager,pharmacist,cashier,inventory_manager',
             'pin' => 'nullable|string|size:4',
@@ -71,7 +76,7 @@ class UserController extends Controller
         $validated['is_active'] = $validated['is_active'] ?? true;
         $user = User::create($validated);
         $this->assignRoleIfExists($user, $validated['role']);
-        $user->load('branch');
+        $user->load(['branch', 'company']);
         return response()->json([
             'status' => 'success',
             'message' => 'User created.',
@@ -85,16 +90,18 @@ class UserController extends Controller
         if ($currentUser && $currentUser->role === 'manager' && $currentUser->branch_id && (int) $user->branch_id !== (int) $currentUser->branch_id) {
             abort(404);
         }
-        $user->load('branch.company');
+        $user->load(['branch', 'company']);
         return response()->json(['status' => 'success', 'data' => $user]);
     }
 
     public function update(Request $request, User $user): JsonResponse
     {
         $validated = $request->validate([
+            'company_id' => 'nullable|exists:companies,id',
             'branch_id' => 'nullable|exists:branches,id',
             'name' => 'sometimes|string|max:255',
             'email' => 'sometimes|email|unique:users,email,' . $user->id,
+            'phone_number' => 'nullable|string|max:20',
             'password' => 'nullable|string|min:8|confirmed',
             'role' => 'sometimes|string|in:super_admin,admin,manager,pharmacist,cashier,inventory_manager',
             'pin' => 'nullable|string|size:4',
@@ -123,7 +130,7 @@ class UserController extends Controller
         if (array_key_exists('role', $validated)) {
             $this->assignRoleIfExists($user, $validated['role']);
         }
-        $user->load('branch');
+        $user->load(['branch', 'company']);
         return response()->json([
             'status' => 'success',
             'message' => 'User updated.',

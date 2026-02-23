@@ -104,7 +104,7 @@
                 <div class="mt-10 flex flex-wrap items-center justify-center lg:justify-start gap-4">
                     <a href="{{ route('dashboard.login') }}" class="inline-flex items-center justify-center rounded-xl bg-primary px-12 py-7 text-xl font-bold text-white shadow-2xl shadow-primary/40 hover:opacity-95 active:scale-[0.98] transition-all">Get a Demo</a>
                     <a href="{{ url('/') }}#why" class="inline-flex items-center justify-center rounded-xl border-2 border-white/50 px-12 py-7 text-xl font-bold text-white hover:bg-white/10 active:scale-[0.98] transition-all">Why Landogz</a>
-                </div>
+                        </div>
                 <div class="mt-12 pt-8 border-t border-white/20 flex flex-wrap items-center justify-center lg:justify-start gap-10 text-center">
                     <div>
                         <span class="block text-5xl sm:text-6xl font-black text-white leading-none pb-1 border-b-4 border-primary">500+</span>
@@ -113,7 +113,7 @@
                     <div>
                         <span class="block text-5xl sm:text-6xl font-black text-white leading-none pb-1 border-b-4 border-primary">BIR</span>
                         <span class="mt-2 block text-sm font-bold text-white/65 uppercase tracking-widest">Accredited</span>
-                    </div>
+                        </div>
                     <div>
                         <span class="block text-5xl sm:text-6xl font-black text-white leading-none pb-1 border-b-4 border-primary">24/7</span>
                         <span class="mt-2 block text-sm font-bold text-white/65 uppercase tracking-widest">Support</span>
@@ -197,7 +197,7 @@
                 <div class="rounded-2xl overflow-hidden border-2 border-primary/20 aspect-video shadow-lg bg-slate-100 dark:bg-darkmode-800">
                     <img src="{{ asset('images/Inventory & branches preview.webp') }}" alt="Inventory and multi-branch management" class="w-full h-full object-cover object-top">
                 </div>
-            </div>
+                    </div>
             <!-- Row 3: image left, content right -->
             <div class="landing-reveal landing-reveal-delay-3 grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16 items-center max-w-6xl mx-auto">
                 <div class="order-2 lg:order-1 rounded-2xl overflow-hidden border-2 border-primary/20 aspect-video shadow-lg bg-slate-100 dark:bg-darkmode-800">
@@ -234,17 +234,17 @@
                         <div class="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-primary text-white font-bold text-2xl shadow-lg">2</div>
                         <h3 class="mt-5 font-bold text-[#1A1A2E] dark:text-white">Add products</h3>
                         <p class="mt-2 text-sm text-slate-600 dark:text-slate-400">Create products, set prices and reorder levels, manage batches and expiry.</p>
-                    </div>
+                </div>
                     <div class="landing-reveal landing-reveal-delay-3 text-center relative">
                         <div class="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-primary text-white font-bold text-2xl shadow-lg">3</div>
                         <h3 class="mt-5 font-bold text-[#1A1A2E] dark:text-white">Run sales</h3>
                         <p class="mt-2 text-sm text-slate-600 dark:text-slate-400">Cashiers ring up sales. Stock updates automatically; receipts are BIR-ready.</p>
-                    </div>
+                </div>
                     <div class="landing-reveal landing-reveal-delay-4 text-center relative">
                         <div class="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-primary text-white font-bold text-2xl shadow-lg">4</div>
                         <h3 class="mt-5 font-bold text-[#1A1A2E] dark:text-white">View &amp; grow</h3>
                         <p class="mt-2 text-sm text-slate-600 dark:text-slate-400">Dashboards, low-stock alerts, branch overview. Use the API to connect more tools.</p>
-                    </div>
+                </div>
                 </div>
             </div>
         </div>

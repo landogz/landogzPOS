@@ -31,4 +31,12 @@ return [
         'region' => env('AWS_DEFAULT_REGION', 'us-east-1'),
     ],
 
+    'semaphore' => [
+        'api_key' => env('SEMAPHORE_API_KEY'),
+        'sender_name' => env('SEMAPHORE_SENDER_NAME', 'SEMAPHORE'),
+        'otp_ttl_seconds' => (int) env('SEMAPHORE_OTP_TTL', 300), // 5 minutes
+        'otp_length' => (int) env('SEMAPHORE_OTP_LENGTH', 6),
+        'otp_message' => env('SEMAPHORE_OTP_MESSAGE', 'Your Landogz POS verification code is {otp}. Valid for 5 minutes.'),
+    ],
+
 ];

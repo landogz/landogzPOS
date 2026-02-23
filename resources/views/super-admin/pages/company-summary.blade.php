@@ -31,25 +31,27 @@
 @section('content')
     <div class="company-summary-content intro-y mt-4 sm:mt-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <h2 class="text-base sm:text-lg font-medium text-slate-800 dark:text-slate-100">Company Summary</h2>
-        <div class="flex flex-wrap items-center gap-3">
-            <div class="flex items-center gap-2">
-                <label for="summary-preset" class="text-sm text-slate-600 dark:text-slate-400 whitespace-nowrap">Preset:</label>
-                <select id="summary-preset" class="rounded-lg border border-slate-200 dark:border-darkmode-500 bg-white dark:bg-darkmode-700 px-3 py-2 text-sm text-slate-800 dark:text-slate-200 w-36 touch-manipulation" aria-label="Date preset">
-                    <option value="today">Today</option>
-                    <option value="week">This Week</option>
-                    <option value="month">This Month</option>
-                    <option value="year">This Year</option>
-                </select>
+        <div class="flex flex-col gap-3 w-full min-w-0 sm:flex-row sm:flex-wrap sm:items-center sm:w-auto">
+            <div class="flex items-center gap-2 w-full min-w-0 sm:w-auto">
+                <label for="summary-preset" class="text-sm text-slate-600 dark:text-slate-400 whitespace-nowrap flex-shrink-0">Preset</label>
+                <div class="mt-0 flex-1 min-w-0 sm:w-36">
+                    <select id="summary-preset" data-placeholder="Preset" class="tom-select w-full" aria-label="Date preset">
+                        <option value="today">Today</option>
+                        <option value="week">This Week</option>
+                        <option value="month">This Month</option>
+                        <option value="year">This Year</option>
+                    </select>
+                </div>
             </div>
-            <div class="flex items-center gap-2">
-                <label for="summary-date-from" class="text-sm text-slate-600 dark:text-slate-400 whitespace-nowrap">From</label>
-                <input type="date" id="summary-date-from" class="rounded-lg border border-slate-200 dark:border-darkmode-500 bg-white dark:bg-darkmode-700 px-3 py-2 text-sm w-36 touch-manipulation" aria-label="Date from">
+            <div class="flex items-center gap-2 w-full min-w-0 sm:w-auto">
+                <label for="summary-date-from" class="text-sm text-slate-600 dark:text-slate-400 whitespace-nowrap flex-shrink-0">From</label>
+                <input type="date" id="summary-date-from" class="rounded-lg border border-slate-200 dark:border-darkmode-500 bg-white dark:bg-darkmode-700 px-3 py-2 text-sm flex-1 min-w-0 sm:w-36 touch-manipulation" aria-label="Date from">
             </div>
-            <div class="flex items-center gap-2">
-                <label for="summary-date-to" class="text-sm text-slate-600 dark:text-slate-400 whitespace-nowrap">To</label>
-                <input type="date" id="summary-date-to" class="rounded-lg border border-slate-200 dark:border-darkmode-500 bg-white dark:bg-darkmode-700 px-3 py-2 text-sm w-36 touch-manipulation" aria-label="Date to">
+            <div class="flex items-center gap-2 w-full min-w-0 sm:w-auto">
+                <label for="summary-date-to" class="text-sm text-slate-600 dark:text-slate-400 whitespace-nowrap flex-shrink-0">To</label>
+                <input type="date" id="summary-date-to" class="rounded-lg border border-slate-200 dark:border-darkmode-500 bg-white dark:bg-darkmode-700 px-3 py-2 text-sm flex-1 min-w-0 sm:w-36 touch-manipulation" aria-label="Date to">
             </div>
-            <button type="button" id="summary-apply-btn" class="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-white hover:bg-primary/90 active:bg-primary/80 transition-colors touch-manipulation">Apply</button>
+            <button type="button" id="summary-apply-btn" class="rounded-lg bg-primary px-4 py-3 sm:py-2 text-sm font-medium text-white hover:bg-primary/90 active:bg-primary/80 transition-colors touch-manipulation min-h-[44px] w-full sm:w-auto">Apply</button>
         </div>
     </div>
 
@@ -67,8 +69,9 @@
         <div class="intro-y box mt-5 px-4 sm:px-5 pt-5">
             <div class="-mx-4 sm:-mx-5 flex flex-col border-b border-slate-200/60 pb-5 dark:border-darkmode-400 lg:flex-row">
                 <div class="flex flex-1 items-center justify-center px-4 sm:px-5 lg:justify-start min-w-0">
-                    <a href="{{ route('dashboard.companies') }}" class="rounded-lg border border-slate-200 dark:border-darkmode-500 p-2.5 min-w-[44px] min-h-[44px] flex items-center justify-center text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-darkmode-600 active:bg-slate-200 dark:active:bg-darkmode-500 transition-colors mr-3 flex-shrink-0 touch-manipulation" aria-label="Back to Companies">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m15 18-6-6 6-6"/></svg>
+                    <a id="summary-back-link" href="{{ route('dashboard.companies') }}" class="rounded-lg border border-slate-200 dark:border-darkmode-500 p-2.5 min-w-[44px] min-h-[44px] flex items-center justify-center gap-2 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-darkmode-600 active:bg-slate-200 dark:active:bg-darkmode-500 transition-colors mr-3 flex-shrink-0 touch-manipulation" aria-label="Back to Companies" title="Back to Companies">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="flex-shrink-0"><path d="m15 18-6-6 6-6"/></svg>
+                        <span id="summary-back-label" class="hidden sm:inline text-sm font-medium">Back to Companies</span>
                     </a>
                     @if($company->logo_url)
                         <img src="{{ $company->logo_url }}" alt="" class="image-fit h-16 w-16 flex-none rounded-full border border-slate-200 dark:border-darkmode-500 sm:h-20 sm:w-20 lg:h-24 lg:w-24 object-cover">
@@ -250,8 +253,34 @@
             </div>
             {{-- END: Sales by branch table --}}
 
+            {{-- BEGIN: Sales by terminal table (grouped by branch, subtotals, grand total) --}}
+            <div class="intro-y box col-span-12 mt-5">
+                <div class="flex flex-col gap-3 sm:flex-row sm:items-center border-b border-slate-200/60 px-4 sm:px-5 py-4 sm:py-5 dark:border-darkmode-400 sm:py-3">
+                    <h2 class="mr-auto text-base font-medium text-slate-800 dark:text-slate-100">Terminals &amp; sales</h2>
+                    <button type="button" id="terminals-export-excel" class="inline-flex items-center justify-center gap-2 rounded-lg border border-slate-200 dark:border-darkmode-500 px-4 py-2.5 text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-darkmode-600 active:bg-slate-100 min-h-[44px] touch-manipulation w-full sm:w-auto transition-colors">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="flex-shrink-0" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                        Export Excel
+                    </button>
+                </div>
+                <div class="p-4 sm:p-5 company-summary-table-wrap overflow-x-auto">
+                    <table class="w-full min-w-[400px] sm:min-w-[480px] text-sm">
+                        <thead class="border-b border-slate-200 dark:border-darkmode-500">
+                            <tr>
+                                <th class="pb-2.5 pt-0 font-medium text-slate-700 dark:text-slate-300 text-left">Terminal</th>
+                                <th class="pb-2.5 pt-0 font-medium text-slate-700 dark:text-slate-300 text-right w-28">Transactions</th>
+                                <th class="pb-2.5 pt-0 font-medium text-slate-700 dark:text-slate-300 text-right w-32">Total sales</th>
+                                <th class="pb-2.5 pt-0 font-medium text-slate-700 dark:text-slate-300 text-right w-28">Avg transaction</th>
+                            </tr>
+                        </thead>
+                        <tbody id="summary-terminals-tbody" class="divide-y divide-slate-200 dark:divide-darkmode-500">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            {{-- END: Sales by terminal table --}}
+
             {{-- Widgets row: Inventory, Top products, BIR, User activity (equal height cards) --}}
-            <div class="col-span-12 mt-8 grid grid-cols-12 gap-6 items-stretch">
+            <div class="col-span-12 mt-6 sm:mt-8 grid grid-cols-12 gap-4 sm:gap-6 items-stretch">
                 <div class="intro-y col-span-12 sm:col-span-6 2xl:col-span-3 flex">
                     <div class="box zoom-in p-6 h-full w-full flex flex-col min-h-[230px]">
                         <div class="flex items-start flex-shrink-0 gap-4">
@@ -328,8 +357,8 @@
                 <div class="flex flex-col gap-3 border-b border-slate-200/60 px-4 sm:px-5 py-4 sm:py-5 dark:border-darkmode-400 sm:flex-row sm:items-center sm:justify-between sm:py-3">
                     <h2 class="text-base font-medium text-slate-800 dark:text-slate-100">Recent transactions</h2>
                     <div class="flex flex-col sm:flex-row flex-wrap items-stretch sm:items-center gap-2 w-full sm:w-auto">
-                        <input type="text" id="transactions-search" placeholder="Search OR, branch, cashier..." class="rounded-lg border border-slate-200 dark:border-darkmode-500 bg-white dark:bg-darkmode-700 px-3 py-2.5 text-sm w-full min-w-0 sm:w-56 min-h-[44px]" aria-label="Search transactions">
-                        <button type="button" id="transactions-export-excel" class="rounded-lg border border-slate-200 dark:border-darkmode-500 px-4 py-2.5 text-sm text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-darkmode-600 active:bg-slate-100 min-h-[44px] touch-manipulation">Export Excel</button>
+                        <input type="text" id="transactions-search" placeholder="Search OR, branch, cashier..." class="rounded-lg border border-slate-200 dark:border-darkmode-500 bg-white dark:bg-darkmode-700 px-3 py-2.5 text-sm w-full min-w-0 sm:w-56 min-h-[44px] touch-manipulation" aria-label="Search transactions">
+                        <button type="button" id="transactions-export-excel" class="rounded-lg border border-slate-200 dark:border-darkmode-500 px-4 py-2.5 text-sm text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-darkmode-600 active:bg-slate-100 min-h-[44px] touch-manipulation w-full sm:w-auto">Export Excel</button>
                     </div>
                 </div>
                 <div class="p-4 sm:p-5 company-summary-table-wrap overflow-x-auto">
@@ -1010,6 +1039,24 @@
         return (b !== null && b !== undefined && b !== '') ? b : null;
     }
 
+    function applySummaryBackLink() {
+        var branchId = getBranchIdFromUrl();
+        var backLink = document.getElementById('summary-back-link');
+        var backLabel = document.getElementById('summary-back-label');
+        if (!backLink) return;
+        if (branchId) {
+            backLink.href = dashboardBase + '/branches?company_id=' + encodeURIComponent(companyId);
+            backLink.setAttribute('aria-label', 'Back to Branches');
+            backLink.setAttribute('title', 'Back to Branches');
+            if (backLabel) backLabel.textContent = 'Back to Branches';
+        } else {
+            backLink.href = dashboardBase + '/companies';
+            backLink.setAttribute('aria-label', 'Back to Companies');
+            backLink.setAttribute('title', 'Back to Companies');
+            if (backLabel) backLabel.textContent = 'Back to Companies';
+        }
+    }
+
     function loadSummary() {
         var from = document.getElementById('summary-date-from').value;
         var to = document.getElementById('summary-date-to').value;
@@ -1080,6 +1127,64 @@
                             + '</tr>';
                     }).join('');
 
+                var terminals = d.terminals || [];
+                var terminalsTbody = document.getElementById('summary-terminals-tbody');
+                if (terminalsTbody) {
+                    if (terminals.length === 0) {
+                        terminalsTbody.innerHTML = '<tr><td colspan="4" class="px-4 py-6 text-center text-slate-500 dark:text-slate-400">No terminals or no sales in this period.</td></tr>';
+                    } else {
+                        var byBranch = {};
+                        terminals.forEach(function(t) {
+                            var bid = t.branch_id ?? ('_' + (t.branch_name || ''));
+                            if (!byBranch[bid]) byBranch[bid] = { name: t.branch_name || '—', rows: [] };
+                            byBranch[bid].rows.push(t);
+                        });
+                        var branchIds = Object.keys(byBranch).sort(function(a, b) {
+                            var na = byBranch[a].name, nb = byBranch[b].name;
+                            return (na || '').localeCompare(nb || '');
+                        });
+                        var grandTx = 0, grandSales = 0;
+                        var html = [];
+                        branchIds.forEach(function(bid) {
+                            var group = byBranch[bid];
+                            var branchName = group.name;
+                            var rows = group.rows;
+                            var subTx = 0, subSales = 0;
+                            html.push('<tr class="bg-slate-100/80 dark:bg-darkmode-600/50 border-y border-slate-200 dark:border-darkmode-500">'
+                                + '<td colspan="4" class="py-2 px-3 text-xs font-semibold uppercase tracking-wider text-slate-600 dark:text-slate-400">' + escapeHtml(branchName) + '</td></tr>');
+                            rows.forEach(function(t) {
+                                subTx += t.transaction_count || 0;
+                                subSales += parseFloat(t.total_sales) || 0;
+                                var terminalLabel = t.name || t.code || ('Terminal #' + t.id);
+                                if (t.code) terminalLabel += ' <span class="text-slate-400 dark:text-slate-500 font-normal">(' + escapeHtml(t.code) + ')</span>';
+                                html.push('<tr class="hover:bg-slate-50/80 dark:hover:bg-darkmode-600/50 transition-colors" data-terminal-row="1">'
+                                    + '<td class="py-2.5 pl-3 pr-2 font-medium text-slate-800 dark:text-slate-100">' + terminalLabel + '</td>'
+                                    + '<td class="py-2.5 px-2 text-right tabular-nums">' + (t.transaction_count || 0).toLocaleString() + '</td>'
+                                    + '<td class="py-2.5 px-2 text-right font-semibold text-slate-800 dark:text-slate-100 tabular-nums">₱' + formatMoney(t.total_sales || 0) + '</td>'
+                                    + '<td class="py-2.5 pr-3 pl-2 text-right text-slate-600 dark:text-slate-400 tabular-nums">₱' + formatMoney(t.avg_transaction_value || 0) + '</td>'
+                                    + '</tr>');
+                            });
+                            grandTx += subTx;
+                            grandSales += subSales;
+                            var subAvg = subTx > 0 ? subSales / subTx : 0;
+                            html.push('<tr class="bg-slate-50/80 dark:bg-darkmode-700/40 font-medium">'
+                                + '<td class="py-2 pl-3 pr-2 text-slate-600 dark:text-slate-400 text-right">Subtotal</td>'
+                                + '<td class="py-2 px-2 text-right tabular-nums text-slate-800 dark:text-slate-200">' + subTx.toLocaleString() + '</td>'
+                                + '<td class="py-2 px-2 text-right tabular-nums text-slate-800 dark:text-slate-200">₱' + formatMoney(subSales) + '</td>'
+                                + '<td class="py-2 pr-3 pl-2 text-right tabular-nums text-slate-600 dark:text-slate-400">₱' + formatMoney(subAvg) + '</td>'
+                                + '</tr>');
+                        });
+                        var grandAvg = grandTx > 0 ? grandSales / grandTx : 0;
+                        html.push('<tr class="border-t-2 border-slate-300 dark:border-darkmode-500 bg-slate-100/80 dark:bg-darkmode-600/50 font-semibold">'
+                            + '<td class="py-3 pl-3 pr-2 text-slate-800 dark:text-slate-100 text-right">Grand total</td>'
+                            + '<td class="py-3 px-2 text-right tabular-nums text-slate-800 dark:text-slate-100">' + grandTx.toLocaleString() + '</td>'
+                            + '<td class="py-3 px-2 text-right tabular-nums text-primary dark:text-primary">₱' + formatMoney(grandSales) + '</td>'
+                            + '<td class="py-3 pr-3 pl-2 text-right tabular-nums text-slate-700 dark:text-slate-300">₱' + formatMoney(grandAvg) + '</td>'
+                            + '</tr>');
+                        terminalsTbody.innerHTML = html.join('');
+                    }
+                }
+
                 var inv = d.inventory_summary || {};
                 var low = inv.low_stock_count ?? 0, exp = inv.expiring_soon_count ?? 0, out = inv.out_of_stock_count ?? 0;
                 document.getElementById('widget-inventory-subtitle').textContent = 'Low stock: ' + low + ' · Expiring: ' + exp + ' · Out: ' + out;
@@ -1129,8 +1234,10 @@
     }
 
     defaultDates();
-    document.getElementById('summary-preset').value = 'month';
-    document.getElementById('summary-preset').addEventListener('change', function() {
+    var summaryPresetEl = document.getElementById('summary-preset');
+    summaryPresetEl.value = 'month';
+    if (typeof TomSelect !== 'undefined') new TomSelect(summaryPresetEl, { plugins: { dropdown_input: {} }, placeholder: 'Preset' });
+    summaryPresetEl.addEventListener('change', function() {
         var v = this.value;
         if (v === 'today') presetToday();
         else if (v === 'week') presetWeek();
@@ -1154,6 +1261,7 @@
         if (btn) { txPage = parseInt(btn.getAttribute('data-page'), 10); renderTransactionsRows(txCurrentList); }
     });
     document.getElementById('branch-export-excel').addEventListener('click', function() { exportTableToCSV('summary-branches-tbody', 'branch-breakdown'); });
+    document.getElementById('terminals-export-excel').addEventListener('click', function() { exportTableToCSV('summary-terminals-tbody', 'terminals-sales'); });
     document.getElementById('transactions-export-excel').addEventListener('click', function() { exportTableToCSV('summary-transactions-tbody', 'recent-transactions'); });
     document.getElementById('summary-branches-tbody').addEventListener('click', function(e) {
         var row = e.target.closest('tr[data-branch-id]');
@@ -1162,6 +1270,7 @@
             if (bid) window.location.href = window.summaryUrl(companyId) + '?branch_id=' + bid;
         }
     });
+    applySummaryBackLink();
     loadSummary();
 })();
 </script>

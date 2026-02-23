@@ -13,7 +13,10 @@ use Illuminate\Support\Facades\Route;
 
 // ─── Public (no auth) ──────────────────────────────────────────────────
 Route::prefix('v1')->group(function () {
+    Route::post('otp/send', [\App\Http\Controllers\API\OtpController::class, 'send'])->middleware('throttle:5,1');
+    Route::post('otp/verify', [\App\Http\Controllers\API\OtpController::class, 'verify'])->middleware('throttle:10,1');
     Route::post('auth/login', [\App\Http\Controllers\API\AuthController::class, 'login']);
+    Route::post('auth/verify-login-otp', [\App\Http\Controllers\API\AuthController::class, 'verifyLoginOtp'])->middleware('throttle:10,1');
     Route::post('auth/login-pin', [\App\Http\Controllers\API\AuthController::class, 'loginPin']);
     Route::post('auth/logout', [\App\Http\Controllers\API\AuthController::class, 'logout'])->middleware('auth:sanctum');
     Route::get('auth/me', [\App\Http\Controllers\API\AuthController::class, 'me'])->middleware('auth:sanctum');
@@ -61,15 +64,21 @@ Route::prefix('v1')->middleware(['auth:sanctum'])->group(function () {
     Route::get('branches', [\App\Http\Controllers\API\BranchController::class, 'index']);
     Route::post('branches', [\App\Http\Controllers\API\BranchController::class, 'store']);
     Route::get('branches/{branch}', [\App\Http\Controllers\API\BranchController::class, 'show']);
+    Route::put('branches/{branch}', [\App\Http\Controllers\API\BranchController::class, 'update']);
+    Route::patch('branches/{branch}/toggle-status', [\App\Http\Controllers\API\BranchController::class, 'toggleStatus']);
+    Route::delete('branches/{branch}', [\App\Http\Controllers\API\BranchController::class, 'destroy']);
     Route::get('branches/{branch}/dashboard', [\App\Http\Controllers\API\BranchController::class, 'dashboard']);
     Route::get('branches/{branch}/stock', [\App\Http\Controllers\API\BranchController::class, 'stock']);
     Route::post('branches/{branch}/replenishment-request', [\App\Http\Controllers\API\BranchController::class, 'replenishmentRequest']);
     // Terminals: one branch can have multiple POS terminals
+    Route::get('terminals', [\App\Http\Controllers\API\TerminalController::class, 'indexAll']);
     Route::get('branches/{branch}/terminals', [\App\Http\Controllers\API\TerminalController::class, 'index']);
     Route::post('branches/{branch}/terminals', [\App\Http\Controllers\API\TerminalController::class, 'store']);
     Route::get('branches/{branch}/terminals/{terminal}', [\App\Http\Controllers\API\TerminalController::class, 'show']);
     Route::put('branches/{branch}/terminals/{terminal}', [\App\Http\Controllers\API\TerminalController::class, 'update']);
     Route::delete('branches/{branch}/terminals/{terminal}', [\App\Http\Controllers\API\TerminalController::class, 'destroy']);
+    Route::post('branches/{branch}/terminals/{terminal}/generate-key', [\App\Http\Controllers\API\TerminalController::class, 'generateKey']);
+    Route::post('branches/{branch}/terminals/{terminal}/revoke-key', [\App\Http\Controllers\API\TerminalController::class, 'revokeKey']);
 });
 
 // ─── Local node only: inventory, POS, sync push/pull, receipts ──────────

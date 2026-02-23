@@ -14,9 +14,27 @@ class BranchController extends Controller
 {
     public function index(Request $request): JsonResponse
     {
-        $query = Branch::query()->with('company:id,name');
-        if ($request->user()?->branch_id && $request->user()?->role !== 'super_admin' && $request->user()?->role !== 'admin') {
-            $query->where('id', $request->user()->branch_id);
+        $query = Branch::query()
+            ->with('company:id,name')
+            ->withCount('terminals')
+            ->withSum('transactions', 'total');
+        $user = $request->user();
+        if ($user && $user->role !== 'super_admin') {
+            if ($user->role === 'admin' && $user->company_id) {
+                $query->where('company_id', $user->company_id);
+            } elseif ($user->branch_id) {
+                $query->where('id', $user->branch_id);
+            }
+        }
+        $companyId = $request->query('company_id');
+        if ($companyId !== null && $companyId !== '') {
+            $query->where('company_id', (int) $companyId);
+        }
+        $status = $request->query('status');
+        if ($status === 'active') {
+            $query->where('is_active', true);
+        } elseif ($status === 'inactive') {
+            $query->where('is_active', false);
         }
         $branches = $query->orderBy('name')->get();
         return response()->json([
@@ -43,7 +61,11 @@ class BranchController extends Controller
             'tin' => 'nullable|string|max:50',
             'bir_series_start' => 'nullable|string|max:50',
             'bir_series_end' => 'nullable|string|max:50',
+            'is_active' => 'nullable|boolean',
         ]);
+        if (! isset($validated['is_active'])) {
+            $validated['is_active'] = true;
+        }
         $branch = Branch::create($validated);
         $branch->load('company');
         return response()->json([
@@ -58,6 +80,47 @@ class BranchController extends Controller
         $this->ensureBranchAccess($request->user(), $branch);
         $branch->load('company');
         return response()->json(['status' => 'success', 'data' => $branch]);
+    }
+
+    public function update(Request $request, Branch $branch): JsonResponse
+    {
+        if (! $this->canManageBranches($request->user())) {
+            return response()->json(['status' => false, 'message' => 'Only super admin or admin can update branches.'], 403);
+        }
+        $validated = $request->validate([
+            'name' => 'sometimes|string|max:255',
+            'address' => 'nullable|string',
+            'tin' => 'nullable|string|max:50',
+            'bir_series_start' => 'nullable|string|max:50',
+            'bir_series_end' => 'nullable|string|max:50',
+            'is_active' => 'nullable|boolean',
+        ]);
+        $branch->update($validated);
+        $branch->load('company');
+        return response()->json(['status' => 'success', 'message' => 'Branch updated.', 'data' => $branch]);
+    }
+
+    public function toggleStatus(Request $request, Branch $branch): JsonResponse
+    {
+        if (! $this->canManageBranches($request->user())) {
+            return response()->json(['status' => false, 'message' => 'Only super admin or admin can manage branches.'], 403);
+        }
+        $branch->update(['is_active' => ! $branch->is_active]);
+        $branch->load('company');
+        return response()->json([
+            'status' => 'success',
+            'message' => $branch->is_active ? 'Branch activated.' : 'Branch deactivated.',
+            'data' => $branch,
+        ]);
+    }
+
+    public function destroy(Request $request, Branch $branch): JsonResponse
+    {
+        if (! $this->canManageBranches($request->user())) {
+            return response()->json(['status' => false, 'message' => 'Only super admin or admin can delete branches.'], 403);
+        }
+        $branch->delete();
+        return response()->json(['status' => 'success', 'message' => 'Branch deleted.', 'data' => null]);
     }
 
     /**
@@ -137,7 +200,13 @@ class BranchController extends Controller
         if (!$user) {
             return;
         }
-        if (in_array($user->role, ['super_admin', 'admin'], true)) {
+        if ($user->role === 'super_admin') {
+            return;
+        }
+        if ($user->role === 'admin') {
+            if ($user->company_id && (int) $branch->company_id !== (int) $user->company_id) {
+                abort(403, 'You can only access branches of your company.');
+            }
             return;
         }
         if ($user->branch_id && (int) $user->branch_id !== (int) $branch->id) {

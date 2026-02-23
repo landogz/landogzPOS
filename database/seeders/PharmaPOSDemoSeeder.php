@@ -64,10 +64,12 @@ class PharmaPOSDemoSeeder extends Seeder
         }
 
         foreach ($roleNames as $i => $role) {
+            $branch = $i === 0 ? null : $branches[min($i - 1, 2)];
             $user = User::firstOrCreate(
                 ['email' => $role . '@demo.pharmapos.test'],
                 [
-                    'branch_id' => $i === 0 ? null : $branches[min($i - 1, 2)]->id,
+                    'company_id' => $company->id,
+                    'branch_id' => $branch?->id,
                     'name' => ucfirst(str_replace('_', ' ', $role)) . ' User',
                     'password' => Hash::make('password'),
                     'role' => $role,
@@ -75,21 +77,24 @@ class PharmaPOSDemoSeeder extends Seeder
                     'is_active' => true,
                 ]
             );
-            if (!$user->hasRole($role)) {
+            if (! $user->hasRole($role)) {
                 $user->assignRole(\Spatie\Permission\Models\Role::where('name', $role)->where('guard_name', 'web')->first());
             }
         }
 
         $categories = [];
         foreach (['OTC', 'Rx', 'Vitamins', 'Personal Care', 'First Aid'] as $name) {
-            $categories[] = Category::firstOrCreate(['name' => $name], ['type' => $name]);
+            $categories[] = Category::firstOrCreate(
+                ['company_id' => $company->id, 'name' => $name],
+                ['type' => $name]
+            );
         }
 
         if (Product::count() === 0) {
             foreach ($branches as $branch) {
                 $sup = Supplier::firstOrCreate(
                     ['branch_id' => $branch->id, 'name' => 'Supplier ' . $branch->name],
-                    ['contact' => 'sup@demo.test', 'address' => 'Address']
+                    ['company_id' => $branch->company_id, 'contact' => 'sup@demo.test', 'address' => 'Address']
                 );
                 for ($i = 1; $i <= 17; $i++) {
                     $product = Product::create([
@@ -114,15 +119,26 @@ class PharmaPOSDemoSeeder extends Seeder
                     'supplier_id' => $sup->id,
                 ]);
             }
+            }
         }
 
         $cashier = User::where('role', 'cashier')->first();
+        $terminalsByBranch = Terminal::whereIn('branch_id', array_map(fn ($b) => $b->id, $branches))
+            ->get()
+            ->groupBy('branch_id');
+
         for ($t = 1; $t <= 100; $t++) {
             $branch = $branches[$t % 3];
+            $branchTerminals = $terminalsByBranch->get($branch->id);
+            $terminal = $branchTerminals && $branchTerminals->isNotEmpty()
+                ? $branchTerminals->random()
+                : null;
+
             $branch->increment('current_or_number');
             $orNumber = (string) $branch->current_or_number;
             $transaction = Transaction::create([
                 'branch_id' => $branch->id,
+                'terminal_id' => $terminal?->id,
                 'or_number' => $orNumber,
                 'cashier_id' => $cashier->id,
                 'total' => 0,
@@ -149,7 +165,6 @@ class PharmaPOSDemoSeeder extends Seeder
                 ]);
             }
             $transaction->update(['total' => $total, 'vat_amount' => round($total / 1.12 * 0.12, 2)]);
-            }
         }
 
         foreach ($branches as $branch) {

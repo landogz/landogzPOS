@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
+use App\Models\User;
+use App\Services\LoginOtpService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
@@ -12,18 +14,19 @@ class AuthController extends Controller
 {
     /**
      * Login with email + password. Returns token, user, branch, permissions.
+     * For super_admin when OTP is enabled: returns otp_required and sends OTP via email or SMS.
      * When no account found or invalid credentials: 401 with standard error envelope.
      */
-    public function login(Request $request): JsonResponse
+    public function login(Request $request, LoginOtpService $loginOtp): JsonResponse
     {
         $request->validate([
             'email' => 'required|email',
             'password' => 'required',
         ]);
 
-        $user = \App\Models\User::where('email', $request->email)->first();
+        $user = User::where('email', $request->email)->first();
 
-        if (!$user || !Hash::check($request->password, $user->password)) {
+        if (! $user || ! Hash::check($request->password, $user->password)) {
             return response()->json([
                 'status' => false,
                 'message' => 'The provided credentials are incorrect.',
@@ -31,7 +34,7 @@ class AuthController extends Controller
             ], 401);
         }
 
-        if (!$user->is_active) {
+        if (! $user->is_active) {
             return response()->json([
                 'status' => false,
                 'message' => 'Account is inactive.',
@@ -39,10 +42,83 @@ class AuthController extends Controller
             ], 403);
         }
 
+        $otpEnabled = config('otp.super_admin_login.enabled', false);
+        $channel = config('otp.super_admin_login.channel', 'sms');
+
+        if ($otpEnabled && $user->role === 'super_admin') {
+            $result = $loginOtp->sendLoginOtp($user);
+            if (! $result['success']) {
+                return response()->json([
+                    'status' => false,
+                    'message' => $result['error'] ?? 'Failed to send verification code.',
+                    'errors' => ['email' => [$result['error'] ?? 'Failed to send verification code.']],
+                ], 422);
+            }
+            $sentTo = $channel === 'sms'
+                ? 'your registered phone number'
+                : $user->email;
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Verification code sent.',
+                'data' => [
+                    'otp_required' => true,
+                    'channel' => $channel,
+                    'email' => $user->email,
+                    'message' => 'A verification code has been sent to ' . $sentTo . '.',
+                ],
+            ]);
+        }
+
         $user->tokens()->delete();
         $token = $user->createToken('login')->plainTextToken;
         $user->load('branch.company');
+        $permissions = $this->permissionsForRole($user->role);
 
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Login successful',
+            'data' => [
+                'token' => $token,
+                'user' => $user,
+                'branch' => $user->branch,
+                'permissions' => $permissions,
+            ],
+        ]);
+    }
+
+    /**
+     * Verify OTP and complete super_admin login. POST with email + code.
+     */
+    public function verifyLoginOtp(Request $request, LoginOtpService $loginOtp): JsonResponse
+    {
+        $request->validate([
+            'email' => 'required|email',
+            'code' => 'required|string|size:6|regex:/^\d{6}$/',
+        ]);
+
+        $email = $request->input('email');
+        $code = $request->input('code');
+
+        if (! $loginOtp->verifyLoginOtp($email, $code)) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Invalid or expired verification code.',
+                'errors' => ['code' => ['Invalid or expired verification code.']],
+            ], 422);
+        }
+
+        $user = User::where('email', $email)->first();
+        if (! $user || ! $user->is_active) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Account not found or inactive.',
+                'errors' => ['email' => ['Account not found or inactive.']],
+            ], 403);
+        }
+
+        $user->tokens()->delete();
+        $token = $user->createToken('login')->plainTextToken;
+        $user->load('branch.company');
         $permissions = $this->permissionsForRole($user->role);
 
         return response()->json([

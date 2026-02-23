@@ -11,11 +11,16 @@ class UserResource extends JsonResource
     {
         return [
             'id' => $this->id,
+            'company_id' => $this->company_id,
             'branch_id' => $this->branch_id,
             'name' => $this->name,
             'email' => $this->email,
             'role' => $this->role,
             'is_active' => $this->is_active,
+            'company' => $this->whenLoaded('company', fn () => [
+                'id' => $this->company?->id,
+                'name' => $this->company?->name,
+            ]),
             'branch' => $this->whenLoaded('branch', fn () => [
                 'id' => $this->branch?->id,
                 'name' => $this->branch?->name,

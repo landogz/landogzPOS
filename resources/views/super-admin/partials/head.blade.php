@@ -9,6 +9,7 @@
 <link rel="stylesheet" href="{{ $midoneBase ?? asset('midone-html.vercel.app') }}/dist/css/vendors/simplebar.css">
 <link rel="stylesheet" href="{{ $midoneBase ?? asset('midone-html.vercel.app') }}/dist/css/components/mobile-menu.css">
 <link rel="stylesheet" href="{{ $midoneBase ?? asset('midone-html.vercel.app') }}/dist/css/vendors/toastify.css">
+<link rel="stylesheet" href="{{ $midoneBase ?? asset('midone-html.vercel.app') }}/dist/css/vendors/tom-select.css">
 <link rel="stylesheet" href="{{ $midoneBase ?? asset('midone-html.vercel.app') }}/dist/css/app.css">
 <style>
     /* Let curved pseudo-elements extend out of sidebar (theme + SimpleBar use overflow which clips them) */

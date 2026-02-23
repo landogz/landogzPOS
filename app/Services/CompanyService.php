@@ -3,9 +3,11 @@
 namespace App\Services;
 
 use App\Models\Company;
+use App\Models\User;
 use App\Repositories\CompanyRepository;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
 
 class CompanyService
@@ -27,12 +29,43 @@ class CompanyService
         return $this->repository->find($id);
     }
 
-    public function create(array $data, ?UploadedFile $logo = null): Company
+    /**
+     * Create company and optionally an admin user (company_id set, branch_id null).
+     * Admin fields: admin_name, admin_email, admin_password (all required together if creating admin).
+     */
+    public function create(array $data, ?UploadedFile $logo = null, ?array $admin = null): Company
     {
         if ($logo && $logo->isValid()) {
             $data['logo'] = $logo->store(self::LOGO_DIR, self::LOGO_DISK);
         }
-        return $this->repository->create($data);
+        $company = $this->repository->create($data);
+
+        if ($admin && !empty($admin['admin_email']) && !empty($admin['admin_password'])) {
+            $this->createCompanyAdmin($company, $admin);
+        }
+
+        return $company;
+    }
+
+    /**
+     * Create an admin user for the company (role=admin, company_id=company->id, branch_id=null).
+     */
+    private function createCompanyAdmin(Company $company, array $admin): User
+    {
+        $user = User::create([
+            'company_id' => $company->id,
+            'branch_id' => null,
+            'name' => $admin['admin_name'] ?? $company->name . ' Admin',
+            'email' => $admin['admin_email'],
+            'password' => Hash::make($admin['admin_password']),
+            'role' => 'admin',
+            'is_active' => true,
+        ]);
+        $roleModel = \Spatie\Permission\Models\Role::where('name', 'admin')->where('guard_name', 'web')->first();
+        if ($roleModel && !$user->hasRole('admin')) {
+            $user->assignRole($roleModel);
+        }
+        return $user;
     }
 
     public function update(Company $company, array $data, ?UploadedFile $logo = null): Company
@@ -51,6 +84,8 @@ class CompanyService
         if ($company->logo) {
             Storage::disk(self::LOGO_DISK)->delete($company->logo);
         }
+        // Delete all users belonging to this company before deleting the company
+        $company->users()->delete();
         return $this->repository->delete($company);
     }
 
@@ -116,6 +151,41 @@ class CompanyService
             ->groupBy('branch_id')
             ->get()
             ->keyBy('branch_id');
+
+        $byTerminal = \App\Models\Transaction::query()
+            ->where('status', 'completed')
+            ->whereIn('branch_id', $branchIds)
+            ->whereBetween('created_at', [$fromTs, $toTs])
+            ->whereNotNull('terminal_id')
+            ->selectRaw('terminal_id, COUNT(*) as transaction_count, COALESCE(SUM(total), 0) as total_sales')
+            ->groupBy('terminal_id')
+            ->get()
+            ->keyBy('terminal_id');
+
+        $terminals = \App\Models\Terminal::query()
+            ->whereIn('branch_id', $branchIds)
+            ->with('branch:id,name')
+            ->orderBy('branch_id')
+            ->orderBy('name')
+            ->get();
+
+        $terminalsData = $terminals->map(function ($terminal) use ($byTerminal) {
+            $stats = $byTerminal->get($terminal->id);
+            $txCount = $stats ? (int) $stats->transaction_count : 0;
+            $totalSales = $stats ? (float) $stats->total_sales : 0.0;
+            $avgTx = $txCount > 0 ? $totalSales / $txCount : 0;
+            return [
+                'id' => $terminal->id,
+                'branch_id' => $terminal->branch_id,
+                'branch_name' => $terminal->branch?->name ?? '',
+                'name' => $terminal->name ?? $terminal->code ?? 'Terminal #'.$terminal->id,
+                'code' => $terminal->code ?? '',
+                'is_active' => $terminal->is_active ?? true,
+                'transaction_count' => $txCount,
+                'total_sales' => round($totalSales, 2),
+                'avg_transaction_value' => round($avgTx, 2),
+            ];
+        })->values()->all();
 
         $branchCashierCounts = \App\Models\User::query()
             ->whereIn('branch_id', $branchIds)
@@ -305,6 +375,7 @@ class CompanyService
             'top_5_products' => $top5Products->values()->all(),
             'top_cashiers' => $topCashiers->values()->all(),
             'branches' => $branchesData,
+            'terminals' => $terminalsData,
             'recent_transactions' => $recentTransactions,
             'inventory_summary' => [
                 'low_stock_count' => $lowStockAlerts,

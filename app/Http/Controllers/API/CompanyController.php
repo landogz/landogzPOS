@@ -67,11 +67,23 @@ class CompanyController extends Controller
             'contact'           => 'nullable|string|max:100',
             'logo'              => 'nullable|image|max:2048',
             'is_vat'            => 'nullable|boolean',
+            'admin_name'        => 'nullable|string|max:255',
+            'admin_email'       => 'nullable|email|unique:users,email',
+            'admin_password'    => 'nullable|string|min:8|confirmed',
         ]);
-        $company = $this->service->create($validated, $request->file('logo'));
+        $admin = null;
+        if (!empty($validated['admin_email']) && !empty($validated['admin_password'])) {
+            $admin = [
+                'admin_name'     => $validated['admin_name'] ?? null,
+                'admin_email'    => $validated['admin_email'],
+                'admin_password' => $validated['admin_password'],
+            ];
+        }
+        unset($validated['admin_name'], $validated['admin_email'], $validated['admin_password'], $validated['admin_password_confirmation']);
+        $company = $this->service->create($validated, $request->file('logo'), $admin);
         return response()->json([
             'status' => true,
-            'message' => 'Company created.',
+            'message' => 'Company created.' . ($admin ? ' Admin account created.' : ''),
             'data' => $company,
         ], 201);
     }

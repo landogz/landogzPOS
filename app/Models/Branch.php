@@ -13,10 +13,13 @@ class Branch extends Model
 
     protected $fillable = [
         'company_id', 'name', 'address', 'tin',
-        'bir_series_start', 'bir_series_end', 'current_or_number',
+        'bir_series_start', 'bir_series_end', 'current_or_number', 'is_active',
     ];
 
-    protected $casts = ['current_or_number' => 'integer'];
+    protected $casts = [
+        'current_or_number' => 'integer',
+        'is_active' => 'boolean',
+    ];
 
     public function company(): BelongsTo
     {

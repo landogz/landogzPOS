@@ -15,6 +15,7 @@
 <script src="{{ $base }}/dist/js/themes/rubick.js"></script>
 <script src="{{ $base }}/dist/js/components/themes/rubick/top-bar.js"></script>
 <script src="{{ $base }}/dist/js/vendors/toastify.js"></script>
+<script src="{{ $base }}/dist/js/vendors/tom-select.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
 /** Global: Rubick-style non-sticky Toastify notification (success/error). Use this for all success/error feedback; keep Swal for confirmations only. */
@@ -34,6 +35,37 @@ window.showToastNotification = function(type, title, text) {
         Swal.fire({ icon: type === 'success' ? 'success' : 'error', title: title, text: text });
     }
 };
+
+/** Global: small pulse (backdrop flash) when clicking modal backdrop (does NOT close modal). Animates backdrop only so dialog form stays clickable. */
+window.pulseModal = function(modalEl) {
+    if (!modalEl) return;
+    modalEl.classList.remove('modal-backdrop-pulse');
+    void modalEl.offsetWidth;
+    modalEl.classList.add('modal-backdrop-pulse');
+    setTimeout(function () {
+        modalEl.classList.remove('modal-backdrop-pulse');
+    }, 260);
+};
+
+// Preloader: hide 2 seconds after DOM is ready (sidebar and layout loaded)
+function hidePreloader() {
+    var el = document.getElementById('super-admin-preloader');
+    if (el) {
+        el.classList.add('opacity-0');
+        el.style.pointerEvents = 'none';
+        setTimeout(function() {
+            el.style.display = 'none';
+        }, 300);
+    }
+}
+function schedulePreloaderHide() {
+    setTimeout(hidePreloader, 2000);
+}
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', schedulePreloaderHide);
+} else {
+    schedulePreloaderHide();
+}
 
 document.addEventListener('DOMContentLoaded', function() {
     var logoutBtn = document.getElementById('super-admin-logout');

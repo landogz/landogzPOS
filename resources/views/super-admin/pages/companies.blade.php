@@ -5,27 +5,26 @@
 
 @section('content')
     {{-- ── Page header ──────────────────────────────────────────────────── --}}
-    <div class="intro-y mt-10 flex flex-wrap items-center justify-between gap-3">
-        <h2 class="text-lg font-semibold text-slate-800 dark:text-slate-100">Companies</h2>
+    <div class="intro-y mt-6 sm:mt-10 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between">
+        <h2 class="text-base font-semibold text-slate-800 dark:text-slate-100 sm:text-lg">Companies</h2>
 
-        <div class="flex items-center gap-2">
+        <div class="flex flex-wrap items-center gap-2 sm:gap-2 min-w-0">
             {{-- Grid / List toggle --}}
-            <div class="flex rounded-lg border border-slate-200 dark:border-darkmode-500 bg-white dark:bg-darkmode-700 overflow-hidden">
+            <div class="flex rounded-lg border border-slate-200 dark:border-darkmode-500 bg-white dark:bg-darkmode-700 overflow-hidden flex-shrink-0">
                 <button id="view-grid-btn" title="Grid view"
-                    class="view-toggle-btn active px-2.5 py-2 text-primary bg-primary/10 transition-colors"
+                    class="view-toggle-btn active px-3 py-2.5 sm:px-2.5 sm:py-2 text-primary bg-primary/10 transition-colors touch-manipulation min-h-[44px] sm:min-h-0"
                     aria-pressed="true">
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
                 </button>
                 <button id="view-list-btn" title="List view"
-                    class="view-toggle-btn px-2.5 py-2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 transition-colors">
+                    class="view-toggle-btn px-3 py-2.5 sm:px-2.5 sm:py-2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 transition-colors touch-manipulation min-h-[44px] sm:min-h-0">
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
                 </button>
             </div>
 
             {{-- Status filter --}}
-            <div class="relative">
-                <select id="companies-status-filter"
-                    class="appearance-none rounded-lg border border-slate-200 dark:border-darkmode-500 bg-white dark:bg-darkmode-700 py-2 pl-3 pr-8 text-sm text-slate-700 dark:text-slate-300 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition cursor-pointer">
+            <div class="relative flex-shrink-0 min-h-[44px] sm:min-h-0 flex items-center">
+                <select id="companies-status-filter" class="appearance-none rounded-lg border border-slate-200 dark:border-darkmode-500 bg-white dark:bg-darkmode-700 py-2.5 sm:py-2 pl-3 pr-8 text-sm text-slate-700 dark:text-slate-300 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition cursor-pointer min-h-[44px] sm:min-h-0">
                     <option value="all">All Status</option>
                     <option value="active">Active</option>
                     <option value="inactive">Inactive</option>
@@ -34,16 +33,16 @@
             </div>
 
             {{-- Search --}}
-            <div class="relative text-slate-500">
+            <div class="relative text-slate-500 flex-1 min-w-0 sm:flex-initial sm:w-52">
                 <input type="text" id="companies-search" placeholder="Search…"
-                    class="transition duration-200 ease-in-out text-sm border-slate-200 dark:border-transparent shadow-sm rounded-lg placeholder:text-slate-400/90 focus:ring-4 focus:ring-primary focus:ring-opacity-20 focus:border-primary dark:bg-darkmode-800 dark:placeholder:text-slate-500/80 box w-52 pr-9">
+                    class="transition duration-200 ease-in-out text-sm border-slate-200 dark:border-transparent shadow-sm rounded-lg placeholder:text-slate-400/90 focus:ring-4 focus:ring-primary focus:ring-opacity-20 focus:border-primary dark:bg-darkmode-800 dark:placeholder:text-slate-500/80 box w-full min-w-0 sm:w-52 pr-9 py-2.5 sm:py-2 min-h-[44px] sm:min-h-0">
                 <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="absolute inset-y-0 right-0 my-auto mr-3 h-4 w-4"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
             </div>
 
             {{-- Add button --}}
             <button type="button" id="companies-add-btn"
-                class="inline-flex items-center gap-1.5 rounded-lg bg-primary border border-primary px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-primary/90 focus:ring-4 focus:ring-primary/20 transition-colors">
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                class="inline-flex items-center justify-center gap-1.5 rounded-lg bg-primary border border-primary px-4 py-2.5 sm:py-2 text-sm font-medium text-white shadow-sm hover:bg-primary/90 focus:ring-4 focus:ring-primary/20 transition-colors touch-manipulation min-h-[44px] w-full sm:w-auto flex-shrink-0">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="flex-shrink-0"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
                 Add Company
             </button>
         </div>
@@ -58,13 +57,14 @@
     </div>
 
     {{-- Grid view --}}
-    <div id="companies-grid" class="intro-y mt-5 grid grid-cols-12 gap-6">
+    <div id="companies-grid" class="intro-y mt-4 sm:mt-5 grid grid-cols-12 gap-4 sm:gap-5 lg:gap-6">
         {{-- JS rendered --}}
     </div>
 
     {{-- List view (hidden by default) --}}
-    <div id="companies-list" class="intro-y mt-5 hidden">
-        <div class="box overflow-hidden">
+    <div id="companies-list" class="intro-y mt-4 sm:mt-5 hidden">
+        <div class="box overflow-x-auto overflow-y-hidden sm:overflow-visible">
+            <div class="min-w-[640px] md:min-w-0">
             <table class="w-full text-sm">
                 <thead>
                     <tr class="border-b border-slate-200/60 dark:border-darkmode-400 bg-slate-50/60 dark:bg-darkmode-700/40">
@@ -82,6 +82,7 @@
                     {{-- JS rendered --}}
                 </tbody>
             </table>
+            </div>
         </div>
     </div>
 
@@ -92,75 +93,142 @@
 @endsection
 
 @push('modals')
-    <x-modal id="company-modal" title="Add Company" title-id="company-modal-title" size="xl">
-        <form id="company-form" enctype="multipart/form-data">
+    <x-modal id="company-modal" title="Add Company" title-id="company-modal-title" size="4xl">
+        <form id="company-form" enctype="multipart/form-data" class="flex flex-col min-h-0 max-h-[calc(100vh-5rem)] sm:max-h-[calc(100vh-10rem)]">
             <input type="hidden" id="company-id" name="id" value="">
-            <div class="px-6 sm:px-8 py-6 space-y-6">
-                {{-- Logo upload --}}
-                <div class="rounded-xl border border-slate-200 dark:border-darkmode-500 bg-slate-50/50 dark:bg-darkmode-700/30 p-5">
-                    <p class="text-sm font-medium text-slate-700 dark:text-slate-300 mb-4">Company logo</p>
-                    <div class="flex flex-col sm:flex-row sm:items-center gap-6">
-                        <div class="flex-shrink-0">
-                            <div class="relative h-28 w-28 rounded-2xl overflow-hidden border-2 border-slate-200 dark:border-darkmode-500 bg-white dark:bg-darkmode-700 shadow-sm ring-1 ring-slate-200/50 dark:ring-darkmode-600">
-                                <img id="company-logo-preview" src="" alt="Logo preview" class="h-full w-full object-cover hidden">
-                                <span class="company-logo-placeholder absolute inset-0 flex items-center justify-center text-slate-300 dark:text-slate-500">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="opacity-60"><rect width="18" height="18" x="3" y="3" rx="2" ry="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/></svg>
-                                </span>
+            <div class="px-5 sm:px-6 md:px-8 py-5 sm:py-6 overflow-y-auto overscroll-contain min-h-0 flex-1 max-h-[55vh] sm:max-h-[60vh] bg-slate-50/50 dark:bg-darkmode-800/50">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8">
+                    {{-- Left column --}}
+                    <div class="space-y-5">
+                        {{-- Logo --}}
+                        <div class="card-margin rounded-2xl bg-white dark:bg-darkmode-800 shadow-sm ring-1 ring-slate-200/80 dark:ring-darkmode-600/80 px-5 py-4">
+                            <div class="flex items-center gap-4">
+                                <div class="relative h-16 w-16 flex-shrink-0 rounded-xl overflow-hidden bg-slate-100 dark:bg-darkmode-700 ring-1 ring-slate-200/80 dark:ring-darkmode-600">
+                                    <img id="company-logo-preview" src="" alt="Logo preview" class="h-full w-full object-cover hidden">
+                                    <span class="company-logo-placeholder absolute inset-0 flex items-center justify-center text-slate-400 dark:text-slate-500">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="opacity-70"><rect width="18" height="18" x="3" y="3" rx="2" ry="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/></svg>
+                                    </span>
+                                </div>
+                                <div class="flex-1 min-w-0">
+                                    <label for="company-logo" class="inline-flex cursor-pointer items-center gap-2 rounded-xl border border-slate-200 dark:border-darkmode-500 bg-white dark:bg-darkmode-700 px-4 py-2.5 text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-darkmode-600 focus-within:ring-2 focus-within:ring-primary/20 focus-within:border-primary transition-shadow">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" x2="12" y1="3" y2="15"/></svg>
+                                        <span id="company-logo-label">Choose file</span>
+                                        <input type="file" id="company-logo" name="logo" accept="image/*" class="sr-only">
+                                    </label>
+                                    <p class="mt-1.5 text-xs text-slate-500 dark:text-slate-400">PNG, JPG or GIF · Max 2MB</p>
+                                </div>
                             </div>
                         </div>
-                        <div class="flex-1 min-w-0">
-                            <label for="company-logo" class="inline-flex cursor-pointer items-center gap-2 rounded-lg border border-slate-200 dark:border-darkmode-500 bg-white dark:bg-darkmode-700 px-4 py-2.5 text-sm font-medium text-slate-700 dark:text-slate-300 shadow-sm transition-colors hover:bg-slate-50 dark:hover:bg-darkmode-600 focus-within:ring-2 focus-within:ring-primary focus-within:ring-offset-2 dark:focus-within:ring-offset-darkmode-800">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" x2="12" y1="3" y2="15"/></svg>
-                                <span id="company-logo-label">Choose file</span>
-                                <input type="file" id="company-logo" name="logo" accept="image/*" class="sr-only">
-                            </label>
-                            <p class="mt-2 text-xs text-slate-500 dark:text-slate-400">PNG, JPG or GIF · Max 2MB</p>
+                        {{-- Basic Information --}}
+                        <div class="card-margin rounded-2xl bg-white dark:bg-darkmode-800 shadow-sm ring-1 ring-slate-200/80 dark:ring-darkmode-600/80 p-5 sm:p-6 space-y-5">
+                            <h3 class="text-[11px] font-semibold uppercase tracking-widest text-slate-400 dark:text-slate-500 pb-3 border-b border-slate-100 dark:border-darkmode-600">Basic Information</h3>
+                            <div>
+                                <label for="company-name" class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">Company name <span class="text-red-500">*</span></label>
+                                <input type="text" id="company-name" name="name" class="w-full rounded-xl border border-slate-200 dark:border-darkmode-500 bg-slate-50/50 dark:bg-darkmode-700/50 px-4 py-3 text-slate-900 dark:text-slate-100 placeholder-slate-400 focus:border-primary focus:ring-2 focus:ring-primary/20 focus:bg-white dark:focus:bg-darkmode-700 outline-none transition" placeholder="Enter company name" required>
+                            </div>
+                            <div>
+                                <label for="company-tin" class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">TIN</label>
+                                <input type="text" id="company-tin" name="tin" class="w-full rounded-xl border border-slate-200 dark:border-darkmode-500 bg-slate-50/50 dark:bg-darkmode-700/50 px-4 py-3 text-slate-900 dark:text-slate-100 placeholder-slate-400 focus:border-primary focus:ring-2 focus:ring-primary/20 focus:bg-white dark:focus:bg-darkmode-700 outline-none transition" placeholder="Tax Identification Number">
+                            </div>
+                            <div>
+                                <label for="company-bir" class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">BIR accreditation</label>
+                                <input type="text" id="company-bir" name="bir_accreditation" class="w-full rounded-xl border border-slate-200 dark:border-darkmode-500 bg-slate-50/50 dark:bg-darkmode-700/50 px-4 py-3 text-slate-900 dark:text-slate-100 placeholder-slate-400 focus:border-primary focus:ring-2 focus:ring-primary/20 focus:bg-white dark:focus:bg-darkmode-700 outline-none transition" placeholder="BIR accreditation number">
+                            </div>
+                        </div>
+                        {{-- Address --}}
+                        <div class="card-margin rounded-2xl bg-white dark:bg-darkmode-800 shadow-sm ring-1 ring-slate-200/80 dark:ring-darkmode-600/80 p-5 sm:p-6 space-y-5">
+                            <h3 class="text-[11px] font-semibold uppercase tracking-widest text-slate-400 dark:text-slate-500 pb-3 border-b border-slate-100 dark:border-darkmode-600">Address</h3>
+                            <div>
+                                <label for="company-address-street" class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">Street</label>
+                                <input type="text" id="company-address-street" name="address_street" class="w-full rounded-xl border border-slate-200 dark:border-darkmode-500 bg-slate-50/50 dark:bg-darkmode-700/50 px-4 py-3 text-slate-900 dark:text-slate-100 placeholder-slate-400 focus:border-primary focus:ring-2 focus:ring-primary/20 focus:bg-white dark:focus:bg-darkmode-700 outline-none transition" placeholder="Street address">
+                            </div>
+                            <div>
+                                <label for="company-address-city" class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">City / Province</label>
+                                <input type="text" id="company-address-city" name="address_city" class="w-full rounded-xl border border-slate-200 dark:border-darkmode-500 bg-slate-50/50 dark:bg-darkmode-700/50 px-4 py-3 text-slate-900 dark:text-slate-100 placeholder-slate-400 focus:border-primary focus:ring-2 focus:ring-primary/20 focus:bg-white dark:focus:bg-darkmode-700 outline-none transition" placeholder="City or Province">
+                            </div>
+                            <div>
+                                <label for="company-address-zip" class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">ZIP Code</label>
+                                <input type="text" id="company-address-zip" name="address_zip" class="w-full rounded-xl border border-slate-200 dark:border-darkmode-500 bg-slate-50/50 dark:bg-darkmode-700/50 px-4 py-3 text-slate-900 dark:text-slate-100 placeholder-slate-400 focus:border-primary focus:ring-2 focus:ring-primary/20 focus:bg-white dark:focus:bg-darkmode-700 outline-none transition" placeholder="ZIP Code">
+                            </div>
+                        </div>
+                    </div>
+                    {{-- Right column --}}
+                    <div class="space-y-5">
+                        {{-- Contact --}}
+                        <div class="card-margin rounded-2xl bg-white dark:bg-darkmode-800 shadow-sm ring-1 ring-slate-200/80 dark:ring-darkmode-600/80 p-5 sm:p-6 space-y-5">
+                            <h3 class="text-[11px] font-semibold uppercase tracking-widest text-slate-400 dark:text-slate-500 pb-3 border-b border-slate-100 dark:border-darkmode-600">Contact</h3>
+                            <div>
+                                <label for="company-contact" class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">Phone or email</label>
+                                <input type="text" id="company-contact" name="contact" class="w-full rounded-xl border border-slate-200 dark:border-darkmode-500 bg-slate-50/50 dark:bg-darkmode-700/50 px-4 py-3 text-slate-900 dark:text-slate-100 placeholder-slate-400 focus:border-primary focus:ring-2 focus:ring-primary/20 focus:bg-white dark:focus:bg-darkmode-700 outline-none transition" placeholder="Phone or email">
+                            </div>
+                        </div>
+                        {{-- VAT --}}
+                        <div class="card-margin rounded-2xl bg-white dark:bg-darkmode-800 shadow-sm ring-1 ring-slate-200/80 dark:ring-darkmode-600/80 p-5 sm:p-6">
+                            <h3 class="text-[11px] font-semibold uppercase tracking-widest text-slate-400 dark:text-slate-500 pb-3 border-b border-slate-100 dark:border-darkmode-600 mb-4">VAT</h3>
+                            <div class="flex items-center justify-between gap-4 rounded-xl bg-slate-50/80 dark:bg-darkmode-700/50 ring-1 ring-slate-200/60 dark:ring-darkmode-600 px-5 py-4">
+                                <div>
+                                    <p class="text-sm font-medium text-slate-800 dark:text-slate-200">VAT Registered</p>
+                                    <p class="mt-0.5 text-xs text-slate-500 dark:text-slate-400">Subject to Value-Added Tax (12%)</p>
+                                </div>
+                                <label class="inline-flex cursor-pointer items-center shrink-0" aria-label="Toggle VAT registered">
+                                    <input type="checkbox" id="company-is-vat" name="is_vat" value="1" class="sr-only" checked>
+                                    <span id="company-is-vat-track" class="relative inline-block h-7 w-12 flex-shrink-0 rounded-full border-2 border-slate-300 dark:border-darkmode-500 bg-slate-200 dark:bg-darkmode-400 transition-colors duration-200">
+                                        <span id="company-is-vat-thumb" class="absolute left-0.5 top-0.5 h-5 w-5 rounded-full bg-white shadow-sm ring-1 ring-slate-900/5 transition-transform duration-200 translate-x-5"></span>
+                                    </span>
+                                </label>
+                            </div>
+                        </div>
+                        {{-- Admin Account: collapsible --}}
+                        <div id="company-admin-accordion" class="card-margin rounded-2xl bg-white dark:bg-darkmode-800 shadow-sm ring-1 ring-slate-200/80 dark:ring-darkmode-600/80 overflow-hidden">
+                            <button type="button" id="company-admin-toggle" class="w-full flex items-center gap-3 px-5 py-4 text-left text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-50/80 dark:hover:bg-darkmode-700/50 transition-colors focus:outline-none focus:ring-2 focus:ring-primary/20 focus:ring-inset rounded-2xl" aria-expanded="false" aria-controls="company-admin-section">
+                                <svg id="company-admin-chevron" class="w-5 h-5 text-slate-400 shrink-0 transition-transform duration-200" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
+                                <span>Create admin account <span class="text-slate-400 font-normal">(optional)</span></span>
+                            </button>
+                            <div id="company-admin-section" class="border-t border-slate-100 dark:border-darkmode-600 bg-slate-50/60 dark:bg-darkmode-700/30 hidden" aria-hidden="true">
+                                <div class="p-5 space-y-5">
+                                    <p class="text-xs text-slate-500 dark:text-slate-400">Leave blank to skip. Admin will be linked to this company.</p>
+                                    <div class="space-y-5">
+                                <div>
+                                    <label for="company-admin-name" class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">Admin name</label>
+                                    <input type="text" id="company-admin-name" name="admin_name" class="w-full rounded-xl border border-slate-200 dark:border-darkmode-500 bg-white dark:bg-darkmode-700 px-4 py-2.5 text-sm text-slate-900 dark:text-slate-100 placeholder-slate-400 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition" placeholder="e.g. Juan Dela Cruz">
+                                </div>
+                                <div>
+                                    <label for="company-admin-email" class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">Admin email</label>
+                                    <input type="email" id="company-admin-email" name="admin_email" class="w-full rounded-xl border border-slate-200 dark:border-darkmode-500 bg-white dark:bg-darkmode-700 px-4 py-2.5 text-sm text-slate-900 dark:text-slate-100 placeholder-slate-400 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition" placeholder="admin@company.com">
+                                </div>
+                                <div>
+                                    <label for="company-admin-password" class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">Password (min 8)</label>
+                                    <div class="relative">
+                                        <input type="password" id="company-admin-password" name="admin_password" class="w-full rounded-xl border border-slate-200 dark:border-darkmode-500 bg-white dark:bg-darkmode-700 pl-4 pr-11 py-2.5 text-sm text-slate-900 dark:text-slate-100 placeholder-slate-400 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition" placeholder="••••••••" autocomplete="new-password">
+                                        <button type="button" class="company-password-toggle absolute right-3 top-1/2 -translate-y-1/2 p-1 rounded-lg text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 focus:outline-none focus:ring-2 focus:ring-primary/20" data-target="company-admin-password" aria-label="Show password">
+                                            <svg class="w-5 h-5 eye-on" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+                                            <svg class="w-5 h-5 eye-off hidden" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"/></svg>
+                                        </button>
+                                    </div>
+                                </div>
+                                <div>
+                                    <label for="company-admin-password-confirm" class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">Confirm password</label>
+                                    <div class="relative">
+                                        <input type="password" id="company-admin-password-confirm" name="admin_password_confirmation" class="w-full rounded-xl border border-slate-200 dark:border-darkmode-500 bg-white dark:bg-darkmode-700 pl-4 pr-11 py-2.5 text-sm text-slate-900 dark:text-slate-100 placeholder-slate-400 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition" placeholder="••••••••" autocomplete="new-password">
+                                        <button type="button" class="company-password-toggle absolute right-3 top-1/2 -translate-y-1/2 p-1 rounded-lg text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 focus:outline-none focus:ring-2 focus:ring-primary/20" data-target="company-admin-password-confirm" aria-label="Show password">
+                                            <svg class="w-5 h-5 eye-on" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+                                            <svg class="w-5 h-5 eye-off hidden" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"/></svg>
+                                        </button>
+                                    </div>
+                                </div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
-                <div>
-                    <label for="company-name" class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">Company name <span class="text-red-500">*</span></label>
-                    <input type="text" id="company-name" name="name" class="w-full rounded-lg border border-slate-200 dark:border-darkmode-500 bg-white dark:bg-darkmode-700 px-4 py-2.5 text-slate-800 dark:text-slate-200 placeholder-slate-400 dark:placeholder-slate-500 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition dark:focus:border-primary" placeholder="Enter company name" required>
-                </div>
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div>
-                        <label for="company-tin" class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">TIN</label>
-                        <input type="text" id="company-tin" name="tin" class="w-full rounded-lg border border-slate-200 dark:border-darkmode-500 bg-white dark:bg-darkmode-700 px-4 py-2.5 text-slate-800 dark:text-slate-200 placeholder-slate-400 dark:placeholder-slate-500 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition dark:focus:border-primary" placeholder="Tax Identification Number">
-                    </div>
-                    <div>
-                        <label for="company-bir" class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">BIR accreditation</label>
-                        <input type="text" id="company-bir" name="bir_accreditation" class="w-full rounded-lg border border-slate-200 dark:border-darkmode-500 bg-white dark:bg-darkmode-700 px-4 py-2.5 text-slate-800 dark:text-slate-200 placeholder-slate-400 dark:placeholder-slate-500 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition dark:focus:border-primary" placeholder="BIR accreditation number">
-                    </div>
-                </div>
-                <div>
-                    <label for="company-address" class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">Address</label>
-                    <textarea id="company-address" name="address" rows="2" class="w-full rounded-lg border border-slate-200 dark:border-darkmode-500 bg-white dark:bg-darkmode-700 px-4 py-2.5 text-slate-800 dark:text-slate-200 placeholder-slate-400 dark:placeholder-slate-500 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition dark:focus:border-primary resize-none" placeholder="Street, city, region"></textarea>
-                </div>
-                <div>
-                    <label for="company-contact" class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">Contact</label>
-                    <input type="text" id="company-contact" name="contact" class="w-full rounded-lg border border-slate-200 dark:border-darkmode-500 bg-white dark:bg-darkmode-700 px-4 py-2.5 text-slate-800 dark:text-slate-200 placeholder-slate-400 dark:placeholder-slate-500 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition dark:focus:border-primary" placeholder="Phone or email">
-                </div>
-                {{-- VAT toggle (track + thumb so on/off is clearly visible) --}}
-                <div class="flex items-center justify-between gap-4 rounded-xl border border-slate-200 dark:border-darkmode-500 bg-slate-50/50 dark:bg-darkmode-700/30 px-5 py-4">
-                    <div>
-                        <p class="text-sm font-medium text-slate-700 dark:text-slate-300">VAT Registered</p>
-                        <p class="mt-0.5 text-xs text-slate-500 dark:text-slate-400">Company is subject to Value-Added Tax (12%)</p>
-                    </div>
-                    <label class="inline-flex cursor-pointer items-center gap-3">
-                        <input type="checkbox" id="company-is-vat" name="is_vat" value="1" class="sr-only" checked>
-                        <span id="company-is-vat-label" class="text-sm font-semibold min-w-[4.5rem]">VAT</span>
-                        <span id="company-is-vat-track" class="relative inline-block h-7 w-12 flex-shrink-0 rounded-full border-2 border-slate-300 dark:border-darkmode-500 bg-slate-200 dark:bg-darkmode-400 transition-colors">
-                            <span id="company-is-vat-thumb" class="absolute left-0.5 top-0.5 h-5 w-5 rounded-full bg-white shadow-md ring-1 ring-black/10 transition-transform duration-200 translate-x-5"></span>
-                        </span>
-                    </label>
-                </div>
             </div>
-            <div class="modal-footer flex flex-col-reverse sm:flex-row sm:justify-end gap-3 px-6 sm:px-8 py-5 border-t border-slate-200 dark:border-darkmode-600 bg-slate-50/30 dark:bg-darkmode-700/30">
-                <button type="button" data-tw-dismiss="modal" class="w-full sm:w-auto inline-flex items-center justify-center px-5 py-2.5 rounded-lg border border-slate-200 dark:border-darkmode-500 text-slate-700 dark:text-slate-300 bg-white dark:bg-darkmode-700 hover:bg-slate-50 dark:hover:bg-darkmode-600 font-medium text-sm transition-colors focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 dark:focus:ring-offset-darkmode-800">
+            <div class="modal-footer flex-shrink-0 flex flex-col-reverse sm:flex-row sm:justify-end gap-3 px-6 sm:px-8 py-5 border-t border-slate-200/80 dark:border-darkmode-600 bg-white dark:bg-darkmode-800">
+                <button type="button" data-tw-dismiss="modal" class="w-full sm:w-auto inline-flex items-center justify-center px-5 py-2.5 rounded-xl border border-slate-200 dark:border-darkmode-500 text-slate-700 dark:text-slate-300 bg-white dark:bg-darkmode-700 hover:bg-slate-50 dark:hover:bg-darkmode-600 font-medium text-sm transition-colors focus:outline-none focus:ring-2 focus:ring-slate-300 dark:focus:ring-darkmode-500 focus:ring-offset-2">
                     Cancel
                 </button>
-                <button type="submit" id="company-submit-btn" class="w-full sm:w-auto inline-flex items-center justify-center px-5 py-2.5 rounded-lg bg-primary border border-primary text-white font-medium text-sm hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 dark:focus:ring-offset-darkmode-800 transition-colors">
-                    Save
+                <button type="submit" id="company-submit-btn" class="w-full sm:w-auto inline-flex items-center justify-center px-6 py-2.5 rounded-xl bg-primary text-white font-semibold text-sm shadow-sm hover:bg-primary/90 hover:shadow focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 dark:focus:ring-offset-darkmode-800 transition-all min-w-[8.5rem]">
+                    Add Company
                 </button>
             </div>
         </form>
@@ -225,7 +293,7 @@
 
     function dropdownMenuHtml(c) {
         var isActive = c.is_active !== false;
-        return '<div class="company-dropdown-menu absolute right-0 top-full z-[9999] mt-1 hidden min-w-[11rem] rounded-xl border border-slate-200 dark:border-darkmode-600 bg-white dark:bg-darkmode-600 p-1.5 shadow-xl">'
+        return '<div class="company-dropdown-menu absolute right-0 top-full z-[9999] mt-1 hidden min-w-[11rem] max-w-[calc(100vw-2rem)] rounded-xl border border-slate-200 dark:border-darkmode-600 bg-white dark:bg-darkmode-600 p-1.5 shadow-xl">'
             + '<a href="javascript:;" class="company-edit flex items-center gap-2.5 rounded-lg px-3 py-2 text-sm text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-darkmode-400 transition-colors cursor-pointer">'
                 + '<svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.12 2.12 0 0 1 3 3L12 15l-4 1 1-4Z"/></svg>Edit'
             + '</a>'
@@ -347,13 +415,13 @@
             var totalSales  = parseFloat(c.transactions_sum_total) || 0;
 
             var card = document.createElement('div');
-            card.className = 'intro-y col-span-12 md:col-span-6 lg:col-span-4';
+            card.className = 'intro-y col-span-12 sm:col-span-6 lg:col-span-4';
             card.innerHTML =
                 // hover:-translate-y-1 gives the lift effect
                 '<div class="box relative flex flex-col h-full transition-all duration-200 hover:shadow-xl hover:-translate-y-1' + (isActive ? '' : ' opacity-80') + '">'
 
                 // ── Card header: logo | name+meta | [status badge] [⋮] ──
-                + '<div class="flex items-start gap-3 p-5 pb-4">'
+                + '<div class="flex items-start gap-3 p-4 sm:p-5 pb-3 sm:pb-4">'
                 +   avatarHtml(c, idx, 'md')
                 +   '<div class="flex-1 min-w-0">'
                 +     '<a href="' + escapeHtml(summaryUrl(c.id)) + '" class="block font-semibold text-slate-800 dark:text-slate-100 hover:text-primary truncate">' + escapeHtml(c.name || '') + '</a>'
@@ -375,7 +443,7 @@
                 + '</div>'
 
                 // ── Address + Contact ──
-                + '<div class="px-5 space-y-1.5 flex-1">'
+                + '<div class="px-4 sm:px-5 space-y-1.5 flex-1">'
                 +   '<div class="flex items-start gap-2 text-sm text-slate-500 dark:text-slate-400">'
                 +     '<svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mt-0.5 flex-shrink-0"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>'
                 +     '<span class="line-clamp-2">' + (c.address ? escapeHtml(c.address) : '<em class="text-slate-400 not-italic">No address</em>') + '</span>'
@@ -399,11 +467,11 @@
                 + '</div>'
 
                 // ── Footer actions ──
-                + '<div class="flex items-center gap-2 border-t border-slate-200/60 dark:border-darkmode-400 p-4 mt-4">'
-                +   '<a href="' + escapeHtml(summaryUrl(c.id)) + '" class="flex-1 inline-flex items-center justify-center gap-1.5 rounded-lg border border-slate-200 dark:border-darkmode-500 bg-white dark:bg-darkmode-700 py-1.5 px-3 text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-darkmode-600 transition-colors">'
+                + '<div class="flex items-center gap-2 border-t border-slate-200/60 dark:border-darkmode-400 p-3 sm:p-4 mt-3 sm:mt-4">'
+                +   '<a href="' + escapeHtml(summaryUrl(c.id)) + '" class="flex-1 inline-flex items-center justify-center gap-1.5 rounded-lg border border-slate-200 dark:border-darkmode-500 bg-white dark:bg-darkmode-700 py-2.5 sm:py-1.5 px-3 text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-darkmode-600 transition-colors touch-manipulation min-h-[44px] sm:min-h-0">'
                 +     '<svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>Summary'
                 +   '</a>'
-                +   '<a href="' + escapeHtml(branchesUrl(c.id)) + '" class="flex-1 inline-flex items-center justify-center gap-1.5 rounded-lg bg-primary border border-primary py-1.5 px-3 text-sm font-medium text-white hover:bg-primary/90 transition-colors">'
+                +   '<a href="' + escapeHtml(branchesUrl(c.id)) + '" class="flex-1 inline-flex items-center justify-center gap-1.5 rounded-lg bg-primary border border-primary py-2.5 sm:py-1.5 px-3 text-sm font-medium text-white hover:bg-primary/90 transition-colors touch-manipulation min-h-[44px] sm:min-h-0">'
                 +     '<svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>Branches'
                 +   '</a>'
                 + '</div>'
@@ -455,11 +523,11 @@
                 + '<td class="py-3 px-3 text-center text-sm font-medium text-slate-700 dark:text-slate-300">' + branchCount + '</td>'
                 + '<td class="py-3 px-3 text-right text-sm font-semibold text-emerald-600 dark:text-emerald-400">' + formatMoney(totalSales) + '</td>'
                 + '<td class="py-3 px-3 text-center">' + statusBadge(isActive) + '</td>'
-                + '<td class="py-3 pl-3 pr-5">'
-                +   '<div class="flex items-center justify-end gap-1.5">'
-                +     '<a href="' + escapeHtml(summaryUrl(c.id)) + '" class="rounded-lg border border-slate-200 dark:border-darkmode-500 bg-white dark:bg-darkmode-700 px-2.5 py-1.5 text-xs font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-darkmode-600 transition-colors">Summary</a>'
-                +     '<button type="button" class="company-list-edit rounded-lg border border-slate-200 dark:border-darkmode-500 bg-white dark:bg-darkmode-700 px-2.5 py-1.5 text-xs font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-darkmode-600 transition-colors">Edit</button>'
-                +     '<button type="button" class="company-list-delete rounded-lg border border-red-200 dark:border-red-800/50 bg-red-50 dark:bg-red-900/20 px-2.5 py-1.5 text-xs font-medium text-red-600 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-900/40 transition-colors">Delete</button>'
+                + '<td class="py-3 pl-3 pr-4 sm:pr-5">'
+                +   '<div class="flex flex-wrap items-center justify-end gap-1.5">'
+                +     '<a href="' + escapeHtml(summaryUrl(c.id)) + '" class="rounded-lg border border-slate-200 dark:border-darkmode-500 bg-white dark:bg-darkmode-700 px-2.5 py-2 sm:py-1.5 text-xs font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-darkmode-600 transition-colors touch-manipulation min-h-[40px] sm:min-h-0 inline-flex items-center">Summary</a>'
+                +     '<button type="button" class="company-list-edit rounded-lg border border-slate-200 dark:border-darkmode-500 bg-white dark:bg-darkmode-700 px-2.5 py-2 sm:py-1.5 text-xs font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-darkmode-600 transition-colors touch-manipulation min-h-[40px] sm:min-h-0">Edit</button>'
+                +     '<button type="button" class="company-list-delete rounded-lg border border-red-200 dark:border-red-800/50 bg-red-50 dark:bg-red-900/20 px-2.5 py-2 sm:py-1.5 text-xs font-medium text-red-600 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-900/40 transition-colors touch-manipulation min-h-[40px] sm:min-h-0">Delete</button>'
                 +   '</div>'
                 + '</td>';
             listTbody.appendChild(tr);
@@ -510,17 +578,12 @@
     }
 
     var vatCheckbox = document.getElementById('company-is-vat');
-    var vatLabelEl  = document.getElementById('company-is-vat-label');
     var vatTrackEl  = document.getElementById('company-is-vat-track');
     var vatThumbEl  = document.getElementById('company-is-vat-thumb');
 
     function updateVatToggleDisplay() {
-        if (!vatCheckbox || !vatLabelEl || !vatTrackEl || !vatThumbEl) return;
+        if (!vatCheckbox || !vatTrackEl || !vatThumbEl) return;
         var checked = vatCheckbox.checked;
-        vatLabelEl.textContent = checked ? 'VAT' : 'Non-VAT';
-        vatLabelEl.classList.toggle('text-primary', checked);
-        vatLabelEl.classList.toggle('text-slate-500', !checked);
-        vatLabelEl.classList.toggle('dark:text-slate-400', !checked);
         vatTrackEl.classList.toggle('border-primary', checked);
         vatTrackEl.classList.toggle('bg-primary', checked);
         vatTrackEl.classList.toggle('border-slate-300', !checked);
@@ -536,18 +599,53 @@
         }
     }
 
+    var adminAccordion = document.getElementById('company-admin-accordion');
+    var adminToggleBtn = document.getElementById('company-admin-toggle');
+    var adminSection   = document.getElementById('company-admin-section');
+    var adminChevron  = document.getElementById('company-admin-chevron');
+
+    function setAdminSectionOpen(open) {
+        if (!adminSection || !adminToggleBtn || !adminChevron) return;
+        if (open) {
+            adminSection.classList.remove('hidden');
+            adminSection.setAttribute('aria-hidden', 'false');
+            adminToggleBtn.setAttribute('aria-expanded', 'true');
+            adminChevron.classList.add('rotate-180');
+        } else {
+            adminSection.classList.add('hidden');
+            adminSection.setAttribute('aria-hidden', 'true');
+            adminToggleBtn.setAttribute('aria-expanded', 'false');
+            adminChevron.classList.remove('rotate-180');
+        }
+    }
+
+    if (adminToggleBtn && adminSection) {
+        adminToggleBtn.addEventListener('click', function () {
+            setAdminSectionOpen(adminSection.classList.contains('hidden'));
+        });
+    }
+
     function openAdd() {
         document.getElementById('company-id').value = '';
         document.getElementById('company-name').value = '';
         document.getElementById('company-tin').value = '';
         document.getElementById('company-bir').value = '';
-        document.getElementById('company-address').value = '';
         document.getElementById('company-contact').value = '';
         if (vatCheckbox) { vatCheckbox.checked = true; updateVatToggleDisplay(); }
         if (logoInput) logoInput.value = '';
         if (logoLabel) logoLabel.textContent = 'Choose file';
         setLogoPreview(null);
+        if (adminAccordion) adminAccordion.classList.remove('hidden');
+        setAdminSectionOpen(false);
+        document.getElementById('company-address-street').value = '';
+        document.getElementById('company-address-city').value = '';
+        document.getElementById('company-address-zip').value = '';
+        document.getElementById('company-admin-name').value = '';
+        document.getElementById('company-admin-email').value = '';
+        document.getElementById('company-admin-password').value = '';
+        document.getElementById('company-admin-password-confirm').value = '';
         modalTitle.textContent = 'Add Company';
+        if (submitBtn) submitBtn.textContent = 'Add Company';
         modal.classList.remove('hidden'); modal.classList.add('show');
         modal.style.display = 'flex'; document.body.style.overflow = 'hidden';
     }
@@ -557,13 +655,22 @@
         document.getElementById('company-name').value = c.name || '';
         document.getElementById('company-tin').value = c.tin || '';
         document.getElementById('company-bir').value = c.bir_accreditation || '';
-        document.getElementById('company-address').value = c.address || '';
+        var addr = (c.address || '').split(/\n/).map(function (s) { return s.trim(); });
+        document.getElementById('company-address-street').value = addr[0] || '';
+        document.getElementById('company-address-city').value = addr[1] || '';
+        document.getElementById('company-address-zip').value = addr[2] || '';
         document.getElementById('company-contact').value = c.contact || '';
         if (vatCheckbox) { vatCheckbox.checked = (c.is_vat !== false); updateVatToggleDisplay(); }
         if (logoInput) logoInput.value = '';
         if (logoLabel) logoLabel.textContent = 'Choose file';
         setLogoPreview(c.logo_url || null);
+        if (adminAccordion) adminAccordion.classList.add('hidden');
+        document.getElementById('company-admin-name').value = '';
+        document.getElementById('company-admin-email').value = '';
+        document.getElementById('company-admin-password').value = '';
+        document.getElementById('company-admin-password-confirm').value = '';
         modalTitle.textContent = 'Edit Company';
+        if (submitBtn) submitBtn.textContent = 'Update Company';
         modal.classList.remove('hidden'); modal.classList.add('show');
         modal.style.display = 'flex'; document.body.style.overflow = 'hidden';
     }
@@ -574,7 +681,25 @@
     }
 
     modal.querySelectorAll('[data-tw-dismiss="modal"]').forEach(function (btn) { btn.addEventListener('click', closeModal); });
-    modal.addEventListener('click', function (e) { if (e.target === modal) closeModal(); });
+    if (window.pulseModal && modal) {
+        var backdrop = modal.querySelector('.modal-backdrop');
+        if (backdrop) backdrop.addEventListener('click', function () { window.pulseModal(modal); });
+    }
+
+    document.querySelectorAll('.company-password-toggle').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+            var id = btn.getAttribute('data-target');
+            var input = id ? document.getElementById(id) : null;
+            if (!input) return;
+            var isPass = input.type === 'password';
+            input.type = isPass ? 'text' : 'password';
+            var eyeOn = btn.querySelector('.eye-on');
+            var eyeOff = btn.querySelector('.eye-off');
+            if (eyeOn) eyeOn.classList.toggle('hidden', isPass);
+            if (eyeOff) eyeOff.classList.toggle('hidden', !isPass);
+            btn.setAttribute('aria-label', isPass ? 'Hide password' : 'Show password');
+        });
+    });
 
     if (logoInput) {
         logoInput.addEventListener('change', function () {
@@ -599,10 +724,23 @@
         fd.append('name', name);
         fd.append('tin', document.getElementById('company-tin').value.trim());
         fd.append('bir_accreditation', document.getElementById('company-bir').value.trim());
-        fd.append('address', document.getElementById('company-address').value.trim());
+        var street = document.getElementById('company-address-street').value.trim();
+        var city = document.getElementById('company-address-city').value.trim();
+        var zip = document.getElementById('company-address-zip').value.trim();
+        fd.append('address', [street, city, zip].filter(Boolean).join("\n"));
         fd.append('contact', document.getElementById('company-contact').value.trim());
         fd.append('is_vat', vatCheckbox && vatCheckbox.checked ? '1' : '0');
         if (logoInput && logoInput.files && logoInput.files[0]) fd.append('logo', logoInput.files[0]);
+        if (!id) {
+            var adminName = document.getElementById('company-admin-name').value.trim();
+            var adminEmail = document.getElementById('company-admin-email').value.trim();
+            var adminPass = document.getElementById('company-admin-password').value;
+            var adminPassConfirm = document.getElementById('company-admin-password-confirm').value;
+            if (adminName) fd.append('admin_name', adminName);
+            if (adminEmail) fd.append('admin_email', adminEmail);
+            if (adminPass) fd.append('admin_password', adminPass);
+            if (adminPassConfirm) fd.append('admin_password_confirmation', adminPassConfirm);
+        }
         submitBtn.disabled = true;
         var p;
         if (id) { fd.append('_method', 'PUT'); p = axios.post(apiBase + '/companies/' + id, fd, authHeaders()); }

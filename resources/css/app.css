@@ -1,3 +1,55 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@layer components {
+    .card-margin {
+        margin: 10px 0;
+    }
+
+    /* Branch card: inner layout – footer always at bottom, same visual height for all cards (incl. Tampo). */
+    .branch-card {
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+    }
+    .branch-card .card-body {
+        flex: 1;
+        min-height: 0;
+    }
+
+    /* Branch card: BIR metadata – neutral gray only (not status/teal). Single source for consistent rendering. */
+    .branch-bir-meta {
+        color: #6b7280 !important;
+    }
+    .dark .branch-bir-meta {
+        color: #9ca3af !important;
+    }
+
+    /* Terminals: Last used column – same neutral metadata gray as BIR. */
+    .terminals-last-used-meta {
+        color: #6b7280 !important;
+    }
+    .dark .terminals-last-used-meta {
+        color: #9ca3af !important;
+    }
+
+    /* Terminals table: hide "Last used" column when no terminal has usage data */
+    #terminals-table.hide-last-used .terminals-last-used-col {
+        display: none;
+    }
+
+    /* Subtle pulse when clicking outside modal content – animate backdrop only so dialog stays clickable */
+    .modal-backdrop-pulse {
+        animation: modal-backdrop-pulse 0.25s ease-out;
+    }
+}
+
+@keyframes modal-backdrop-pulse {
+    0%, 100% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.85;
+    }
+}
