@@ -4,6 +4,7 @@ namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
 use App\Models\Company;
+use App\Services\AuditLogService;
 use App\Services\CompanyService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -90,6 +91,7 @@ class CompanyController extends Controller
         }
         unset($validated['admin_name'], $validated['admin_email'], $validated['admin_password'], $validated['admin_password_confirmation']);
         $company = $this->service->create($validated, $request->file('logo'), $admin);
+        AuditLogService::log('created', 'companies', (int) $company->id, null, $company->only(['name', 'tin', 'is_vat', 'is_active']), $request);
         return response()->json([
             'status' => true,
             'message' => 'Company created.' . ($admin ? ' Admin account created.' : ''),
@@ -114,7 +116,9 @@ class CompanyController extends Controller
             'logo'              => 'nullable|image|max:2048',
             'is_vat'            => 'nullable|boolean',
         ]);
+        $old = $company->only(['name', 'tin', 'bir_accreditation', 'is_vat', 'is_active']);
         $company = $this->service->update($company, $validated, $request->file('logo'));
+        AuditLogService::log('updated', 'companies', (int) $company->id, $old, $company->only(['name', 'tin', 'bir_accreditation', 'is_vat', 'is_active']), $request);
         return response()->json([
             'status' => true,
             'message' => 'Company updated.',
@@ -130,7 +134,9 @@ class CompanyController extends Controller
                 'message' => 'Only Super Admin can delete companies.',
             ], 403);
         }
+        $old = $company->only(['id', 'name', 'tin', 'is_active']);
         $this->service->delete($company);
+        AuditLogService::log('deleted', 'companies', (int) $old['id'], $old, null, $request);
         return response()->json([
             'status' => true,
             'message' => 'Company deleted.',
@@ -147,6 +153,7 @@ class CompanyController extends Controller
             ], 403);
         }
         $company = $this->service->toggleStatus($company);
+        AuditLogService::log('status_toggled', 'companies', (int) $company->id, ['is_active' => ! $company->is_active], ['is_active' => $company->is_active], $request);
         return response()->json([
             'status' => true,
             'message' => $company->is_active ? 'Company enabled.' : 'Company disabled.',

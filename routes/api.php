@@ -17,6 +17,7 @@ Route::prefix('v1')->group(function () {
     Route::post('otp/verify', [\App\Http\Controllers\API\OtpController::class, 'verify'])->middleware('throttle:10,1');
     Route::post('auth/login', [\App\Http\Controllers\API\AuthController::class, 'login']);
     Route::post('auth/verify-login-otp', [\App\Http\Controllers\API\AuthController::class, 'verifyLoginOtp'])->middleware('throttle:10,1');
+    Route::post('auth/resend-login-otp', [\App\Http\Controllers\API\AuthController::class, 'resendLoginOtp'])->middleware('throttle:3,1');
     Route::post('auth/login-pin', [\App\Http\Controllers\API\AuthController::class, 'loginPin']);
     Route::post('auth/logout', [\App\Http\Controllers\API\AuthController::class, 'logout'])->middleware('auth:sanctum');
     Route::get('auth/me', [\App\Http\Controllers\API\AuthController::class, 'me'])->middleware('auth:sanctum');

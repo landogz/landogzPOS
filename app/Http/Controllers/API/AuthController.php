@@ -4,6 +4,7 @@ namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
+use App\Services\AuditLogService;
 use App\Services\LoginOtpService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -57,6 +58,7 @@ class AuthController extends Controller
             $sentTo = $channel === 'sms'
                 ? 'your registered phone number'
                 : $user->email;
+            AuditLogService::log('login_otp_sent', 'users', (int) $user->id, null, ['channel' => $channel], $request, $user->branch_id, $user->id);
             return response()->json([
                 'status' => 'success',
                 'message' => 'Verification code sent.',
@@ -73,6 +75,8 @@ class AuthController extends Controller
         $token = $user->createToken('login')->plainTextToken;
         $user->load('branch.company');
         $permissions = $this->permissionsForRole($user->role);
+
+        AuditLogService::log('login', 'users', (int) $user->id, null, ['login_at' => now()->toIso8601String()], $request, $user->branch_id, $user->id);
 
         return response()->json([
             'status' => 'success',
@@ -121,6 +125,8 @@ class AuthController extends Controller
         $user->load('branch.company');
         $permissions = $this->permissionsForRole($user->role);
 
+        AuditLogService::log('login_otp_verified', 'users', (int) $user->id, null, ['login_at' => now()->toIso8601String()], $request, $user->branch_id, $user->id);
+
         return response()->json([
             'status' => 'success',
             'message' => 'Login successful',
@@ -130,6 +136,37 @@ class AuthController extends Controller
                 'branch' => $user->branch,
                 'permissions' => $permissions,
             ],
+        ]);
+    }
+
+    /**
+     * Resend login OTP for super_admin. POST with email only (throttled).
+     */
+    public function resendLoginOtp(Request $request, LoginOtpService $loginOtp): JsonResponse
+    {
+        $request->validate(['email' => 'required|email']);
+        $user = User::where('email', $request->email)->first();
+        if (! $user || $user->role !== 'super_admin' || ! $user->is_active) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Account not found or not eligible for OTP.',
+                'errors' => ['email' => ['Account not found or not eligible for OTP.']],
+            ], 404);
+        }
+        $result = $loginOtp->sendLoginOtp($user);
+        if (! $result['success']) {
+            return response()->json([
+                'status' => false,
+                'message' => $result['error'] ?? 'Failed to resend verification code.',
+                'errors' => ['email' => [$result['error'] ?? 'Failed to resend verification code.']],
+            ], 422);
+        }
+        $channel = config('otp.super_admin_login.channel', 'email');
+        AuditLogService::log('login_otp_sent', 'users', (int) $user->id, null, ['channel' => $channel, 'resend' => true], $request, $user->branch_id, $user->id);
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Verification code sent again.',
+            'data' => ['email' => $user->email],
         ]);
     }
 
@@ -157,6 +194,8 @@ class AuthController extends Controller
         $user->load('branch.company');
         $permissions = $this->permissionsForRole($user->role);
 
+        AuditLogService::log('login_pin', 'users', (int) $user->id, null, ['login_at' => now()->toIso8601String()], $request, $user->branch_id, $user->id);
+
         return response()->json([
             'status' => 'success',
             'message' => 'Login successful',
@@ -174,7 +213,9 @@ class AuthController extends Controller
      */
     public function logout(Request $request): JsonResponse
     {
-        $request->user()->currentAccessToken()->delete();
+        $user = $request->user();
+        AuditLogService::log('logout', 'users', $user?->id, null, ['logout_at' => now()->toIso8601String()], $request, $user?->branch_id, $user?->id);
+        $user->currentAccessToken()->delete();
         return response()->json([
             'status' => 'success',
             'message' => 'Logged out.',

@@ -1,8 +1,12 @@
 @php
-    $loginUrl = url('/super-admin/login');
+    $loginUrl = $email ? (url('/super-admin/login') . '?step=otp&email=' . rawurlencode($email)) : url('/super-admin/login');
     $brandColor = '#4f46e5';
     $brandColorLight = '#eef2ff';
     $digits = str_split($code);
+    $logoCid = null;
+    if (file_exists(public_path('images/logo.png'))) {
+        $logoCid = $message->embed(public_path('images/logo.png'));
+    }
 @endphp
 <!DOCTYPE html>
 <html lang="en">
@@ -39,9 +43,9 @@
                                     <td style="padding: 24px 32px; border-bottom: 1px solid #e2e8f0;">
                                         <table role="presentation" cellspacing="0" cellpadding="0" border="0">
                                             <tr>
-                                                @if(config('app.url') && file_exists(public_path('images/logo.png')))
+                                                @if($logoCid)
                                                 <td style="vertical-align: middle; padding-right: 12px;">
-                                                    <img src="{{ config('app.url') }}/images/logo.png" alt="" width="40" height="40" style="display: block; width: 40px; height: 40px; border-radius: 8px;" />
+                                                    <img src="{{ $logoCid }}" alt="" width="40" height="40" style="display: block; width: 40px; height: 40px; border-radius: 8px;" />
                                                 </td>
                                                 @endif
                                                 <td style="vertical-align: middle;">
@@ -76,7 +80,7 @@
                                         <table role="presentation" cellspacing="0" cellpadding="0" border="0">
                                             <tr>
                                                 <td style="border-radius: 8px; background-color: {{ $brandColor }};">
-                                                    <a href="{{ $loginUrl }}" target="_blank" rel="noopener noreferrer" style="display: inline-block; padding: 14px 28px; font-size: 15px; font-weight: 600; color: #ffffff; text-decoration: none;">Open login page</a>
+                                                    <a href="{{ $loginUrl }}" target="_blank" rel="noopener noreferrer" style="display: inline-block; padding: 14px 28px; font-size: 15px; font-weight: 600; color: #ffffff; text-decoration: none;">Enter verification code</a>
                                                 </td>
                                             </tr>
                                         </table>

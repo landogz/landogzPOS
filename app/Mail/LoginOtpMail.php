@@ -14,7 +14,8 @@ class LoginOtpMail extends Mailable
 
     public function __construct(
         public string $code,
-        public int $expiresInMinutes = 5
+        public int $expiresInMinutes = 5,
+        public string $email = ''
     ) {}
 
     public function envelope(): Envelope

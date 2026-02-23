@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
+use App\Models\AuditLog;
 use App\Models\Transaction;
 use App\Models\TransactionItem;
 use App\Models\Product;
@@ -162,7 +163,7 @@ class ReportController extends Controller
 
     public function auditLog(Request $request): JsonResponse
     {
-        $query = DB::table('audit_logs')->orderByDesc('created_at');
+        $query = AuditLog::query()->orderByDesc('created_at');
         if ($request->filled('branch_id')) {
             $query->where('branch_id', $request->branch_id);
         }

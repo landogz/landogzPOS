@@ -5,6 +5,7 @@ namespace App\Http\Controllers\API;
 use App\Http\Controllers\Controller;
 use App\Models\Branch;
 use App\Models\Terminal;
+use App\Services\AuditLogService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
@@ -92,6 +93,7 @@ class TerminalController extends Controller
         $validated['branch_id'] = $branch->id;
         $validated['is_active'] = $validated['is_active'] ?? true;
         $terminal = Terminal::create($validated);
+        AuditLogService::log('created', 'terminals', (int) $terminal->id, null, $terminal->only(['branch_id', 'code', 'name', 'is_active']), $request, $branch->id);
         return response()->json([
             'status' => 'success',
             'message' => 'Terminal created.',
@@ -122,6 +124,7 @@ class TerminalController extends Controller
             abort(404);
         }
         $key = $terminal->generateApiKey();
+        AuditLogService::log('terminal_key_generated', 'terminals', (int) $terminal->id, null, ['generated_at' => now()->toIso8601String()], $request, $branch->id);
         return response()->json([
             'status' => true,
             'message' => 'Key generated. Copy it now — it will not be shown again. Add to your POS .env: TERMINAL_API_KEY=' . $key,
@@ -146,6 +149,7 @@ class TerminalController extends Controller
             abort(404);
         }
         $terminal->revokeApiKey();
+        AuditLogService::log('terminal_key_revoked', 'terminals', (int) $terminal->id, null, ['revoked_at' => now()->toIso8601String()], $request, $branch->id);
         return response()->json([
             'status' => true,
             'message' => 'Terminal key revoked.',
@@ -172,7 +176,9 @@ class TerminalController extends Controller
             'tin' => 'nullable|string|max:50',
             'is_active' => 'nullable|boolean',
         ]);
+        $old = $terminal->only(['code', 'name', 'is_active']);
         $terminal->update($validated);
+        AuditLogService::log('updated', 'terminals', (int) $terminal->id, $old, $terminal->fresh()->only(['code', 'name', 'is_active']), $request, $branch->id);
         return response()->json([
             'status' => 'success',
             'message' => 'Terminal updated.',
@@ -192,7 +198,9 @@ class TerminalController extends Controller
         if ($terminal->branch_id !== $branch->id) {
             abort(404);
         }
+        $old = $terminal->only(['id', 'branch_id', 'code', 'name', 'is_active']);
         $terminal->delete();
+        AuditLogService::log('deleted', 'terminals', (int) $old['id'], $old, null, $request, $branch->id);
         return response()->json([
             'status' => 'success',
             'message' => 'Terminal deleted.',

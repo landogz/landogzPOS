@@ -4,6 +4,7 @@ namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
+use App\Services\AuditLogService;
 use App\Services\SyncService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -96,6 +97,7 @@ class UserController extends Controller
         $user = User::create($validated);
         $this->assignRoleIfExists($user, $validated['role']);
         $user->load(['branch', 'company']);
+        AuditLogService::log('created', 'users', (int) $user->id, null, $user->only(['name', 'email', 'role', 'branch_id', 'company_id', 'is_active']), $request, $user->branch_id, $currentUser?->id);
         return response()->json([
             'status' => 'success',
             'message' => 'User created.',
@@ -165,12 +167,14 @@ class UserController extends Controller
             $validated['pin_hash'] = $validated['pin'] ? Hash::make($validated['pin']) : null;
         }
         unset($validated['pin'], $validated['password_confirmation']);
+        $old = $user->only(['name', 'email', 'role', 'branch_id', 'company_id', 'is_active']);
         $user->update($validated);
         if (array_key_exists('role', $validated)) {
             $this->assignRoleIfExists($user, $validated['role']);
         }
         app(SyncService::class)->enqueueUser($user->fresh());
         $user->load(['branch', 'company']);
+        AuditLogService::log('updated', 'users', (int) $user->id, $old, $user->fresh()->only(['name', 'email', 'role', 'branch_id', 'company_id', 'is_active']), $request, $user->branch_id, $currentUser?->id);
         return response()->json([
             'status' => 'success',
             'message' => 'User updated.',
@@ -191,6 +195,7 @@ class UserController extends Controller
         }
         $user->tokens()->delete();
         $user->update(['is_active' => false]);
+        AuditLogService::log('user_deactivated', 'users', (int) $user->id, ['is_active' => true], ['is_active' => false], $request, $user->branch_id, $currentUser?->id);
         return response()->json([
             'status' => 'success',
             'message' => 'User deactivated.',

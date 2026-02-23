@@ -5,9 +5,9 @@ namespace App\Http\Controllers\API;
 use App\Http\Controllers\Controller;
 use App\Models\BirSetting;
 use App\Models\Transaction;
+use App\Services\AuditLogService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 
 class ReceiptController extends Controller
 {
@@ -90,19 +90,7 @@ class ReceiptController extends Controller
     {
         $transaction = Transaction::findOrFail($id);
         $this->ensureReceiptAccess($request->user(), $transaction);
-        $userId = $request->user()?->id;
-        DB::table('audit_logs')->insert([
-            'branch_id' => $transaction->branch_id,
-            'user_id' => $userId,
-            'action' => 'receipt_reprint',
-            'table_name' => 'transactions',
-            'record_id' => $transaction->id,
-            'old_values' => null,
-            'new_values' => json_encode(['reprinted_at' => now()->toIso8601String()]),
-            'ip_address' => $request->ip(),
-            'created_at' => now(),
-            'updated_at' => now(),
-        ]);
+        AuditLogService::log('receipt_reprint', 'transactions', (int) $transaction->id, null, ['reprinted_at' => now()->toIso8601String()], $request, $transaction->branch_id);
         $response = $this->show($request, $id);
         $data = $response->getData(true);
         return response()->json([

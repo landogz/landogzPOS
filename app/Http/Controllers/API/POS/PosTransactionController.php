@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Branch;
 use App\Models\Transaction;
 use App\Models\TransactionItem;
+use App\Services\AuditLogService;
 use App\Services\SyncService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -95,6 +96,7 @@ class PosTransactionController extends Controller
         }
 
         $transaction->load('items.product');
+        AuditLogService::log('transaction_completed', 'transactions', (int) $transaction->id, null, ['or_number' => $orNumber, 'total' => $transaction->total, 'payment_method' => $transaction->payment_method], $request, $branchId, $user->id);
         return response()->json([
             'status' => true,
             'message' => 'Transaction completed.',
@@ -125,6 +127,7 @@ class PosTransactionController extends Controller
         if (env('SYNC_MODE') === 'direct_db' && config('database.connections.mysql_cloud.host')) {
             app(SyncService::class)->enqueueTransaction($transaction->fresh());
         }
+        AuditLogService::log('transaction_voided', 'transactions', (int) $transaction->id, ['status' => 'completed'], ['status' => 'voided'], $request, $transaction->branch_id);
         return response()->json(['status' => true, 'message' => 'Transaction voided.', 'data' => $transaction->fresh()]);
     }
 

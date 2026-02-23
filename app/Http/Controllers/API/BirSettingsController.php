@@ -5,6 +5,7 @@ namespace App\Http\Controllers\API;
 use App\Http\Controllers\Controller;
 use App\Models\BirSetting;
 use App\Models\Branch;
+use App\Services\AuditLogService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
@@ -61,8 +62,10 @@ class BirSettingsController extends Controller
             ['branch_id' => $validated['branch_id']],
             ['branch_id' => $validated['branch_id']]
         );
+        $old = $settings->only(['tin', 'accreditation_number', 'series_start', 'series_end', 'valid_from', 'valid_until']);
         $settings->update($validated);
         $settings->load('branch');
+        AuditLogService::log('bir_settings_updated', 'bir_settings', (int) $settings->id, $old, $settings->only(['tin', 'accreditation_number', 'series_start', 'series_end', 'valid_from', 'valid_until']), $request, $settings->branch_id, $user?->id);
         return response()->json([
             'status' => 'success',
             'message' => 'BIR settings updated.',

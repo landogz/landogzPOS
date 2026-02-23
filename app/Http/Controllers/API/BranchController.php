@@ -7,6 +7,7 @@ use App\Models\Branch;
 use App\Models\Product;
 use App\Models\ReplenishmentRequest;
 use App\Models\Transaction;
+use App\Services\AuditLogService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
@@ -75,6 +76,7 @@ class BranchController extends Controller
         }
         $branch = Branch::create($validated);
         $branch->load('company');
+        AuditLogService::log('created', 'branches', (int) $branch->id, null, $branch->only(['company_id', 'name', 'address', 'is_active']), $request, $branch->id, $user->id);
         return response()->json([
             'status' => 'success',
             'message' => 'Branch created.',
@@ -102,8 +104,10 @@ class BranchController extends Controller
             'bir_series_end' => 'nullable|string|max:50',
             'is_active' => 'nullable|boolean',
         ]);
+        $old = $branch->only(['name', 'address', 'tin', 'is_active']);
         $branch->update($validated);
         $branch->load('company');
+        AuditLogService::log('updated', 'branches', (int) $branch->id, $old, $branch->only(['name', 'address', 'tin', 'is_active']), $request, $branch->id);
         return response()->json(['status' => 'success', 'message' => 'Branch updated.', 'data' => $branch]);
     }
 
@@ -112,8 +116,10 @@ class BranchController extends Controller
         if (! $this->canManageBranches($request->user())) {
             return response()->json(['status' => false, 'message' => 'Only super admin or admin can manage branches.'], 403);
         }
+        $oldActive = $branch->is_active;
         $branch->update(['is_active' => ! $branch->is_active]);
         $branch->load('company');
+        AuditLogService::log('status_toggled', 'branches', (int) $branch->id, ['is_active' => $oldActive], ['is_active' => $branch->is_active], $request, $branch->id);
         return response()->json([
             'status' => 'success',
             'message' => $branch->is_active ? 'Branch activated.' : 'Branch deactivated.',
@@ -126,7 +132,10 @@ class BranchController extends Controller
         if (! $this->canManageBranches($request->user())) {
             return response()->json(['status' => false, 'message' => 'Only super admin or admin can delete branches.'], 403);
         }
+        $old = $branch->only(['id', 'company_id', 'name', 'is_active']);
+        $branchIdForLog = $branch->id;
         $branch->delete();
+        AuditLogService::log('deleted', 'branches', (int) $old['id'], $old, null, $request, $branchIdForLog);
         return response()->json(['status' => 'success', 'message' => 'Branch deleted.', 'data' => null]);
     }
 

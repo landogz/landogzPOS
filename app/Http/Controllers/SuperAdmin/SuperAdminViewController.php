@@ -9,7 +9,10 @@ class SuperAdminViewController extends Controller
 {
     public function login(): View
     {
-        return view('super-admin.login');
+        return view('super-admin.login', [
+            'step' => request('step', ''),
+            'email' => request('email', ''),
+        ]);
     }
 
     /**

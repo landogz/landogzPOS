@@ -10,6 +10,53 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Login - Super Admin - Landogz POS</title>
     <link rel="stylesheet" href="{{ $base }}/dist/css/app.css">
+    <style>
+        /* OTP 6-digit boxes: layout and look (works without Tailwind) */
+        #otp-inputs-wrap {
+            display: grid;
+            grid-template-columns: repeat(6, 1fr);
+            gap: 6px;
+            width: 100%;
+            max-width: 100%;
+        }
+        @media (min-width: 640px) {
+            #otp-inputs-wrap { gap: 8px; }
+        }
+        @media (min-width: 768px) {
+            #otp-inputs-wrap { gap: 12px; }
+        }
+        #otp-inputs-wrap .otp-digit {
+            width: 100%;
+            min-width: 0;
+            height: 44px;
+            box-sizing: border-box;
+            text-align: center;
+            font-size: 1rem;
+            font-weight: 600;
+            border: 1px solid #e2e8f0;
+            border-radius: 0.5rem;
+            background: #fff;
+            color: #1e293b;
+            -webkit-appearance: none;
+            appearance: none;
+        }
+        @media (min-width: 640px) {
+            #otp-inputs-wrap .otp-digit { height: 48px; font-size: 1.125rem; }
+        }
+        @media (min-width: 768px) {
+            #otp-inputs-wrap .otp-digit { height: 56px; }
+        }
+        #otp-inputs-wrap .otp-digit:focus {
+            outline: none;
+            border-color: var(--tw-primary, #1e3a5f);
+            box-shadow: 0 0 0 2px rgba(30, 58, 95, 0.2);
+        }
+        .dark #otp-inputs-wrap .otp-digit {
+            border-color: #475569;
+            background: #334155;
+            color: #f1f5f9;
+        }
+    </style>
 </head>
 <body>
     <div class="p-3 sm:px-8 relative h-screen lg:overflow-hidden bg-primary xl:bg-white dark:bg-darkmode-800 xl:dark:bg-darkmode-600 before:hidden before:xl:block before:content-[''] before:w-[57%] before:-mt-[28%] before:-mb-[16%] before:-ml-[13%] before:absolute before:inset-y-0 before:left-0 before:transform before:rotate-[-4.5deg] before:bg-primary/20 before:rounded-[100%] before:dark:bg-darkmode-400 after:hidden after:xl:block after:content-[''] after:w-[57%] after:-mt-[20%] after:-mb-[13%] after:-ml-[13%] after:absolute after:inset-y-0 after:left-0 after:transform after:rotate-[-4.5deg] after:bg-primary after:rounded-[100%] after:dark:bg-darkmode-700">
@@ -68,22 +115,33 @@
                             </form>
                         </div>
                         <div id="login-step-otp" class="intro-x mt-8 hidden">
-                            <p id="otp-message" class="text-sm text-slate-600 dark:text-slate-400 mb-4"></p>
-                            <form id="super-admin-otp-form">
-                                <input type="hidden" id="otp-email" name="email" value="">
-                                <div>
-                                    <label for="otp-code" class="block text-sm font-medium text-slate-700 dark:text-slate-300">Verification code</label>
-                                    <input id="otp-code" type="text" name="code" inputmode="numeric" pattern="[0-9]*" maxlength="6" placeholder="000000" autocomplete="one-time-code"
-                                        class="mt-1.5 transition duration-200 ease-in-out w-full text-sm border border-slate-200 shadow-sm rounded-lg placeholder:text-slate-400/90 focus:ring-2 focus:ring-primary focus:ring-opacity-20 focus:border-primary block px-4 py-3 text-center tracking-[0.5em] dark:bg-darkmode-800 dark:border-darkmode-500 dark:placeholder:text-slate-500">
+                            <h2 class="text-xl font-bold text-slate-800 dark:text-slate-100 sm:text-2xl">OTP verification</h2>
+                            <p id="otp-message" class="mt-2 text-sm text-slate-600 dark:text-slate-400"></p>
+                            <form id="super-admin-otp-form" class="mt-6">
+                                <input type="hidden" id="otp-email" name="email" value="{{ isset($email) ? e($email) : '' }}">
+                                <div id="otp-inputs-wrap">
+                                    <input type="text" inputmode="numeric" pattern="[0-9]" maxlength="1" autocomplete="one-time-code" data-otp-index="0" aria-label="Digit 1" class="otp-digit">
+                                    <input type="text" inputmode="numeric" pattern="[0-9]" maxlength="1" autocomplete="one-time-code" data-otp-index="1" aria-label="Digit 2" class="otp-digit">
+                                    <input type="text" inputmode="numeric" pattern="[0-9]" maxlength="1" autocomplete="one-time-code" data-otp-index="2" aria-label="Digit 3" class="otp-digit">
+                                    <input type="text" inputmode="numeric" pattern="[0-9]" maxlength="1" autocomplete="one-time-code" data-otp-index="3" aria-label="Digit 4" class="otp-digit">
+                                    <input type="text" inputmode="numeric" pattern="[0-9]" maxlength="1" autocomplete="one-time-code" data-otp-index="4" aria-label="Digit 5" class="otp-digit">
+                                    <input type="text" inputmode="numeric" pattern="[0-9]" maxlength="1" autocomplete="one-time-code" data-otp-index="5" aria-label="Digit 6" class="otp-digit">
                                 </div>
-                                <div class="mt-6 flex flex-col sm:flex-row gap-2">
-                                    <button type="submit" id="otp-verify-btn" class="flex-1 transition duration-200 inline-flex items-center justify-center gap-2 rounded-lg font-semibold cursor-pointer bg-primary border border-primary text-white px-4 py-3 shadow-sm hover:bg-primary/90 focus:ring-2 focus:ring-primary focus:ring-offset-2 focus:outline-none disabled:opacity-70">
-                                        Verify & sign in
+                                <input type="hidden" id="otp-code" name="code" value="">
+                                <div class="mt-4 flex flex-wrap items-center justify-between gap-2">
+                                    <span class="text-sm text-slate-600 dark:text-slate-400">Remaining time: <span id="otp-timer" class="font-semibold text-primary">01:00s</span></span>
+                                    <span id="otp-resend-btn" class="text-sm text-slate-400 dark:text-slate-500">Didn't get the code? <span class="font-medium">Resend</span></span>
+                                    <button type="button" id="otp-resend-link" class="hidden text-sm text-slate-600 dark:text-slate-400 bg-transparent border-0 p-0 cursor-pointer">Didn't get the code? <span class="font-medium text-primary hover:underline">Resend</span></button>
+                                </div>
+                                <div class="mt-6 flex flex-col-reverse sm:flex-row gap-2 sm:gap-3">
+                                    <button type="button" id="otp-back-btn" class="order-2 sm:order-1 px-4 py-3 text-sm font-semibold text-primary rounded-lg border-2 border-primary bg-white dark:bg-darkmode-800 dark:text-slate-100 hover:bg-slate-50 dark:hover:bg-darkmode-700 transition-colors focus:ring-2 focus:ring-primary focus:ring-offset-2 focus:outline-none">
+                                        Cancel
                                     </button>
-                                    <button type="button" id="otp-back-btn" class="px-4 py-3 text-sm font-medium text-slate-600 dark:text-slate-300 hover:text-slate-800 dark:hover:text-slate-100 rounded-lg border border-slate-200 dark:border-darkmode-500 hover:bg-slate-50 dark:hover:bg-darkmode-700 transition-colors">
-                                        Back
+                                    <button type="submit" id="otp-verify-btn" class="order-1 sm:order-2 flex-1 transition duration-200 inline-flex items-center justify-center gap-2 rounded-lg font-semibold cursor-pointer bg-primary border border-primary text-white px-4 py-3 shadow-sm hover:bg-primary/90 focus:ring-2 focus:ring-primary focus:ring-offset-2 focus:outline-none disabled:opacity-70">
+                                        Verify
                                     </button>
                                 </div>
+                                <p class="mt-6 text-center text-xs text-slate-500 dark:text-slate-400">Wondering how we use this code for verification? <button type="button" id="otp-know-more" class="font-medium text-primary hover:underline focus:outline-none focus:ring-2 focus:ring-primary/20 rounded">Know here</button></p>
                             </form>
                         </div>
                         <p class="intro-x mt-8 text-center text-xs text-slate-400 dark:text-slate-500">© {{ date('Y') }} Landogz POS</p>
@@ -99,6 +157,61 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
         (function() {
+            var initialStep = {!! json_encode($step ?? '') !!};
+            var initialEmail = {!! json_encode($email ?? '') !!};
+
+            var otpTimerInterval = null;
+            var otpTimerSeconds = 60;
+
+            function startOtpTimer() {
+                otpTimerSeconds = 60;
+                var timerEl = document.getElementById('otp-timer');
+                var resendPlaceholder = document.getElementById('otp-resend-btn');
+                var resendLink = document.getElementById('otp-resend-link');
+                if (resendPlaceholder) resendPlaceholder.classList.remove('hidden');
+                if (resendLink) resendLink.classList.add('hidden');
+                function tick() {
+                    var m = Math.floor(otpTimerSeconds / 60);
+                    var s = otpTimerSeconds % 60;
+                    if (timerEl) timerEl.textContent = (m < 10 ? '0' : '') + m + ':' + (s < 10 ? '0' : '') + s + 's';
+                    if (otpTimerSeconds <= 0) {
+                        clearInterval(otpTimerInterval);
+                        otpTimerInterval = null;
+                        if (resendPlaceholder) resendPlaceholder.classList.add('hidden');
+                        if (resendLink) resendLink.classList.remove('hidden');
+                        return;
+                    }
+                    otpTimerSeconds--;
+                }
+                tick();
+                if (otpTimerInterval) clearInterval(otpTimerInterval);
+                otpTimerInterval = setInterval(tick, 1000);
+            }
+
+            function getOtpCodeFromInputs() {
+                var digits = document.querySelectorAll('.otp-digit');
+                var code = '';
+                for (var i = 0; i < digits.length; i++) code += (digits[i].value || '').trim();
+                return code;
+            }
+
+            function setOtpInputs(value) {
+                var digits = document.querySelectorAll('.otp-digit');
+                var str = String(value).replace(/\D/g, '').slice(0, 6);
+                for (var i = 0; i < digits.length; i++) digits[i].value = str[i] || '';
+            }
+
+            if (initialStep === 'otp' && initialEmail) {
+                document.getElementById('login-step-form').classList.add('hidden');
+                var otpStep = document.getElementById('login-step-otp');
+                otpStep.classList.remove('hidden');
+                document.getElementById('otp-email').value = initialEmail;
+                document.getElementById('otp-message').textContent = 'Please enter the OTP (One-Time Password) sent to your registered email/phone number to complete your verification.';
+                startOtpTimer();
+                var firstDigit = document.querySelector('.otp-digit');
+                if (firstDigit) firstDigit.focus();
+            }
+
             var form = document.getElementById('super-admin-login-form');
             var btn = document.getElementById('login-btn');
             var passwordInput = document.getElementById('login-password');
@@ -140,9 +253,11 @@
                         document.getElementById('login-step-form').classList.add('hidden');
                         document.getElementById('login-step-otp').classList.remove('hidden');
                         document.getElementById('otp-email').value = data.email || formData.get('email');
-                        document.getElementById('otp-message').textContent = data.message || 'Enter the verification code we sent you.';
-                        document.getElementById('otp-code').value = '';
-                        document.getElementById('otp-code').focus();
+                        document.getElementById('otp-message').textContent = 'Please enter the OTP (One-Time Password) sent to your registered email/phone number to complete your verification.';
+                        setOtpInputs('');
+                        startOtpTimer();
+                        var firstDigit = document.querySelector('.otp-digit');
+                        if (firstDigit) firstDigit.focus();
                         btn.disabled = false;
                         return;
                     }
@@ -168,8 +283,7 @@
                 otpForm.addEventListener('submit', function(e) {
                     e.preventDefault();
                     var emailEl = document.getElementById('otp-email');
-                    var codeEl = document.getElementById('otp-code');
-                    var code = (codeEl.value || '').trim();
+                    var code = getOtpCodeFromInputs();
                     if (code.length !== 6) {
                         Swal.fire({ icon: 'warning', title: 'Invalid code', text: 'Please enter the 6-digit verification code.' });
                         return;
@@ -195,10 +309,82 @@
                         });
                 });
             }
+
+            var otpInputs = document.querySelectorAll('.otp-digit');
+            otpInputs.forEach(function(input, index) {
+                function focusNext() {
+                    if (index < 5) {
+                        var next = otpInputs[index + 1];
+                        if (next) next.focus();
+                    }
+                }
+                function focusPrev() {
+                    if (index > 0) {
+                        otpInputs[index - 1].focus();
+                    }
+                }
+                input.addEventListener('keydown', function(e) {
+                    if (e.key === 'Backspace') {
+                        if (!this.value) {
+                            e.preventDefault();
+                            focusPrev();
+                        }
+                        return;
+                    }
+                    if (/^[0-9]$/.test(e.key)) {
+                        e.preventDefault();
+                        this.value = e.key;
+                        focusNext();
+                    }
+                });
+                input.addEventListener('input', function() {
+                    var v = this.value.replace(/\D/g, '');
+                    this.value = v ? v.slice(-1) : '';
+                    if (this.value) setTimeout(focusNext, 0);
+                });
+                input.addEventListener('paste', function(e) {
+                    e.preventDefault();
+                    var pasted = (e.clipboardData || window.clipboardData).getData('text').replace(/\D/g, '').slice(0, 6);
+                    setOtpInputs(pasted);
+                    var nextIdx = Math.min(index + pasted.length, 5);
+                    otpInputs[nextIdx].focus();
+                });
+            });
+
+            document.getElementById('otp-resend-link').addEventListener('click', function() {
+                var emailEl = document.getElementById('otp-email');
+                if (!emailEl || !emailEl.value) return;
+                var link = this;
+                link.style.pointerEvents = 'none';
+                axios.post('{{ url("/api/v1/auth/resend-login-otp") }}', { email: emailEl.value })
+                    .then(function() {
+                        setOtpInputs('');
+                        startOtpTimer();
+                        document.querySelector('.otp-digit').focus();
+                        Swal.fire({ icon: 'success', title: 'Code sent', text: 'A new verification code has been sent.' });
+                    })
+                    .catch(function(err) {
+                        var msg = err.response?.data?.message || err.message || 'Failed to resend.';
+                        Swal.fire({ icon: 'error', title: 'Error', text: msg });
+                    })
+                    .finally(function() { link.style.pointerEvents = ''; });
+            });
+
+            document.getElementById('otp-know-more').addEventListener('click', function() {
+                Swal.fire({
+                    title: 'How we use this code',
+                    html: 'We send a one-time code to your email or phone. You enter it here so we can confirm it\'s really you before signing you in. We don\'t store the code after verification.',
+                    icon: 'info',
+                    confirmButtonColor: '#1e3a5f'
+                });
+            });
+
             document.getElementById('otp-back-btn').addEventListener('click', function() {
+                if (otpTimerInterval) clearInterval(otpTimerInterval);
+                otpTimerInterval = null;
                 document.getElementById('login-step-otp').classList.add('hidden');
                 document.getElementById('login-step-form').classList.remove('hidden');
-                document.getElementById('otp-code').value = '';
+                setOtpInputs('');
             });
         })();
     </script>

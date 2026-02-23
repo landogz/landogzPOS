@@ -85,7 +85,7 @@ class LoginOtpService
     {
         try {
             $expiresInMinutes = (int) ceil($this->ttl / 60);
-            Mail::to($email)->send(new LoginOtpMail($code, $expiresInMinutes));
+            Mail::to($email)->send(new LoginOtpMail($code, $expiresInMinutes, $email));
             return ['success' => true, 'error' => null];
         } catch (\Throwable $e) {
             Log::warning('Login OTP: email send failed', ['email' => $email, 'message' => $e->getMessage()]);
