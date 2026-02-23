@@ -13,27 +13,47 @@ use Illuminate\Http\Request;
 class DashboardController extends Controller
 {
     /**
+     * Branch scope for queries: null = all (super_admin), array = branch ids (admin = company branches, others = own branch).
+     */
+    private function branchScope($user): ?array
+    {
+        if (!$user) {
+            return null;
+        }
+        if ($user->role === 'super_admin') {
+            return null;
+        }
+        if ($user->role === 'admin' && $user->company_id) {
+            return Branch::where('company_id', $user->company_id)->pluck('id')->all();
+        }
+        if ($user->branch_id) {
+            return [$user->branch_id];
+        }
+        return null;
+    }
+
+    /**
      * GET /api/v1/dashboard/summary — today's sales, transaction count, low-stock count, expiring count.
      */
     public function summary(Request $request): JsonResponse
     {
-        $branchId = $request->user()?->branch_id;
+        $scope = $this->branchScope($request->user());
         $salesToday = Transaction::query()
             ->where('status', 'completed')
-            ->when($branchId, fn ($q) => $q->where('branch_id', $branchId))
+            ->when($scope !== null, fn ($q) => $q->whereIn('branch_id', $scope))
             ->whereDate('created_at', today())
             ->sum('total');
         $transactionCount = Transaction::query()
             ->where('status', 'completed')
-            ->when($branchId, fn ($q) => $q->where('branch_id', $branchId))
+            ->when($scope !== null, fn ($q) => $q->whereIn('branch_id', $scope))
             ->whereDate('created_at', today())
             ->count();
-        $lowStockCount = $this->lowStockItems($branchId)->count();
+        $lowStockCount = $this->lowStockItems($scope)->count();
         $expiringCount = ProductBatch::query()
             ->where('quantity', '>', 0)
             ->whereNotNull('expiry_date')
             ->where('expiry_date', '<=', now()->addDays(90))
-            ->when($branchId, fn ($q) => $q->whereHas('product', fn ($p) => $p->where('branch_id', $branchId)))
+            ->when($scope !== null, fn ($q) => $q->whereHas('product', fn ($p) => $p->whereIn('branch_id', $scope)))
             ->count();
         return response()->json([
             'status' => 'success',
@@ -51,8 +71,8 @@ class DashboardController extends Controller
      */
     public function lowStockAlerts(Request $request): JsonResponse
     {
-        $branchId = $request->user()?->branch_id;
-        $items = $this->lowStockItems($branchId);
+        $scope = $this->branchScope($request->user());
+        $items = $this->lowStockItems($scope);
         return response()->json(['status' => 'success', 'data' => $items->values()]);
     }
 
@@ -62,12 +82,12 @@ class DashboardController extends Controller
     public function expiringSoon(Request $request): JsonResponse
     {
         $days = (int) $request->get('days', 30);
-        $branchId = $request->user()?->branch_id;
+        $scope = $this->branchScope($request->user());
         $items = ProductBatch::query()
             ->where('quantity', '>', 0)
             ->whereNotNull('expiry_date')
             ->where('expiry_date', '<=', now()->addDays($days))
-            ->when($branchId, fn ($q) => $q->whereHas('product', fn ($p) => $p->where('branch_id', $branchId)))
+            ->when($scope !== null, fn ($q) => $q->whereHas('product', fn ($p) => $p->whereIn('branch_id', $scope)))
             ->with('product:id,name,barcode,unit')
             ->orderBy('expiry_date')
             ->get();
@@ -79,15 +99,15 @@ class DashboardController extends Controller
      */
     public function salesToday(Request $request): JsonResponse
     {
-        $branchId = $request->user()?->branch_id;
+        $scope = $this->branchScope($request->user());
         $total = Transaction::query()
             ->where('status', 'completed')
-            ->when($branchId, fn ($q) => $q->where('branch_id', $branchId))
+            ->when($scope !== null, fn ($q) => $q->whereIn('branch_id', $scope))
             ->whereDate('created_at', today())
             ->sum('total');
         $count = Transaction::query()
             ->where('status', 'completed')
-            ->when($branchId, fn ($q) => $q->where('branch_id', $branchId))
+            ->when($scope !== null, fn ($q) => $q->whereIn('branch_id', $scope))
             ->whereDate('created_at', today())
             ->count();
         return response()->json([
@@ -98,7 +118,7 @@ class DashboardController extends Controller
 
     /**
      * GET /api/v1/dashboard/branch-overview — for chain owners: all branches with today's sales.
-     * Restricted to super_admin and admin only; others get 403.
+     * super_admin: all branches; admin: only their company's branches.
      */
     public function branchOverview(Request $request): JsonResponse
     {
@@ -109,7 +129,11 @@ class DashboardController extends Controller
                 'message' => 'You do not have permission to view branch overview.',
             ], 403);
         }
-        $branches = Branch::with('company:id,name')->get()->map(function (Branch $branch) {
+        $query = Branch::with('company:id,name');
+        if ($user->role === 'admin' && $user->company_id) {
+            $query->where('company_id', $user->company_id);
+        }
+        $branches = $query->get()->map(function (Branch $branch) {
             $todaySales = Transaction::where('branch_id', $branch->id)
                 ->where('status', 'completed')
                 ->whereDate('created_at', today())
@@ -130,10 +154,13 @@ class DashboardController extends Controller
         return response()->json(['status' => 'success', 'data' => $branches]);
     }
 
-    private function lowStockItems($branchId): \Illuminate\Support\Collection
+    /**
+     * @param  array<int>|null  $branchScope  Branch IDs to scope to, or null for all.
+     */
+    private function lowStockItems(?array $branchScope): \Illuminate\Support\Collection
     {
         return Product::query()
-            ->when($branchId, fn ($q) => $q->where('branch_id', $branchId))
+            ->when($branchScope !== null, fn ($q) => $q->whereIn('branch_id', $branchScope))
             ->where('is_active', true)
             ->where('reorder_level', '>', 0)
             ->withSum('batches', 'quantity')

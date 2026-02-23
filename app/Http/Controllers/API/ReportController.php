@@ -52,10 +52,20 @@ class ReportController extends Controller
 
     public function inventory(Request $request): JsonResponse
     {
-        $branchId = $request->user()?->branch_id ?? $request->get('branch_id');
-        $query = Product::query()
-            ->when($branchId, fn ($q) => $q->where('branch_id', $branchId))
-            ->withSum('batches', 'quantity');
+        $user = $request->user();
+        $branchId = $user?->branch_id ?? $request->get('branch_id');
+        $query = Product::query();
+        if ($branchId) {
+            $query->where('branch_id', $branchId);
+        } elseif ($user && $user->role === 'admin' && $user->company_id) {
+            $companyBranchIds = \App\Models\Branch::where('company_id', $user->company_id)->pluck('id')->all();
+            if (! empty($companyBranchIds)) {
+                $query->whereIn('branch_id', $companyBranchIds);
+            } else {
+                $query->whereRaw('1 = 0');
+            }
+        }
+        $query->withSum('batches', 'quantity');
         if ($request->filled('category_id')) {
             $query->where('category_id', $request->category_id);
         }
@@ -74,9 +84,20 @@ class ReportController extends Controller
     {
         $from = $request->get('date_from', now()->startOfMonth()->toDateString());
         $to = $request->get('date_to', now()->toDateString());
-        $branchId = $request->user()?->branch_id ?? $request->get('branch_id');
+        $user = $request->user();
+        $branchId = $user?->branch_id ?? $request->get('branch_id');
+        $companyBranchIds = ($user && $user->role === 'admin' && $user->company_id)
+            ? \App\Models\Branch::where('company_id', $user->company_id)->pluck('id')->all()
+            : null;
         $items = TransactionItem::query()
-            ->whereHas('transaction', fn ($t) => $t->where('status', 'completed')->whereBetween('created_at', [$from, $to])->when($branchId, fn ($q) => $q->where('branch_id', $branchId)))
+            ->whereHas('transaction', function ($t) use ($from, $to, $branchId, $companyBranchIds) {
+                $t->where('status', 'completed')->whereBetween('created_at', [$from, $to]);
+                if ($branchId) {
+                    $t->where('branch_id', $branchId);
+                } elseif (! empty($companyBranchIds)) {
+                    $t->whereIn('branch_id', $companyBranchIds);
+                }
+            })
             ->with(['product', 'transaction'])
             ->get();
         $totalRevenue = $items->sum('subtotal');
@@ -199,11 +220,22 @@ class ReportController extends Controller
 
     private function baseReportQuery(Request $request, $query)
     {
+        $user = $request->user();
         if ($request->filled('branch_id')) {
-            $query->where('branch_id', $request->branch_id);
+            $query->where('branch_id', (int) $request->branch_id);
+            return $query;
         }
-        if ($request->user()?->branch_id && !$request->filled('branch_id')) {
-            $query->where('branch_id', $request->user()->branch_id);
+        if ($user?->branch_id) {
+            $query->where('branch_id', $user->branch_id);
+            return $query;
+        }
+        if ($user && $user->role === 'admin' && $user->company_id) {
+            $companyBranchIds = \App\Models\Branch::where('company_id', $user->company_id)->pluck('id')->all();
+            if (! empty($companyBranchIds)) {
+                $query->whereIn('branch_id', $companyBranchIds);
+            } else {
+                $query->whereRaw('1 = 0');
+            }
         }
         return $query;
     }

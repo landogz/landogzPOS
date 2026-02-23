@@ -117,7 +117,14 @@ class ReceiptController extends Controller
         if (! $user) {
             return;
         }
-        if (in_array($user->role, ['super_admin', 'admin'], true)) {
+        if ($user->role === 'super_admin') {
+            return;
+        }
+        if ($user->role === 'admin' && $user->company_id) {
+            $transaction->load('branch');
+            if (! $transaction->branch || (int) $transaction->branch->company_id !== (int) $user->company_id) {
+                abort(404, 'Receipt not found.');
+            }
             return;
         }
         if ($user->branch_id && (int) $transaction->branch_id !== (int) $user->branch_id) {

@@ -66,6 +66,13 @@ class BranchController extends Controller
         if (! isset($validated['is_active'])) {
             $validated['is_active'] = true;
         }
+        $user = $request->user();
+        if ($user->role === 'admin' && $user->company_id && (int) $validated['company_id'] !== (int) $user->company_id) {
+            return response()->json([
+                'status' => false,
+                'message' => 'You can only create branches for your company.',
+            ], 403);
+        }
         $branch = Branch::create($validated);
         $branch->load('company');
         return response()->json([

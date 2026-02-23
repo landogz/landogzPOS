@@ -11,18 +11,21 @@ use Illuminate\Http\Request;
 class TerminalController extends Controller
 {
     /**
-     * List all terminals (Super Admin only). Used by Super Admin panel to manage keys.
+     * List all terminals. super_admin: all; admin: only terminals of their company's branches.
      */
     public function indexAll(Request $request): JsonResponse
     {
-        if ($request->user()->role !== 'super_admin') {
-            return response()->json(['status' => false, 'message' => 'Only Super Admin can list all terminals.'], 403);
+        $user = $request->user();
+        if (! $user || ! in_array($user->role, ['super_admin', 'admin'], true)) {
+            return response()->json(['status' => false, 'message' => 'Only Super Admin or Admin can list terminals.'], 403);
         }
-        $terminals = Terminal::with('branch:id,name,company_id', 'branch.company:id,name')
+        $query = Terminal::with('branch:id,name,company_id', 'branch.company:id,name')
             ->orderBy('branch_id')
-            ->orderBy('code')
-            ->get()
-            ->map(fn (Terminal $t) => [
+            ->orderBy('code');
+        if ($user->role === 'admin' && $user->company_id) {
+            $query->whereHas('branch', fn ($q) => $q->where('company_id', $user->company_id));
+        }
+        $terminals = $query->get()->map(fn (Terminal $t) => [
                 'id' => $t->id,
                 'branch_id' => $t->branch_id,
                 'branch_name' => $t->branch?->name,
@@ -200,6 +203,9 @@ class TerminalController extends Controller
     private function authorizeBranch(Request $request, Branch $branch): void
     {
         $user = $request->user();
+        if ($user->role === 'admin' && $user->company_id && (int) $branch->company_id !== (int) $user->company_id) {
+            abort(403, 'You can only manage terminals for branches of your company.');
+        }
         if ($user->branch_id && $user->branch_id !== $branch->id && ! in_array($user->role, ['super_admin', 'admin'], true)) {
             abort(403, 'You can only manage terminals for your branch.');
         }

@@ -4,6 +4,7 @@ namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
 use App\Models\BirSetting;
+use App\Models\Branch;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
@@ -11,13 +12,24 @@ class BirSettingsController extends Controller
 {
     public function index(Request $request): JsonResponse
     {
-        $branchId = $request->user()?->branch_id ?? $request->get('branch_id');
+        $user = $request->user();
+        $branchId = $user?->branch_id ?? $request->get('branch_id');
+        if (! $branchId && $user && $user->role === 'admin' && $user->company_id) {
+            $firstBranch = Branch::where('company_id', $user->company_id)->orderBy('id')->first();
+            $branchId = $firstBranch?->id;
+        }
         $query = BirSetting::query()->with('branch:id,name');
         if ($branchId) {
             $query->where('branch_id', $branchId);
+            if ($user && $user->role === 'admin' && $user->company_id) {
+                $branch = Branch::find($branchId);
+                if (! $branch || (int) $branch->company_id !== (int) $user->company_id) {
+                    $query->whereRaw('1 = 0');
+                }
+            }
         }
-        $settings = $query->first(); // one per branch
-        if (!$settings && $branchId) {
+        $settings = $query->first();
+        if (! $settings && $branchId) {
             $settings = BirSetting::create(['branch_id' => $branchId]);
         }
         return response()->json([
@@ -38,6 +50,13 @@ class BirSettingsController extends Controller
             'valid_until' => 'nullable|date',
             'footer_text' => 'nullable|string',
         ]);
+        $user = $request->user();
+        if ($user && $user->role === 'admin' && $user->company_id) {
+            $branch = Branch::find($validated['branch_id']);
+            if (! $branch || (int) $branch->company_id !== (int) $user->company_id) {
+                return response()->json(['status' => false, 'message' => 'You can only update BIR settings for branches of your company.'], 403);
+            }
+        }
         $settings = BirSetting::firstOrCreate(
             ['branch_id' => $validated['branch_id']],
             ['branch_id' => $validated['branch_id']]

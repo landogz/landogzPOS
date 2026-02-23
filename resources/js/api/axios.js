@@ -39,7 +39,10 @@ const attachAuth = (instance) => {
     (res) => res,
     (err) => {
       if (err.response?.status === 401) {
-        if (typeof window !== 'undefined') window.location.href = '/login';
+        if (typeof window !== 'undefined') {
+          try { localStorage.removeItem('super_admin_token'); localStorage.removeItem('auth_token'); } catch (_) {}
+          window.location.href = '/dashboard/login';
+        }
       }
       if (!err.response && typeof window !== 'undefined') {
         window.dispatchEvent(new Event('pharmapos:offline'));

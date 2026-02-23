@@ -2,9 +2,11 @@
 
 namespace App\Services;
 
+use App\Models\Company;
 use App\Models\PendingSyncQueue;
 use App\Models\SyncLog;
 use App\Models\Transaction;
+use App\Models\User;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Storage;
@@ -50,6 +52,44 @@ class SyncService
                 $payload[$key] = $value->format('Y-m-d H:i:s');
             }
         }
+    }
+
+    /**
+     * Enqueue a company for sync to cloud (push). Call after create/update.
+     */
+    public function enqueueCompany(Company $company): void
+    {
+        if (env('SYNC_MODE') !== 'direct_db' || ! config('database.connections.mysql_cloud.host')) {
+            return;
+        }
+        $payload = $company->getAttributes();
+        $this->normalizePayloadForSync($payload);
+        PendingSyncQueue::create([
+            'model_type' => 'companies',
+            'record_id' => $company->id,
+            'action' => 'update',
+            'payload' => $payload,
+            'status' => PendingSyncQueue::STATUS_PENDING,
+        ]);
+    }
+
+    /**
+     * Enqueue a user for sync to cloud (push). Call after create/update.
+     */
+    public function enqueueUser(User $user): void
+    {
+        if (env('SYNC_MODE') !== 'direct_db' || ! config('database.connections.mysql_cloud.host')) {
+            return;
+        }
+        $payload = $user->getAttributes();
+        $this->normalizePayloadForSync($payload);
+        PendingSyncQueue::create([
+            'model_type' => 'users',
+            'record_id' => $user->id,
+            'action' => 'update',
+            'payload' => $payload,
+            'status' => PendingSyncQueue::STATUS_PENDING,
+        ]);
     }
 
     /**
@@ -138,21 +178,21 @@ class SyncService
     }
 
     /**
-     * Pull companies, branches, and terminals from cloud DB into local (direct_db only).
+     * Pull companies, branches, users, and terminals from cloud DB into local (direct_db only).
      * Source of truth is online DB; all local nodes get the same master data.
-     * Order: companies → branches → terminals (respects FKs).
+     * Order: companies → branches → users → terminals (respects FKs).
      */
     public function pullMasterDataFromCloudDirectDb(): array
     {
         $host = config('database.connections.mysql_cloud.host');
         if (env('SYNC_MODE') !== 'direct_db' || ! $host) {
-            return ['companies' => 0, 'branches' => 0, 'terminals' => 0];
+            return ['companies' => 0, 'branches' => 0, 'users' => 0, 'terminals' => 0];
         }
 
         $cloud = DB::connection('mysql_cloud');
-        $counts = ['companies' => 0, 'branches' => 0, 'terminals' => 0];
+        $counts = ['companies' => 0, 'branches' => 0, 'users' => 0, 'terminals' => 0];
 
-        foreach (['companies', 'branches', 'terminals'] as $table) {
+        foreach (['companies', 'branches', 'users', 'terminals'] as $table) {
             try {
                 $rows = $cloud->table($table)->get();
                 $arr = $rows->map(fn ($r) => (array) $r)->toArray();

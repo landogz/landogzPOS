@@ -18,6 +18,21 @@
 <script src="{{ $base }}/dist/js/vendors/tom-select.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
+// Redirect to login on 401 Unauthorized (expired/invalid token)
+if (typeof axios !== 'undefined') {
+    axios.interceptors.response.use(
+        function(res) { return res; },
+        function(err) {
+            if (err.response && err.response.status === 401) {
+                localStorage.removeItem('super_admin_token');
+                window.location.href = '{{ route("dashboard.login") }}';
+                return Promise.reject(err);
+            }
+            return Promise.reject(err);
+        }
+    );
+}
+
 /** Global: Rubick-style non-sticky Toastify notification (success/error). Use this for all success/error feedback; keep Swal for confirmations only. */
 window.showToastNotification = function(type, title, text) {
     var wrap = document.createElement('div');

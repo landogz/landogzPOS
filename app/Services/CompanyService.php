@@ -16,7 +16,8 @@ class CompanyService
     public const LOGO_DIR = 'companies';
 
     public function __construct(
-        private CompanyRepository $repository
+        private CompanyRepository $repository,
+        private SyncService $syncService
     ) {}
 
     public function list(?string $search = null, ?string $status = null): Collection
@@ -41,9 +42,11 @@ class CompanyService
         $company = $this->repository->create($data);
 
         if ($admin && !empty($admin['admin_email']) && !empty($admin['admin_password'])) {
-            $this->createCompanyAdmin($company, $admin);
+            $adminUser = $this->createCompanyAdmin($company, $admin);
+            $this->syncService->enqueueUser($adminUser);
         }
 
+        $this->syncService->enqueueCompany($company);
         return $company;
     }
 
@@ -76,7 +79,9 @@ class CompanyService
             }
             $data['logo'] = $logo->store(self::LOGO_DIR, self::LOGO_DISK);
         }
-        return $this->repository->update($company, $data);
+        $company = $this->repository->update($company, $data);
+        $this->syncService->enqueueCompany($company);
+        return $company;
     }
 
     public function delete(Company $company): bool

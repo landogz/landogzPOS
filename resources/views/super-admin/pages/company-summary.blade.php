@@ -5,6 +5,8 @@
 
 @push('styles')
 <style>
+    /* Preset dropdown floats above page (TomSelect dropdownParent: "body") */
+    .ts-dropdown { z-index: 9999 !important; }
     /* Responsive & iOS: prevent zoom on input focus (16px+), touch scroll, safe area */
     @media (max-width: 639px) {
         #summary-preset, #summary-date-from, #summary-date-to { font-size: 16px !important; min-height: 44px; }
@@ -32,7 +34,7 @@
     <div class="company-summary-content intro-y mt-4 sm:mt-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <h2 class="text-base sm:text-lg font-medium text-slate-800 dark:text-slate-100">Company Summary</h2>
         <div class="flex flex-col gap-3 w-full min-w-0 sm:flex-row sm:flex-wrap sm:items-center sm:w-auto">
-            <div class="flex items-center gap-2 w-full min-w-0 sm:w-auto">
+            <div class="company-summary-preset-wrap flex items-center gap-2 w-full min-w-0 sm:w-auto">
                 <label for="summary-preset" class="text-sm text-slate-600 dark:text-slate-400 whitespace-nowrap flex-shrink-0">Preset</label>
                 <div class="mt-0 flex-1 min-w-0 sm:w-36">
                     <select id="summary-preset" data-placeholder="Preset" class="tom-select w-full" aria-label="Date preset">
@@ -1236,7 +1238,7 @@
     defaultDates();
     var summaryPresetEl = document.getElementById('summary-preset');
     summaryPresetEl.value = 'month';
-    if (typeof TomSelect !== 'undefined') new TomSelect(summaryPresetEl, { plugins: { dropdown_input: {} }, placeholder: 'Preset' });
+    if (typeof TomSelect !== 'undefined') new TomSelect(summaryPresetEl, { plugins: { dropdown_input: {} }, placeholder: 'Preset', dropdownParent: 'body' });
     summaryPresetEl.addEventListener('change', function() {
         var v = this.value;
         if (v === 'today') presetToday();

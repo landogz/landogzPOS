@@ -15,40 +15,49 @@ class CompanyController extends Controller
     ) {}
 
     /**
-     * List companies. Only super_admin can access.
+     * List companies. super_admin: all; admin: only their company.
      */
     public function index(Request $request): JsonResponse
     {
-        if ($request->user()?->role !== 'super_admin') {
-            return response()->json([
-                'status' => false,
-                'message' => 'Only Super Admin can manage companies.',
-            ], 403);
+        $user = $request->user();
+        if (!$user) {
+            return response()->json(['status' => false, 'message' => 'Unauthenticated.'], 401);
         }
-        $search = $request->query('search');
-        $status = $request->query('status');
-        $companies = $this->service->list($search, $status);
+        if ($user->role === 'super_admin') {
+            $search = $request->query('search');
+            $status = $request->query('status');
+            $companies = $this->service->list($search, $status);
+            return response()->json(['status' => true, 'message' => 'OK', 'data' => $companies]);
+        }
+        if ($user->role === 'admin' && $user->company_id) {
+            $company = $this->service->get((int) $user->company_id);
+            if (!$company) {
+                return response()->json(['status' => true, 'message' => 'OK', 'data' => []]);
+            }
+            $company->loadCount('branches');
+            return response()->json(['status' => true, 'message' => 'OK', 'data' => [$company]]);
+        }
         return response()->json([
-            'status' => true,
-            'message' => 'OK',
-            'data' => $companies,
-        ]);
+            'status' => false,
+            'message' => 'Only Super Admin can manage companies, or Admin can view their company.',
+        ], 403);
     }
 
     public function show(Request $request, Company $company): JsonResponse
     {
-        if ($request->user()?->role !== 'super_admin') {
-            return response()->json([
-                'status' => false,
-                'message' => 'Only Super Admin can view companies.',
-            ], 403);
+        $user = $request->user();
+        if (!$user) {
+            return response()->json(['status' => false, 'message' => 'Unauthenticated.'], 401);
         }
-        $company->loadCount('branches');
-        return response()->json([
-            'status' => true,
-            'message' => 'OK',
-            'data' => $company,
-        ]);
+        if ($user->role === 'super_admin') {
+            $company->loadCount('branches');
+            return response()->json(['status' => true, 'message' => 'OK', 'data' => $company]);
+        }
+        if ($user->role === 'admin' && $user->company_id && (int) $company->id === (int) $user->company_id) {
+            $company->loadCount('branches');
+            return response()->json(['status' => true, 'message' => 'OK', 'data' => $company]);
+        }
+        return response()->json(['status' => false, 'message' => 'You can only view your company.'], 403);
     }
 
     public function store(Request $request): JsonResponse
@@ -147,11 +156,16 @@ class CompanyController extends Controller
 
     public function summary(Request $request, Company $company): JsonResponse
     {
-        if ($request->user()?->role !== 'super_admin') {
-            return response()->json([
-                'status' => false,
-                'message' => 'Only Super Admin can view company summary.',
-            ], 403);
+        $user = $request->user();
+        if (!$user) {
+            return response()->json(['status' => false, 'message' => 'Unauthenticated.'], 401);
+        }
+        if ($user->role === 'super_admin') {
+            // continue
+        } elseif ($user->role === 'admin' && $user->company_id && (int) $company->id === (int) $user->company_id) {
+            // admin can view their company summary
+        } else {
+            return response()->json(['status' => false, 'message' => 'You can only view your company summary.'], 403);
         }
         $branchId = $request->query('branch_id');
         $branchId = $branchId !== null && $branchId !== '' ? (int) $branchId : null;

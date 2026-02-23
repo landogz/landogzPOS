@@ -4,6 +4,7 @@ namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
+use App\Services\SyncService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
@@ -19,11 +20,17 @@ class UserController extends Controller
         $currentUser = $request->user();
         if ($currentUser && $currentUser->role === 'manager' && $currentUser->branch_id) {
             $query->where('branch_id', $currentUser->branch_id);
+        } elseif ($currentUser && $currentUser->role === 'admin' && $currentUser->company_id) {
+            $query->where('company_id', $currentUser->company_id);
         } elseif ($request->filled('branch_id')) {
             $query->where('branch_id', $request->branch_id);
         }
         if ($request->filled('company_id')) {
-            $query->where('company_id', $request->company_id);
+            if ($currentUser && $currentUser->role === 'admin' && $currentUser->company_id && (int) $request->company_id !== (int) $currentUser->company_id) {
+                $query->whereRaw('1 = 0');
+            } else {
+                $query->where('company_id', $request->company_id);
+            }
         }
         if ($request->filled('role')) {
             $query->where('role', $request->role);
@@ -67,6 +74,18 @@ class UserController extends Controller
             }
             $validated['branch_id'] = $currentUser->branch_id;
         }
+        if ($currentUser && $currentUser->role === 'admin' && $currentUser->company_id) {
+            if ($validated['role'] === 'super_admin') {
+                return response()->json(['status' => false, 'message' => 'You cannot create a Super Admin.'], 403);
+            }
+            $validated['company_id'] = $currentUser->company_id;
+            if (!empty($validated['branch_id'])) {
+                $branch = \App\Models\Branch::find($validated['branch_id']);
+                if (!$branch || (int) $branch->company_id !== (int) $currentUser->company_id) {
+                    return response()->json(['status' => false, 'message' => 'Branch must belong to your company.'], 403);
+                }
+            }
+        }
 
         $validated['password'] = Hash::make($validated['password']);
         if (!empty($validated['pin'])) {
@@ -87,6 +106,9 @@ class UserController extends Controller
     public function show(Request $request, User $user): JsonResponse
     {
         $currentUser = $request->user();
+        if ($currentUser && $currentUser->role === 'admin' && $currentUser->company_id && (int) $user->company_id !== (int) $currentUser->company_id) {
+            abort(404);
+        }
         if ($currentUser && $currentUser->role === 'manager' && $currentUser->branch_id && (int) $user->branch_id !== (int) $currentUser->branch_id) {
             abort(404);
         }
@@ -118,6 +140,23 @@ class UserController extends Controller
             }
             $validated['branch_id'] = $currentUser->branch_id;
         }
+        if ($currentUser && $currentUser->role === 'admin' && $currentUser->company_id) {
+            if ((int) $user->company_id !== (int) $currentUser->company_id) {
+                return response()->json(['status' => false, 'message' => 'You can only update users in your company.'], 403);
+            }
+            if (array_key_exists('role', $validated) && $validated['role'] === 'super_admin') {
+                return response()->json(['status' => false, 'message' => 'You cannot assign Super Admin role.'], 403);
+            }
+            if (array_key_exists('company_id', $validated)) {
+                $validated['company_id'] = $currentUser->company_id;
+            }
+            if (array_key_exists('branch_id', $validated) && $validated['branch_id']) {
+                $branch = \App\Models\Branch::find($validated['branch_id']);
+                if (!$branch || (int) $branch->company_id !== (int) $currentUser->company_id) {
+                    return response()->json(['status' => false, 'message' => 'Branch must belong to your company.'], 403);
+                }
+            }
+        }
 
         if (!empty($validated['password'])) {
             $validated['password'] = Hash::make($validated['password']);
@@ -130,6 +169,7 @@ class UserController extends Controller
         if (array_key_exists('role', $validated)) {
             $this->assignRoleIfExists($user, $validated['role']);
         }
+        app(SyncService::class)->enqueueUser($user->fresh());
         $user->load(['branch', 'company']);
         return response()->json([
             'status' => 'success',
@@ -141,6 +181,9 @@ class UserController extends Controller
     public function destroy(Request $request, User $user): JsonResponse
     {
         $currentUser = $request->user();
+        if ($currentUser && $currentUser->role === 'admin' && $currentUser->company_id && (int) $user->company_id !== (int) $currentUser->company_id) {
+            return response()->json(['status' => false, 'message' => 'You can only deactivate users in your company.'], 403);
+        }
         if ($currentUser && $currentUser->role === 'manager') {
             if (!$currentUser->branch_id || (int) $user->branch_id !== (int) $currentUser->branch_id) {
                 return response()->json(['status' => false, 'message' => 'You can only deactivate users in your branch.'], 403);
