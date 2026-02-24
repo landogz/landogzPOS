@@ -148,6 +148,7 @@
     var companiesList = [];
     var currentBranchesList = [];
     var currentView = localStorage.getItem('branches_view') || 'grid';
+    var currentUserRole = '';
 
     function getToken() { return localStorage.getItem('super_admin_token'); }
     function authHeaders() { return { headers: { Authorization: 'Bearer ' + (getToken() || ''), Accept: 'application/json', 'X-Requested-With': 'XMLHttpRequest' } }; }
@@ -193,12 +194,16 @@
     }
     function dropdownMenuHtml(b) {
         var isActive = b.is_active !== false;
-        return '<div class="branch-dropdown-menu absolute right-0 top-full z-[9999] mt-1 hidden min-w-[11rem] max-w-[calc(100vw-2rem)] rounded-xl border border-slate-200 dark:border-darkmode-600 bg-white dark:bg-darkmode-600 p-1.5 shadow-xl">'
+        var isAdmin = currentUserRole === 'admin';
+        var html = '<div class="branch-dropdown-menu absolute right-0 top-full z-[9999] mt-1 hidden min-w-[11rem] max-w-[calc(100vw-2rem)] rounded-xl border border-slate-200 dark:border-darkmode-600 bg-white dark:bg-darkmode-600 p-1.5 shadow-xl">'
             + '<a href="javascript:;" class="branch-edit flex items-center gap-2.5 rounded-lg px-3 py-2 text-sm text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-darkmode-400 transition-colors cursor-pointer"><svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.12 2.12 0 0 1 3 3L12 15l-4 1 1-4Z"/></svg>Edit</a>'
-            + '<a href="javascript:;" class="branch-toggle-status flex items-center gap-2.5 rounded-lg px-3 py-2 text-sm hover:bg-slate-100 dark:hover:bg-darkmode-400 transition-colors cursor-pointer ' + (isActive ? 'text-amber-600 dark:text-amber-400' : 'text-emerald-600 dark:text-emerald-400') + '">' + (isActive ? '<svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="5" width="22" height="14" rx="7" ry="7"/><circle cx="16" cy="12" r="3"/></svg>Deactivate' : '<svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="5" width="22" height="14" rx="7" ry="7"/><circle cx="8" cy="12" r="3"/></svg>Activate') + '</a>'
-            + '<hr class="my-1 border-slate-200 dark:border-darkmode-500">'
-            + '<a href="javascript:;" class="branch-delete flex items-center gap-2.5 rounded-lg px-3 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors cursor-pointer"><svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>Delete</a>'
-            + '</div>';
+            + '<a href="javascript:;" class="branch-toggle-status flex items-center gap-2.5 rounded-lg px-3 py-2 text-sm hover:bg-slate-100 dark:hover:bg-darkmode-400 transition-colors cursor-pointer ' + (isActive ? 'text-amber-600 dark:text-amber-400' : 'text-emerald-600 dark:text-emerald-400') + '">' + (isActive ? '<svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="5" width="22" height="14" rx="7" ry="7"/><circle cx="16" cy="12" r="3"/></svg>Deactivate' : '<svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="5" width="22" height="14" rx="7" ry="7"/><circle cx="8" cy="12" r="3"/></svg>Activate') + '</a>';
+        if (!isAdmin) {
+            html += '<hr class="my-1 border-slate-200 dark:border-darkmode-500">'
+                + '<a href="javascript:;" class="branch-delete flex items-center gap-2.5 rounded-lg px-3 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors cursor-pointer"><svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>Delete</a>';
+        }
+        html += '</div>';
+        return html;
     }
 
     function setView(v) {
@@ -220,6 +225,19 @@
     setView(currentView);
     gridBtn.addEventListener('click', function () { setView('grid'); });
     listBtn.addEventListener('click', function () { setView('list'); });
+
+    function runInitialLoad() {
+        if (!getToken()) { loadCompanies(); return; }
+        axios.get(apiBase + '/auth/me', authHeaders()).then(function (r) {
+            var d = r.data && r.data.data ? r.data.data : r.data;
+            currentUserRole = (d && d.user && d.user.role) ? d.user.role : '';
+            if (currentUserRole === 'admin') {
+                var addBtn = document.getElementById('branches-add-btn');
+                if (addBtn) addBtn.style.display = 'none';
+            }
+            loadCompanies();
+        }).catch(function () { loadCompanies(); });
+    }
 
     function loadCompanies() {
         if (!getToken()) return;
@@ -417,10 +435,11 @@
                         + '<td class="py-3 px-3 text-center text-sm font-medium text-slate-700 dark:text-slate-300">' + terminalsCount + '</td>'
                         + '<td class="py-3 px-3 text-right">' + salesCell + '</td>'
                         + '<td class="py-3 px-3 text-center">' + statusBadge(isActive) + '</td>'
-                        + '<td class="py-3 pl-3 pr-4 sm:pr-5"><div class="flex flex-wrap items-center justify-end gap-1.5"><a href="' + escapeHtml(companySummaryUrl(companyId, b.id)) + '" class="rounded-lg border border-slate-200 dark:border-darkmode-500 bg-white dark:bg-darkmode-700 px-2.5 py-2 sm:py-1.5 text-xs font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-50 transition-colors touch-manipulation min-h-[40px] sm:min-h-0 inline-flex items-center">View Summary</a><button type="button" class="branch-list-edit rounded-lg border border-slate-200 dark:border-darkmode-500 bg-white dark:bg-darkmode-700 px-2.5 py-2 sm:py-1.5 text-xs font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-50 transition-colors touch-manipulation min-h-[40px] sm:min-h-0">Edit</button><button type="button" class="branch-list-delete rounded-lg border border-red-200 dark:border-red-800/50 bg-red-50 dark:bg-red-900/20 px-2.5 py-2 sm:py-1.5 text-xs font-medium text-red-600 dark:text-red-400 hover:bg-red-100 transition-colors touch-manipulation min-h-[40px] sm:min-h-0">Delete</button></div></td>';
+                        + '<td class="py-3 pl-3 pr-4 sm:pr-5"><div class="flex flex-wrap items-center justify-end gap-1.5"><a href="' + escapeHtml(companySummaryUrl(companyId, b.id)) + '" class="rounded-lg border border-slate-200 dark:border-darkmode-500 bg-white dark:bg-darkmode-700 px-2.5 py-2 sm:py-1.5 text-xs font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-50 transition-colors touch-manipulation min-h-[40px] sm:min-h-0 inline-flex items-center">View Summary</a><button type="button" class="branch-list-edit rounded-lg border border-slate-200 dark:border-darkmode-500 bg-white dark:bg-darkmode-700 px-2.5 py-2 sm:py-1.5 text-xs font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-50 transition-colors touch-manipulation min-h-[40px] sm:min-h-0">Edit</button>' + (currentUserRole !== 'admin' ? '<button type="button" class="branch-list-delete rounded-lg border border-red-200 dark:border-red-800/50 bg-red-50 dark:bg-red-900/20 px-2.5 py-2 sm:py-1.5 text-xs font-medium text-red-600 dark:text-red-400 hover:bg-red-100 transition-colors touch-manipulation min-h-[40px] sm:min-h-0">Delete</button>' : '') + '</div></td>';
                     tbody.appendChild(tr);
                     tr.querySelector('.branch-list-edit').addEventListener('click', function () { openEdit(b); });
-                    tr.querySelector('.branch-list-delete').addEventListener('click', function () { confirmDelete(b); });
+                    var listDeleteBtn = tr.querySelector('.branch-list-delete');
+                    if (listDeleteBtn) listDeleteBtn.addEventListener('click', function () { confirmDelete(b); });
                 });
                 listContent.appendChild(section);
                 var btn = section.querySelector('.branches-list-accordion-btn');
@@ -441,7 +460,8 @@
         btn.addEventListener('click', function (e) { e.preventDefault(); e.stopPropagation(); document.querySelectorAll('.branch-dropdown-menu:not(.hidden)').forEach(function (m) { if (m !== menu) m.classList.add('hidden'); }); menu.classList.toggle('hidden'); });
         card.querySelector('.branch-edit').addEventListener('click', function (e) { e.preventDefault(); menu.classList.add('hidden'); openEdit(b); });
         card.querySelector('.branch-toggle-status').addEventListener('click', function (e) { e.preventDefault(); menu.classList.add('hidden'); toggleStatus(b); });
-        card.querySelector('.branch-delete').addEventListener('click', function (e) { e.preventDefault(); menu.classList.add('hidden'); confirmDelete(b); });
+        var delBtn = card.querySelector('.branch-delete');
+        if (delBtn) delBtn.addEventListener('click', function (e) { e.preventDefault(); menu.classList.add('hidden'); confirmDelete(b); });
     }
     document.addEventListener('click', function () { document.querySelectorAll('.branch-dropdown-menu').forEach(function (m) { m.classList.add('hidden'); }); });
 
@@ -526,7 +546,7 @@
     companyFilter.addEventListener('change', loadBranches);
     statusFilter.addEventListener('change', loadBranches);
     searchInput.addEventListener('input', function () { if (searchInput._timer) clearTimeout(searchInput._timer); searchInput._timer = setTimeout(loadBranches, 300); });
-    loadCompanies();
+    runInitialLoad();
 })();
 </script>
 @endpush

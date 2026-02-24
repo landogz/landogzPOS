@@ -159,10 +159,10 @@ class TerminalController extends Controller
 
     public function update(Request $request, Branch $branch, Terminal $terminal): JsonResponse
     {
-        if ($request->user()->role !== 'super_admin') {
+        if (! in_array($request->user()->role, ['super_admin', 'admin'], true)) {
             return response()->json([
                 'status' => false,
-                'message' => 'Only Super Admin can modify POS terminals. Please contact your administrator.',
+                'message' => 'Only Super Admin or Admin can modify POS terminals. Please contact your administrator.',
             ], 403);
         }
         $this->authorizeBranch($request, $branch);

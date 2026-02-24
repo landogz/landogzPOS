@@ -151,6 +151,8 @@
     }
     var authHeaders = { headers: { Authorization: 'Bearer ' + token, Accept: 'application/json', 'X-Requested-With': 'XMLHttpRequest' } };
 
+    var currentUserRole = 'super_admin';
+
     var wrapper = document.getElementById('terminals-accordion-wrapper');
     var summaryText = document.getElementById('terminals-summary-text');
     var emptyEl = document.getElementById('terminals-empty');
@@ -221,10 +223,19 @@
                 var registeredBadge = registered ? '<span class="' + badges.active + '">Yes</span>' : '<span class="' + badges.attention + '" title="Generate a key to register this terminal.">No</span>';
                 var statusBadge = t.is_active !== false ? '<span class="' + badges.active + '">Active</span>' : '<span class="' + badges.inactive + '">Inactive</span>';
                 var terminalLabel = (t.name || t.code || 'Terminal #' + t.id) + (t.code ? ' <span class="text-slate-500 dark:text-slate-400 font-normal">(' + escapeHtml(t.code) + ')</span>' : '');
+                var isAdminOnly = currentUserRole === 'admin';
                 var revokeDisabled = registered ? '' : ' disabled';
                 var revokeClass = 'terminal-revoke-key block w-full text-left px-3 py-2 text-xs font-medium text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded transition-colors touch-manipulation border-0 bg-transparent cursor-pointer' + (registered ? '' : ' opacity-50 cursor-not-allowed');
                 var lastUsedText = t.api_key_last_used_at ? formatDate(t.api_key_last_used_at) : '—';
                 var rowData = ' data-terminal-id="' + t.id + '" data-branch-id="' + t.branch_id + '" data-branch-name="' + escapeHtml(t.branch_name || '') + '" data-code="' + escapeHtml(t.code || '') + '" data-name="' + escapeHtml(t.name || '') + '" data-min="' + escapeHtml(t.min || '') + '" data-tin="' + escapeHtml(t.tin || '') + '" data-is-active="' + (t.is_active !== false ? '1' : '0') + '"';
+                var actionsMenuHtml = '<div class="terminal-actions-menu hidden min-w-[160px] rounded-lg border border-slate-200 dark:border-darkmode-500 bg-white dark:bg-darkmode-700 shadow-xl py-1 z-[100]">'
+                    + '<button type="button" class="terminal-edit block w-full text-left px-3 py-2 text-xs font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-darkmode-600 rounded transition-colors touch-manipulation border-0 bg-transparent cursor-pointer" data-branch-id="' + t.branch_id + '" data-terminal-id="' + t.id + '">Edit</button>';
+                if (!isAdminOnly) {
+                    actionsMenuHtml += '<button type="button" class="terminal-generate-key block w-full text-left px-3 py-2 text-xs font-medium text-primary hover:bg-primary/10 dark:hover:bg-primary/20 rounded transition-colors touch-manipulation border-0 bg-transparent cursor-pointer" data-branch-id="' + t.branch_id + '" data-terminal-id="' + t.id + '">Generate key</button>'
+                        + '<button type="button" class="' + revokeClass + '" data-branch-id="' + t.branch_id + '" data-terminal-id="' + t.id + '"' + revokeDisabled + '>Revoke key</button>'
+                        + '<button type="button" class="terminal-delete block w-full text-left px-3 py-2 text-xs font-medium text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded transition-colors touch-manipulation border-0 bg-transparent cursor-pointer" data-branch-id="' + t.branch_id + '" data-terminal-id="' + t.id + '">Delete</button>';
+                }
+                actionsMenuHtml += '</div>';
                 html += '<tr class="hover:bg-slate-100 dark:hover:bg-darkmode-600/70 transition-colors"' + rowData + '>'
                     + '<td class="py-2.5 pl-5 pr-3 font-medium text-slate-800 dark:text-slate-100">' + terminalLabel + '</td>'
                     + '<td class="py-2.5 px-3 text-center">' + statusBadge + '</td>'
@@ -235,12 +246,8 @@
                     + '<button type="button" class="terminal-actions-btn rounded-lg border border-slate-200 dark:border-darkmode-500 p-3 text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-darkmode-600 transition-colors touch-manipulation min-h-[44px] min-w-[44px]" data-branch-id="' + t.branch_id + '" data-terminal-id="' + t.id + '" data-registered="' + (registered ? '1' : '0') + '" aria-haspopup="true" aria-expanded="false" aria-label="Actions">'
                     + '<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="1.5"/><circle cx="6" cy="12" r="1.5"/><circle cx="18" cy="12" r="1.5"/></svg>'
                     + '</button>'
-                    + '<div class="terminal-actions-menu hidden min-w-[160px] rounded-lg border border-slate-200 dark:border-darkmode-500 bg-white dark:bg-darkmode-700 shadow-xl py-1 z-[100]">'
-                    + '<button type="button" class="terminal-edit block w-full text-left px-3 py-2 text-xs font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-darkmode-600 rounded transition-colors touch-manipulation border-0 bg-transparent cursor-pointer" data-branch-id="' + t.branch_id + '" data-terminal-id="' + t.id + '">Edit</button>'
-                    + '<button type="button" class="terminal-generate-key block w-full text-left px-3 py-2 text-xs font-medium text-primary hover:bg-primary/10 dark:hover:bg-primary/20 rounded transition-colors touch-manipulation border-0 bg-transparent cursor-pointer" data-branch-id="' + t.branch_id + '" data-terminal-id="' + t.id + '">Generate key</button>'
-                    + '<button type="button" class="' + revokeClass + '" data-branch-id="' + t.branch_id + '" data-terminal-id="' + t.id + '"' + revokeDisabled + '>Revoke key</button>'
-                    + '<button type="button" class="terminal-delete block w-full text-left px-3 py-2 text-xs font-medium text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded transition-colors touch-manipulation border-0 bg-transparent cursor-pointer" data-branch-id="' + t.branch_id + '" data-terminal-id="' + t.id + '">Delete</button>'
-                    + '</div></div></td></tr>';
+                    + actionsMenuHtml
+                    + '</div></td></tr>';
             });
         });
         return html;
@@ -711,7 +718,16 @@
         menus.forEach(function (m) { m.classList.add('hidden'); });
     });
 
-    loadTerminals();
+    axios.get(apiBase + '/auth/me', authHeaders).then(function (r) {
+        var d = r.data && r.data.data ? r.data.data : r.data;
+        currentUserRole = (d && d.user && d.user.role) ? d.user.role : 'super_admin';
+        loadTerminals();
+        var addBtn = document.getElementById('terminal-add-btn');
+        if (addBtn && currentUserRole === 'admin') addBtn.style.display = 'none';
+    }).catch(function () {
+        currentUserRole = 'super_admin';
+        loadTerminals();
+    });
 
     var searchEl = document.getElementById('terminals-search');
     if (searchEl) searchEl.addEventListener('input', function () { renderRows(terminalsList); });

@@ -55,8 +55,11 @@ class SuperAdminMenuService
             return true; // no role = show all (e.g. before auth)
         }
 
-        if ($permission === self::MENU_TERMINALS || $permission === self::MENU_COMPANIES) {
+        if ($permission === self::MENU_COMPANIES) {
             return $role === 'super_admin';
+        }
+        if ($permission === self::MENU_TERMINALS) {
+            return in_array($role, ['super_admin', 'admin'], true);
         }
 
         $permissions = self::permissionsForRole($role);

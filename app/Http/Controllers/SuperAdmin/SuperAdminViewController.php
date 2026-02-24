@@ -70,7 +70,7 @@ class SuperAdminViewController extends Controller
 
     public function birSettings(): View
     {
-        return view('super-admin.pages.placeholder', ['title' => 'BIR Settings', 'breadcrumb' => 'BIR Settings', 'apiModule' => 'bir/settings']);
+        return view('super-admin.pages.bir-settings');
     }
 
     public function receipts(): View

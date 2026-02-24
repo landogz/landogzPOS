@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Models\BirSetting;
 use App\Models\Company;
 use App\Models\PendingSyncQueue;
 use App\Models\SyncLog;
@@ -86,6 +87,25 @@ class SyncService
         PendingSyncQueue::create([
             'model_type' => 'users',
             'record_id' => $user->id,
+            'action' => 'update',
+            'payload' => $payload,
+            'status' => PendingSyncQueue::STATUS_PENDING,
+        ]);
+    }
+
+    /**
+     * Enqueue BIR settings for sync to cloud (push). Call after update on /dashboard/bir-settings.
+     */
+    public function enqueueBirSetting(BirSetting $birSetting): void
+    {
+        if (env('SYNC_MODE') !== 'direct_db' || ! config('database.connections.mysql_cloud.host')) {
+            return;
+        }
+        $payload = $birSetting->getAttributes();
+        $this->normalizePayloadForSync($payload);
+        PendingSyncQueue::create([
+            'model_type' => 'bir_settings',
+            'record_id' => $birSetting->id,
             'action' => 'update',
             'payload' => $payload,
             'status' => PendingSyncQueue::STATUS_PENDING,
@@ -186,13 +206,13 @@ class SyncService
     {
         $host = config('database.connections.mysql_cloud.host');
         if (env('SYNC_MODE') !== 'direct_db' || ! $host) {
-            return ['companies' => 0, 'branches' => 0, 'users' => 0, 'terminals' => 0];
+            return ['companies' => 0, 'branches' => 0, 'bir_settings' => 0, 'users' => 0, 'terminals' => 0];
         }
 
         $cloud = DB::connection('mysql_cloud');
-        $counts = ['companies' => 0, 'branches' => 0, 'users' => 0, 'terminals' => 0];
+        $counts = ['companies' => 0, 'branches' => 0, 'bir_settings' => 0, 'users' => 0, 'terminals' => 0];
 
-        foreach (['companies', 'branches', 'users', 'terminals'] as $table) {
+        foreach (['companies', 'branches', 'bir_settings', 'users', 'terminals'] as $table) {
             try {
                 $rows = $cloud->table($table)->get();
                 $arr = $rows->map(fn ($r) => (array) $r)->toArray();

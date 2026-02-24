@@ -249,7 +249,7 @@ class AuthController extends Controller
     {
         $map = [
             'super_admin' => ['*'],
-            'admin' => ['dashboard', 'users', 'suppliers', 'products', 'categories', 'transactions', 'inventory', 'reports', 'branches', 'bir', 'receipts'],
+            'admin' => ['dashboard', 'users', 'suppliers', 'products', 'categories', 'transactions', 'inventory', 'reports', 'branches', 'receipts'],
             'manager' => ['dashboard', 'users', 'suppliers', 'products', 'categories', 'transactions', 'inventory', 'reports', 'receipts'],
             'inventory_manager' => ['products', 'inventory', 'reports', 'receipts', 'stock-levels', 'batches'],
             'pharmacist' => ['inventory'],

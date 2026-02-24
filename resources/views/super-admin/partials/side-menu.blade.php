@@ -4,6 +4,7 @@
     $current = $currentRoute ?? \Illuminate\Support\Facades\Route::currentRouteName();
     $reportsOpen = str_starts_with($current ?? '', 'dashboard.reports.');
     $productsOpen = ($current === 'dashboard.products' || $current === 'dashboard.categories');
+    $companiesBranchesTerminalsOpen = in_array($current, ['dashboard.companies', 'dashboard.branches', 'dashboard.terminals'], true);
     $can = fn(string $p) => SuperAdminMenuService::canAccess($menuRole ?? null, $p);
 @endphp
 <!-- BEGIN: Side Menu (filtered by JS from /auth/me when using API login) -->
@@ -32,14 +33,39 @@
                 <div class="side-menu__title">Chain</div>
             </a>
         </li>
-        {{-- Companies (super_admin only) --}}
-        <li data-menu-permission="companies">
-            <a href="{{ route('dashboard.companies') }}" class="side-menu {{ $current === 'dashboard.companies' ? 'side-menu--active' : '' }}">
+        {{-- Companies, Branches, Terminals (one dropdown) --}}
+        <li data-menu-permission="branches">
+            <a href="javascript:;" class="side-menu {{ $companiesBranchesTerminalsOpen ? 'side-menu--open' : '' }}">
                 <div class="side-menu__icon">
-                    <i data-lucide="building" class="stroke-1.5 w-5 h-5"></i>
+                    <i data-lucide="building-2" class="stroke-1.5 w-5 h-5"></i>
                 </div>
-                <div class="side-menu__title">Companies</div>
+                <div class="side-menu__title">
+                    Organization
+                    <div class="side-menu__sub-icon {{ $companiesBranchesTerminalsOpen ? 'transform rotate-180' : '' }}">
+                        <i data-lucide="chevron-down" class="stroke-1.5 w-5 h-5"></i>
+                    </div>
+                </div>
             </a>
+            <ul class="{{ $companiesBranchesTerminalsOpen ? 'side-menu__sub-open' : '' }}" style="{{ $companiesBranchesTerminalsOpen ? '' : 'display: none;' }}">
+                <li data-menu-permission="companies">
+                    <a href="{{ route('dashboard.companies') }}" class="side-menu {{ $current === 'dashboard.companies' ? 'side-menu--active' : '' }}">
+                        <div class="side-menu__icon"><i data-lucide="building" class="stroke-1.5 w-5 h-5"></i></div>
+                        <div class="side-menu__title">Companies</div>
+                    </a>
+                </li>
+                <li data-menu-permission="branches">
+                    <a href="{{ route('dashboard.branches') }}" class="side-menu {{ $current === 'dashboard.branches' ? 'side-menu--active' : '' }}">
+                        <div class="side-menu__icon"><i data-lucide="building-2" class="stroke-1.5 w-5 h-5"></i></div>
+                        <div class="side-menu__title">Branches</div>
+                    </a>
+                </li>
+                <li data-menu-permission="terminals">
+                    <a href="{{ route('dashboard.terminals') }}" class="side-menu {{ $current === 'dashboard.terminals' ? 'side-menu--active' : '' }}">
+                        <div class="side-menu__icon"><i data-lucide="monitor" class="stroke-1.5 w-5 h-5"></i></div>
+                        <div class="side-menu__title">Terminals</div>
+                    </a>
+                </li>
+            </ul>
         </li>
         {{-- Users --}}
         <li data-menu-permission="users">
@@ -204,24 +230,6 @@
                     </a>
                 </li>
             </ul>
-        </li>
-        {{-- Branches --}}
-        <li data-menu-permission="branches">
-            <a href="{{ route('dashboard.branches') }}" class="side-menu {{ $current === 'dashboard.branches' ? 'side-menu--active' : '' }}">
-                <div class="side-menu__icon">
-                    <i data-lucide="building-2" class="stroke-1.5 w-5 h-5"></i>
-                </div>
-                <div class="side-menu__title">Branches</div>
-            </a>
-        </li>
-        {{-- Terminals (super_admin only) --}}
-        <li data-menu-permission="terminals">
-            <a href="{{ route('dashboard.terminals') }}" class="side-menu {{ $current === 'dashboard.terminals' ? 'side-menu--active' : '' }}">
-                <div class="side-menu__icon">
-                    <i data-lucide="monitor" class="stroke-1.5 w-5 h-5"></i>
-                </div>
-                <div class="side-menu__title">Terminals</div>
-            </a>
         </li>
         <li class="my-6 side-nav__divider"></li>
         {{-- BIR Settings --}}

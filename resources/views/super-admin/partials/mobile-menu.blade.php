@@ -4,6 +4,7 @@
     $current = $currentRoute ?? \Illuminate\Support\Facades\Route::currentRouteName();
     $reportsOpen = str_starts_with($current ?? '', 'dashboard.reports.');
     $productsOpen = ($current === 'dashboard.products' || $current === 'dashboard.categories');
+    $companiesBranchesTerminalsOpen = in_array($current, ['dashboard.companies', 'dashboard.branches', 'dashboard.terminals'], true);
     $can = fn(string $p) => SuperAdminMenuService::canAccess($menuRole ?? null, $p);
 @endphp
 <!-- BEGIN: Mobile Menu -->
@@ -34,11 +35,19 @@
                     <div class="menu__title">Chain</div>
                 </a>
             </li>
-            <li data-menu-permission="companies">
-                <a class="menu {{ $current === 'dashboard.companies' ? 'menu--active' : '' }}" href="{{ route('dashboard.companies') }}">
-                    <div class="menu__icon"><i data-lucide="building" class="stroke-1.5 w-5 h-5"></i></div>
-                    <div class="menu__title">Companies</div>
+            <li data-menu-permission="branches">
+                <a class="menu" href="javascript:;">
+                    <div class="menu__icon"><i data-lucide="building-2" class="stroke-1.5 w-5 h-5"></i></div>
+                    <div class="menu__title">
+                        Organization
+                        <div class="menu__sub-icon {{ $companiesBranchesTerminalsOpen ? 'transform rotate-180' : '' }}"><i data-lucide="chevron-down" class="stroke-1.5 w-5 h-5"></i></div>
+                    </div>
                 </a>
+                <ul class="{{ $companiesBranchesTerminalsOpen ? 'menu__sub-open' : '' }}" style="{{ $companiesBranchesTerminalsOpen ? '' : 'display: none;' }}">
+                    <li data-menu-permission="companies"><a class="menu {{ $current === 'dashboard.companies' ? 'menu--active' : '' }}" href="{{ route('dashboard.companies') }}"><div class="menu__icon"><i data-lucide="building" class="stroke-1.5 w-5 h-5"></i></div><div class="menu__title">Companies</div></a></li>
+                    <li data-menu-permission="branches"><a class="menu {{ $current === 'dashboard.branches' ? 'menu--active' : '' }}" href="{{ route('dashboard.branches') }}"><div class="menu__icon"><i data-lucide="building-2" class="stroke-1.5 w-5 h-5"></i></div><div class="menu__title">Branches</div></a></li>
+                    <li data-menu-permission="terminals"><a class="menu {{ $current === 'dashboard.terminals' ? 'menu--active' : '' }}" href="{{ route('dashboard.terminals') }}"><div class="menu__icon"><i data-lucide="monitor" class="stroke-1.5 w-5 h-5"></i></div><div class="menu__title">Terminals</div></a></li>
+                </ul>
             </li>
             <li data-menu-permission="users">
                 <a class="menu {{ $current === 'dashboard.users' ? 'menu--active' : '' }}" href="{{ route('dashboard.users') }}">
@@ -100,18 +109,6 @@
                     <li><a class="menu {{ $current === 'dashboard.reports.vat-summary' ? 'menu--active' : '' }}" href="{{ route('dashboard.reports.vat-summary') }}"><div class="menu__icon"><i data-lucide="activity" class="stroke-1.5 w-5 h-5"></i></div><div class="menu__title">VAT Summary</div></a></li>
                     <li><a class="menu {{ $current === 'dashboard.reports.consolidated' ? 'menu--active' : '' }}" href="{{ route('dashboard.reports.consolidated') }}"><div class="menu__icon"><i data-lucide="activity" class="stroke-1.5 w-5 h-5"></i></div><div class="menu__title">Consolidated</div></a></li>
                 </ul>
-            </li>
-            <li data-menu-permission="branches">
-                <a class="menu {{ $current === 'dashboard.branches' ? 'menu--active' : '' }}" href="{{ route('dashboard.branches') }}">
-                    <div class="menu__icon"><i data-lucide="building-2" class="stroke-1.5 w-5 h-5"></i></div>
-                    <div class="menu__title">Branches</div>
-                </a>
-            </li>
-            <li data-menu-permission="terminals">
-                <a class="menu {{ $current === 'dashboard.terminals' ? 'menu--active' : '' }}" href="{{ route('dashboard.terminals') }}">
-                    <div class="menu__icon"><i data-lucide="monitor" class="stroke-1.5 w-5 h-5"></i></div>
-                    <div class="menu__title">Terminals</div>
-                </a>
             </li>
             <li class="menu__divider my-6"></li>
             <li data-menu-permission="bir">

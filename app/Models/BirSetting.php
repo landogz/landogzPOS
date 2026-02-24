@@ -10,8 +10,9 @@ class BirSetting extends Model
     protected $table = 'bir_settings';
 
     protected $fillable = [
-        'branch_id', 'tin', 'accreditation_number',
-        'series_start', 'series_end', 'valid_from', 'valid_until', 'footer_text',
+        'branch_id', 'provider_name', 'provider_address',
+        'tin', 'accreditation_number', 'series_start', 'series_end',
+        'valid_from', 'valid_until', 'ptu_number', 'validity_statement', 'footer_text',
     ];
 
     protected $casts = [

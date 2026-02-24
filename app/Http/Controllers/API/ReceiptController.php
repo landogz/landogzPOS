@@ -33,8 +33,12 @@ class ReceiptController extends Controller
             'or_number' => $transaction->or_number,
             'pharmacy_name' => $transaction->branch?->company?->name ?? $transaction->branch?->name ?? config('app.name'),
             'address' => $transaction->branch?->address,
+            'pos_system_provider' => $bir?->provider_name,
+            'provider_address' => $bir?->provider_address,
             'tin' => $bir?->tin ?? $transaction->officialReceipt?->tin,
             'bir_accreditation_number' => $bir?->accreditation_number ?? $transaction->officialReceipt?->bir_accreditation,
+            'ptu_number' => $bir?->ptu_number,
+            'validity_statement' => $bir?->validity_statement,
             'validity' => $bir ? [$bir->valid_from?->format('Y-m-d'), $bir->valid_until?->format('Y-m-d')] : null,
             'items' => $transaction->items->map(fn ($i) => [
                 'product_name' => $i->product?->name,

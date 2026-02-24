@@ -113,7 +113,11 @@ document.addEventListener('DOMContentLoaded', function() {
                 document.querySelectorAll('[data-menu-permission]').forEach(function(el) {
                     var p = el.getAttribute('data-menu-permission');
                     var show = false;
-                    if (p === 'terminals' || p === 'companies') {
+                    if (p === 'companies') {
+                        show = role === 'super_admin';
+                    } else if (p === 'terminals') {
+                        show = role === 'super_admin' || role === 'admin';
+                    } else if (p === 'bir') {
                         show = role === 'super_admin';
                     } else if (permissions.indexOf('*') >= 0) {
                         show = true;
