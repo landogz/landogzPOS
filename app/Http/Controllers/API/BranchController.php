@@ -59,6 +59,8 @@ class BranchController extends Controller
             'company_id' => 'required|exists:companies,id',
             'name' => 'required|string|max:255',
             'address' => 'nullable|string',
+            'latitude' => 'nullable|numeric|between:-90,90',
+            'longitude' => 'nullable|numeric|between:-180,180',
             'tin' => 'nullable|string|max:50',
             'bir_series_start' => 'nullable|string|max:50',
             'bir_series_end' => 'nullable|string|max:50',
@@ -76,7 +78,7 @@ class BranchController extends Controller
         }
         $branch = Branch::create($validated);
         $branch->load('company');
-        AuditLogService::log('created', 'branches', (int) $branch->id, null, $branch->only(['company_id', 'name', 'address', 'is_active']), $request, $branch->id, $user->id);
+        AuditLogService::log('created', 'branches', (int) $branch->id, null, $branch->only(['company_id', 'name', 'address', 'latitude', 'longitude', 'is_active']), $request, $branch->id, $user->id);
         return response()->json([
             'status' => 'success',
             'message' => 'Branch created.',
@@ -99,15 +101,17 @@ class BranchController extends Controller
         $validated = $request->validate([
             'name' => 'sometimes|string|max:255',
             'address' => 'nullable|string',
+            'latitude' => 'nullable|numeric|between:-90,90',
+            'longitude' => 'nullable|numeric|between:-180,180',
             'tin' => 'nullable|string|max:50',
             'bir_series_start' => 'nullable|string|max:50',
             'bir_series_end' => 'nullable|string|max:50',
             'is_active' => 'nullable|boolean',
         ]);
-        $old = $branch->only(['name', 'address', 'tin', 'is_active']);
+        $old = $branch->only(['name', 'address', 'latitude', 'longitude', 'tin', 'is_active']);
         $branch->update($validated);
         $branch->load('company');
-        AuditLogService::log('updated', 'branches', (int) $branch->id, $old, $branch->only(['name', 'address', 'tin', 'is_active']), $request, $branch->id);
+        AuditLogService::log('updated', 'branches', (int) $branch->id, $old, $branch->only(['name', 'address', 'latitude', 'longitude', 'tin', 'is_active']), $request, $branch->id);
         return response()->json(['status' => 'success', 'message' => 'Branch updated.', 'data' => $branch]);
     }
 

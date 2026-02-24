@@ -43,6 +43,22 @@
     .modal-backdrop-pulse {
         animation: modal-backdrop-pulse 0.25s ease-out;
     }
+
+    /* Success/error toast: below nav bar with breathing room from top and right */
+    .toastify {
+        top: 5.5rem !important;
+        right: 1.5rem !important;
+    }
+
+    /* BIR PTU expiry warning: subtle amber so it reads as a real warning, not just another row */
+    .bir-ptu-expiry-banner {
+        background-color: #fffbeb;
+        border-color: #f59e0b;
+    }
+    .dark .bir-ptu-expiry-banner {
+        background-color: rgba(245, 158, 11, 0.12);
+        border-color: #b45309;
+    }
 }
 
 @keyframes modal-backdrop-pulse {

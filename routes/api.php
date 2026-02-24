@@ -39,6 +39,8 @@ Route::prefix('v1')->middleware(['auth:sanctum'])->group(function () {
     Route::get('dashboard/expiring-soon', [\App\Http\Controllers\API\DashboardController::class, 'expiringSoon']);
     Route::get('dashboard/sales-today', [\App\Http\Controllers\API\DashboardController::class, 'salesToday']);
     Route::get('dashboard/branch-overview', [\App\Http\Controllers\API\DashboardController::class, 'branchOverview']);
+    Route::get('geocode/reverse', [\App\Http\Controllers\API\GeocodeController::class, 'reverse'])->middleware('throttle:30,1');
+    Route::get('geocode', [\App\Http\Controllers\API\GeocodeController::class, '__invoke'])->middleware('throttle:30,1');
     // BIR & Receipts (1st prompt)
     Route::get('bir/settings', [\App\Http\Controllers\API\BirSettingsController::class, 'index']);
     Route::put('bir/settings', [\App\Http\Controllers\API\BirSettingsController::class, 'update']);

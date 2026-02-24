@@ -3,6 +3,10 @@
 @section('title', 'Branches')
 @section('breadcrumb', 'Branches')
 
+@push('styles')
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="">
+@endpush
+
 @section('content')
     <div class="intro-y mt-6 sm:mt-10 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between">
         <h2 class="text-base font-semibold text-slate-800 dark:text-slate-100 sm:text-lg">Branches</h2>
@@ -87,9 +91,21 @@
                 </div>
                 <div>
                     <label for="branch-address" class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">Address</label>
-                    <textarea id="branch-address" name="address" rows="2"
-                        class="w-full rounded-lg border border-slate-200 dark:border-darkmode-500 bg-white dark:bg-darkmode-700 px-4 py-2.5 text-slate-800 dark:text-slate-200 placeholder-slate-400 dark:placeholder-slate-500 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition resize-none"
-                        placeholder="Street, city, region"></textarea>
+                    <div class="flex gap-2">
+                        <textarea id="branch-address" name="address" rows="2"
+                            class="flex-1 min-w-0 rounded-lg border border-slate-200 dark:border-darkmode-500 bg-white dark:bg-darkmode-700 px-4 py-2.5 text-slate-800 dark:text-slate-200 placeholder-slate-400 dark:placeholder-slate-500 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition resize-none"
+                            placeholder="Street, city, region"></textarea>
+                        <button type="button" id="branch-detect-location-btn" class="flex-shrink-0 self-end inline-flex items-center gap-1.5 rounded-lg border border-slate-200 dark:border-darkmode-500 bg-white dark:bg-darkmode-700 px-3 py-2.5 text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-darkmode-600 focus:ring-2 focus:ring-primary/20 outline-none transition min-h-[44px] sm:min-h-0" title="Detect latitude/longitude from address">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 2v4"/><path d="M12 18v4"/><path d="m4.93 4.93 2.83 2.83"/><path d="m16.24 16.24 2.83 2.83"/><path d="M2 12h4"/><path d="M18 12h4"/><path d="m4.93 19.07 2.83-2.83"/><path d="m16.24 7.76 2.83-2.83"/></svg>
+                            Detect location
+                        </button>
+                    </div>
+                    <input type="hidden" id="branch-latitude" name="latitude" value="">
+                    <input type="hidden" id="branch-longitude" name="longitude" value="">
+                </div>
+                <div id="branch-map-wrap" class="rounded-lg border border-slate-200 dark:border-darkmode-500 overflow-hidden bg-slate-100 dark:bg-darkmode-600" style="display: none;">
+                    <p class="text-xs text-slate-500 dark:text-slate-400 px-3 py-2 border-b border-slate-200 dark:border-darkmode-500">Pin location — click map or drag pin to set; address updates automatically</p>
+                    <div id="branch-modal-map" class="h-48 w-full z-0"></div>
                 </div>
                 <div>
                     <label for="branch-tin" class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">TIN</label>
@@ -119,6 +135,7 @@
 @endpush
 
 @push('scripts')
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
 <script src="{{ $midoneBase ?? asset('midone-html.vercel.app') }}/dist/js/vendors/modal.js"></script>
 <script>
 (function () {
@@ -465,6 +482,60 @@
     }
     document.addEventListener('click', function () { document.querySelectorAll('.branch-dropdown-menu').forEach(function (m) { m.classList.add('hidden'); }); });
 
+    var branchModalMap = null;
+    var branchModalMarker = null;
+
+    function updateAddressFromCoords(lat, lng) {
+        document.getElementById('branch-latitude').value = lat;
+        document.getElementById('branch-longitude').value = lng;
+        axios.get(apiBase + '/geocode/reverse', { params: { latitude: lat, longitude: lng }, headers: { Authorization: 'Bearer ' + (getToken() || ''), Accept: 'application/json', 'X-Requested-With': 'XMLHttpRequest' } })
+            .then(function (r) {
+                var addr = (r.data && r.data.data && r.data.data.address) ? r.data.data.address : '';
+                if (addr) document.getElementById('branch-address').value = addr;
+            })
+            .catch(function () {});
+    }
+
+    function updateBranchMapPin(lat, lng) {
+        var wrap = document.getElementById('branch-map-wrap');
+        var mapEl = document.getElementById('branch-modal-map');
+        if (!mapEl || typeof L === 'undefined') return;
+        if (lat == null || lng == null || isNaN(lat) || isNaN(lng)) {
+            if (branchModalMarker) { if (branchModalMap) branchModalMap.removeLayer(branchModalMarker); branchModalMarker = null; }
+            if (wrap) wrap.style.display = 'none';
+            return;
+        }
+        lat = parseFloat(lat);
+        lng = parseFloat(lng);
+        if (!branchModalMap) {
+            branchModalMap = L.map(mapEl, { center: [lat, lng], zoom: 14, scrollWheelZoom: true });
+            L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '&copy; OpenStreetMap contributors', maxZoom: 19 }).addTo(branchModalMap);
+            branchModalMap.on('click', function (e) {
+                var ll = e.latlng;
+                document.getElementById('branch-latitude').value = ll.lat;
+                document.getElementById('branch-longitude').value = ll.lng;
+                if (branchModalMarker) branchModalMarker.setLatLng(ll); else branchModalMarker = L.marker(ll, { draggable: true }).addTo(branchModalMap);
+                updateAddressFromCoords(ll.lat, ll.lng);
+            });
+        }
+        if (branchModalMarker) branchModalMap.removeLayer(branchModalMarker);
+        branchModalMarker = L.marker([lat, lng], { draggable: true }).addTo(branchModalMap);
+        branchModalMarker.on('dragend', function () {
+            var ll = branchModalMarker.getLatLng();
+            updateAddressFromCoords(ll.lat, ll.lng);
+        });
+        branchModalMap.setView([lat, lng], branchModalMap.getZoom());
+        if (wrap) wrap.style.display = 'block';
+        setTimeout(function () { if (branchModalMap && branchModalMap.invalidateSize) branchModalMap.invalidateSize(); }, 150);
+    }
+    function clearBranchMapPin() {
+        document.getElementById('branch-latitude').value = '';
+        document.getElementById('branch-longitude').value = '';
+        if (branchModalMarker && branchModalMap) { branchModalMap.removeLayer(branchModalMarker); branchModalMarker = null; }
+        var wrap = document.getElementById('branch-map-wrap');
+        if (wrap) wrap.style.display = 'none';
+    }
+
     function openAdd() {
         document.getElementById('branch-id').value = '';
         var urlCompany = getCompanyIdFromUrl();
@@ -473,6 +544,7 @@
         document.getElementById('branch-tin').value = '';
         document.getElementById('branch-bir-start').value = '';
         document.getElementById('branch-bir-end').value = '';
+        clearBranchMapPin();
         var companySelect = document.getElementById('branch-company-id');
         companySelect.innerHTML = '<option value="">Select company</option>' + companiesList.map(function (c) { return '<option value="' + c.id + '">' + escapeHtml(c.name || '') + '</option>'; }).join('');
         companySelect.disabled = false;
@@ -489,6 +561,15 @@
         document.getElementById('branch-tin').value = b.tin || '';
         document.getElementById('branch-bir-start').value = b.bir_series_start || '';
         document.getElementById('branch-bir-end').value = b.bir_series_end || '';
+        var lat = b.latitude != null ? b.latitude : '';
+        var lng = b.longitude != null ? b.longitude : '';
+        document.getElementById('branch-latitude').value = lat;
+        document.getElementById('branch-longitude').value = lng;
+        if (lat !== '' && lng !== '') {
+            setTimeout(function() { updateBranchMapPin(lat, lng); }, 100);
+        } else {
+            clearBranchMapPin();
+        }
         var companySelect = document.getElementById('branch-company-id');
         companySelect.innerHTML = '<option value="">Select company</option>' + companiesList.map(function (c) { return '<option value="' + c.id + '">' + escapeHtml(c.name || '') + '</option>'; }).join('');
         companySelect.value = companyIdVal;
@@ -533,7 +614,11 @@
         var name = document.getElementById('branch-name').value.trim();
         if (!companyId) { Swal.fire({ icon: 'warning', title: 'Required', text: 'Please select a company.' }); return; }
         if (!name) { Swal.fire({ icon: 'warning', title: 'Required', text: 'Branch name is required.' }); return; }
+        var latVal = document.getElementById('branch-latitude').value.trim();
+        var lngVal = document.getElementById('branch-longitude').value.trim();
         var payload = { name: name, address: document.getElementById('branch-address').value.trim(), tin: document.getElementById('branch-tin').value.trim(), bir_series_start: document.getElementById('branch-bir-start').value.trim(), bir_series_end: document.getElementById('branch-bir-end').value.trim() };
+        if (latVal) payload.latitude = parseFloat(latVal);
+        if (lngVal) payload.longitude = parseFloat(lngVal);
         if (!branchId) payload.company_id = parseInt(companyId, 10);
         submitBtn.disabled = true;
         var promise = branchId ? axios.put(apiBase + '/branches/' + branchId, payload, authHeaders()) : axios.post(apiBase + '/branches', payload, authHeaders());
@@ -543,6 +628,39 @@
     });
 
     document.getElementById('branches-add-btn').addEventListener('click', openAdd);
+
+    var detectLocationBtn = document.getElementById('branch-detect-location-btn');
+    if (detectLocationBtn) {
+        detectLocationBtn.addEventListener('click', function () {
+            var address = document.getElementById('branch-address').value.trim();
+            if (!address) {
+                Swal.fire({ icon: 'info', title: 'Address needed', text: 'Enter an address first, then click Detect location.' });
+                return;
+            }
+            if (!getToken()) { Swal.fire({ icon: 'warning', title: 'Login required', text: 'Please log in.' }); return; }
+            detectLocationBtn.disabled = true;
+            axios.get(apiBase + '/geocode', { params: { address: address }, headers: { Authorization: 'Bearer ' + (getToken() || ''), Accept: 'application/json', 'X-Requested-With': 'XMLHttpRequest' } })
+                .then(function (r) {
+                    var d = r.data && r.data.data ? r.data.data : (r.data && (r.data.lat !== undefined || r.data.latitude !== undefined) ? r.data : null);
+                    var lat = (d && (d.lat !== undefined || d.latitude !== undefined)) ? (d.lat ?? d.latitude) : null;
+                    var lng = (d && (d.lon !== undefined || d.lng !== undefined || d.longitude !== undefined)) ? (d.lon ?? d.lng ?? d.longitude) : null;
+                    if (lat != null && lng != null && !isNaN(lat) && !isNaN(lng)) {
+                        document.getElementById('branch-latitude').value = lat;
+                        document.getElementById('branch-longitude').value = lng;
+                        updateBranchMapPin(lat, lng);
+                        showToastNotification('success', 'Location detected', 'Coordinates set from address.');
+                    } else {
+                        Swal.fire({ icon: 'warning', title: 'Not found', text: 'Could not find coordinates for this address. Try a more specific address.' });
+                    }
+                })
+                .catch(function (err) {
+                    var msg = (err.response && err.response.data && err.response.data.message) || 'Geocoding failed.';
+                    showToastNotification('error', 'Error', msg);
+                })
+                .finally(function () { detectLocationBtn.disabled = false; });
+        });
+    }
+
     companyFilter.addEventListener('change', loadBranches);
     statusFilter.addEventListener('change', loadBranches);
     searchInput.addEventListener('input', function () { if (searchInput._timer) clearTimeout(searchInput._timer); searchInput._timer = setTimeout(loadBranches, 300); });

@@ -55,9 +55,11 @@ class DashboardController extends Controller
             ->where('expiry_date', '<=', now()->addDays(90))
             ->when($scope !== null, fn ($q) => $q->whereHas('product', fn ($p) => $p->whereIn('branch_id', $scope)))
             ->count();
+        $user = $request->user();
         return response()->json([
             'status' => 'success',
             'data' => [
+                'role' => $user?->role ?? null,
                 'sales_today' => (float) $salesToday,
                 'transaction_count' => $transactionCount,
                 'low_stock_count' => $lowStockCount,
