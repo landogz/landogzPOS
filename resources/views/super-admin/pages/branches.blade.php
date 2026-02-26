@@ -66,6 +66,14 @@
         <div id="branches-list-content"></div>
     </div>
 
+    <div id="branches-pagination" class="intro-y mt-4 hidden flex flex-wrap items-center justify-between gap-3 border-t border-slate-200 dark:border-darkmode-600 pt-4">
+        <p id="branches-pagination-info" class="text-sm text-slate-500 dark:text-slate-400"></p>
+        <div class="flex items-center gap-2">
+            <button type="button" id="branches-prev-btn" class="px-3 py-2 rounded-lg border border-slate-200 dark:border-darkmode-500 bg-white dark:bg-darkmode-700 text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-darkmode-600 disabled:opacity-50 disabled:pointer-events-none transition-colors">Previous</button>
+            <button type="button" id="branches-next-btn" class="px-3 py-2 rounded-lg border border-slate-200 dark:border-darkmode-500 bg-white dark:bg-darkmode-700 text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-darkmode-600 disabled:opacity-50 disabled:pointer-events-none transition-colors">Next</button>
+        </div>
+    </div>
+
     <div id="branches-empty" class="intro-y mt-6 hidden text-center py-16 text-slate-400 dark:text-slate-500">
         <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="mx-auto mb-3 opacity-40"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
         <p class="text-sm">No branches found.</p>
@@ -74,7 +82,7 @@
 
 @push('modals')
     <x-modal id="branch-modal" title="Add Branch" title-id="branch-modal-title" size="xl">
-        <form id="branch-form">
+        <form id="branch-form" class="overflow-y-auto max-h-[calc(100vh-10rem)]">
             <input type="hidden" id="branch-id" name="branch_id" value="">
             <div class="px-4 sm:px-6 md:px-8 py-4 sm:py-6 space-y-6">
                 <div>
@@ -166,6 +174,8 @@
     var currentBranchesList = [];
     var currentView = localStorage.getItem('branches_view') || 'grid';
     var currentUserRole = '';
+    var branchesCurrentPage = 1;
+    var branchesPerPage = 25;
 
     function getToken() { return localStorage.getItem('super_admin_token'); }
     function authHeaders() { return { headers: { Authorization: 'Bearer ' + (getToken() || ''), Accept: 'application/json', 'X-Requested-With': 'XMLHttpRequest' } }; }
@@ -201,11 +211,18 @@
         var byId = {};
         list.forEach(function (b) {
             var cid = b.company_id || (b.company && b.company.id) || 0;
-            if (!byId[cid]) byId[cid] = { company: b.company || {}, company_id: cid, company_name: (b.company && b.company.name) ? b.company.name : '—', branches: [] };
+            var cname = (b.company && b.company.name) ? b.company.name : null;
+            if (!byId[cid]) byId[cid] = { company: b.company || {}, company_id: cid, company_name: cname || '—', branches: [] };
             byId[cid].branches.push(b);
         });
         var groups = Object.keys(byId).map(function (k) { return byId[k]; });
-        groups.forEach(function (g) { g.branches = sortBranchesForDisplay(g.branches); });
+        groups.forEach(function (g) {
+            g.branches = sortBranchesForDisplay(g.branches);
+            if (g.company_name === '—' && g.company_id && companiesList && companiesList.length) {
+                var c = companiesList.find(function (c) { return String(c.id) === String(g.company_id); });
+                if (c && c.name) g.company_name = c.name;
+            }
+        });
         groups.sort(function (a, b) { return (a.company_name || '').localeCompare(b.company_name || ''); });
         return groups;
     }
@@ -242,6 +259,10 @@
     setView(currentView);
     gridBtn.addEventListener('click', function () { setView('grid'); });
     listBtn.addEventListener('click', function () { setView('list'); });
+    var prevBtn = document.getElementById('branches-prev-btn');
+    var nextBtn = document.getElementById('branches-next-btn');
+    if (prevBtn) prevBtn.addEventListener('click', function () { if (branchesCurrentPage > 1) { branchesCurrentPage--; renderBranches(currentBranchesList); } });
+    if (nextBtn) nextBtn.addEventListener('click', function () { var total = (currentBranchesList && currentBranchesList.length) ? currentBranchesList.length : 0; var totalPages = Math.max(1, Math.ceil(total / branchesPerPage)); if (branchesCurrentPage < totalPages) { branchesCurrentPage++; renderBranches(currentBranchesList); } });
 
     function runInitialLoad() {
         if (!getToken()) { loadCompanies(); return; }
@@ -273,6 +294,7 @@
     }
 
     function loadBranches() {
+        branchesCurrentPage = 1;
         if (!getToken()) { summaryText.textContent = 'Please log in.'; grid.innerHTML = ''; if (listContent) listContent.innerHTML = ''; empty.classList.remove('hidden'); return; }
         var companyId = companyFilter.value;
         var status = statusFilter.value;
@@ -348,16 +370,37 @@
     }
 
     function renderBranches(list) {
+        var total = (list && list.length) ? list.length : 0;
+        var totalPages = Math.max(1, Math.ceil(total / branchesPerPage));
+        if (branchesCurrentPage > totalPages) branchesCurrentPage = totalPages;
+        var start = (branchesCurrentPage - 1) * branchesPerPage;
+        var pageList = (list || []).slice(start, start + branchesPerPage);
+
+        var paginationEl = document.getElementById('branches-pagination');
+        var paginationInfo = document.getElementById('branches-pagination-info');
+        var prevBtn = document.getElementById('branches-prev-btn');
+        var nextBtn = document.getElementById('branches-next-btn');
+        if (totalPages > 1 && total > 0) {
+            if (paginationEl) paginationEl.classList.remove('hidden');
+            var end = Math.min(start + branchesPerPage, total);
+            if (paginationInfo) paginationInfo.textContent = 'Showing ' + (start + 1) + '\u2013' + end + ' of ' + total + ' branches';
+            if (prevBtn) { prevBtn.disabled = branchesCurrentPage <= 1; }
+            if (nextBtn) { nextBtn.disabled = branchesCurrentPage >= totalPages; }
+        } else {
+            if (paginationEl) paginationEl.classList.add('hidden');
+        }
+
         var isGrid = currentView === 'grid';
         if (isGrid) {
             grid.innerHTML = '';
-            var groups = groupBranchesByCompany(list);
+            var groups = groupBranchesByCompany(pageList);
             groups.forEach(function (grp) {
                 var companyId = grp.company_id;
                 var companyName = escapeHtml(grp.company_name || '—');
                 var branchCount = grp.branches.length;
                 var activeCount = grp.branches.filter(function (b) { return b.is_active !== false; }).length;
                 var statusLabel = activeCount === branchCount ? 'active' : activeCount + ' active';
+                var companyBranchLabel = (grp.company_name || '—') + ' ' + branchCount + ' branch' + (branchCount !== 1 ? 'es' : '') + ' · ' + statusLabel;
                 var sectionId = 'accordion-company-' + (companyId || 'none');
                 var borderColorAcc = companyBorderColor(companyId);
                 var previewBadges = grp.branches.slice(0, 8).map(function (b, i) { return '<span class="inline-flex h-6 w-6 items-center justify-center rounded-md text-[10px] font-bold text-white flex-shrink-0" style="background:' + borderColorAcc + '">' + branchBadge(i) + '</span>'; }).join('');
@@ -366,10 +409,10 @@
                 section.className = 'branches-accordion-section col-span-12 intro-y';
                 section.innerHTML =
                     '<div class="rounded-xl border border-slate-200 dark:border-darkmode-500 bg-slate-50/50 dark:bg-darkmode-700/30 overflow-hidden border-l-4 border-l-indigo-500">'
-                    + '<button type="button" class="branches-accordion-btn w-full flex items-center justify-between gap-3 px-4 sm:px-5 py-3 sm:py-3.5 text-left font-semibold text-slate-800 dark:text-slate-100 hover:bg-slate-100/80 dark:hover:bg-darkmode-600/50 transition-colors" aria-expanded="true" aria-controls="' + sectionId + '" data-target="' + sectionId + '">'
-                    +   '<span class="flex items-center gap-2 min-w-0">'
+                    + '<button type="button" class="branches-accordion-btn w-full flex items-center justify-between gap-3 px-4 sm:px-5 py-3 sm:py-3.5 text-left font-semibold text-slate-800 dark:text-slate-100 hover:bg-slate-100/80 dark:hover:bg-darkmode-600/50 transition-colors" aria-expanded="true" aria-controls="' + sectionId + '" data-target="' + sectionId + '" title="' + escapeHtml(companyBranchLabel) + '">'
+                    +   '<span class="flex items-center gap-2 min-w-0 flex-1">'
                     +     '<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="branches-accordion-chevron text-slate-500 dark:text-slate-400 transition-transform flex-shrink-0" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg>'
-                    +     '<span class="truncate">' + companyName + ' <span class="text-xs font-medium text-slate-500 dark:text-slate-400">' + branchCount + ' branch' + (branchCount !== 1 ? 'es' : '') + ' · ' + statusLabel + '</span></span>'
+                    +     '<span class="truncate min-w-0">' + companyName + ' <span class="text-xs font-medium text-slate-500 dark:text-slate-400">' + branchCount + ' branch' + (branchCount !== 1 ? 'es' : '') + ' · ' + statusLabel + '</span></span>'
                     +   '</span>'
                     +   '<span class="flex items-center gap-1 flex-shrink-0">' + previewBadges + '</span>'
                     + '</button>'
@@ -398,7 +441,7 @@
             });
         } else {
             listContent.innerHTML = '';
-            var listGroups = groupBranchesByCompany(list);
+            var listGroups = groupBranchesByCompany(pageList);
             var tableHeader = '<thead><tr class="border-b border-slate-200/60 dark:border-darkmode-400 bg-slate-50/60 dark:bg-darkmode-700/40">'
                 + '<th class="py-3 pl-5 pr-3 text-left font-semibold text-slate-600 dark:text-slate-400 w-12">#</th>'
                 + '<th class="py-3 px-3 text-left font-semibold text-slate-600 dark:text-slate-400">Branch</th>'
@@ -413,6 +456,7 @@
                 var branchCount = grp.branches.length;
                 var activeCount = grp.branches.filter(function (b) { return b.is_active !== false; }).length;
                 var statusLabel = activeCount === branchCount ? 'active' : activeCount + ' active';
+                var companyBranchLabelList = (grp.company_name || '—') + ' ' + branchCount + ' branch' + (branchCount !== 1 ? 'es' : '') + ' · ' + statusLabel;
                 var sectionId = 'list-accordion-company-' + (companyId || 'none');
                 var borderColorList = companyBorderColor(companyId);
                 var listPreviewBadges = grp.branches.slice(0, 8).map(function (b, i) { return '<span class="inline-flex h-6 w-6 items-center justify-center rounded-md text-[10px] font-bold text-white flex-shrink-0" style="background:' + borderColorList + '">' + branchBadge(i) + '</span>'; }).join('');
@@ -421,10 +465,10 @@
                 section.className = 'branches-list-accordion-section intro-y mb-4 last:mb-0';
                 section.innerHTML =
                     '<div class="rounded-xl border border-slate-200 dark:border-darkmode-500 bg-slate-50/50 dark:bg-darkmode-700/30 overflow-hidden border-l-4 border-l-indigo-500">'
-                    + '<button type="button" class="branches-list-accordion-btn w-full flex items-center justify-between gap-3 px-4 sm:px-5 py-3 sm:py-3.5 text-left font-semibold text-slate-800 dark:text-slate-100 hover:bg-slate-100/80 dark:hover:bg-darkmode-600/50 transition-colors" aria-expanded="true" aria-controls="' + sectionId + '" data-target="' + sectionId + '">'
-                    +   '<span class="flex items-center gap-2 min-w-0">'
+                    + '<button type="button" class="branches-list-accordion-btn w-full flex items-center justify-between gap-3 px-4 sm:px-5 py-3 sm:py-3.5 text-left font-semibold text-slate-800 dark:text-slate-100 hover:bg-slate-100/80 dark:hover:bg-darkmode-600/50 transition-colors" aria-expanded="true" aria-controls="' + sectionId + '" data-target="' + sectionId + '" title="' + escapeHtml(companyBranchLabelList) + '">'
+                    +   '<span class="flex items-center gap-2 min-w-0 flex-1">'
                     +     '<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="branches-list-accordion-chevron text-slate-500 dark:text-slate-400 transition-transform flex-shrink-0"><polyline points="6 9 12 15 18 9"/></svg>'
-                    +     '<span class="truncate">' + companyName + ' <span class="text-xs font-medium text-slate-500 dark:text-slate-400">' + branchCount + ' branch' + (branchCount !== 1 ? 'es' : '') + ' · ' + statusLabel + '</span></span>'
+                    +     '<span class="truncate min-w-0">' + companyName + ' <span class="text-xs font-medium text-slate-500 dark:text-slate-400">' + branchCount + ' branch' + (branchCount !== 1 ? 'es' : '') + ' · ' + statusLabel + '</span></span>'
                     +   '</span>'
                     +   '<span class="flex items-center gap-1 flex-shrink-0">' + listPreviewBadges + '</span>'
                     + '</button>'

@@ -33,21 +33,36 @@ class DashboardController extends Controller
     }
 
     /**
-     * GET /api/v1/dashboard/summary — today's sales, transaction count, low-stock count, expiring count.
+     * GET /api/v1/dashboard/summary — sales, transaction count, low-stock, expiring.
+     * Query: period=today|week|month (default today). Returns current + previous period for trend.
      */
     public function summary(Request $request): JsonResponse
     {
+        $period = $request->query('period', 'today');
         $scope = $this->branchScope($request->user());
-        $salesToday = Transaction::query()
+        [$start, $end, $prevStart, $prevEnd] = $this->periodRanges($period);
+
+        $salesCurrent = Transaction::query()
             ->where('status', 'completed')
             ->when($scope !== null, fn ($q) => $q->whereIn('branch_id', $scope))
-            ->whereDate('created_at', today())
+            ->whereBetween('created_at', [$start, $end])
+            ->sum('total');
+        $salesPrev = Transaction::query()
+            ->where('status', 'completed')
+            ->when($scope !== null, fn ($q) => $q->whereIn('branch_id', $scope))
+            ->whereBetween('created_at', [$prevStart, $prevEnd])
             ->sum('total');
         $transactionCount = Transaction::query()
             ->where('status', 'completed')
             ->when($scope !== null, fn ($q) => $q->whereIn('branch_id', $scope))
-            ->whereDate('created_at', today())
+            ->whereBetween('created_at', [$start, $end])
             ->count();
+        $transactionCountPrev = Transaction::query()
+            ->where('status', 'completed')
+            ->when($scope !== null, fn ($q) => $q->whereIn('branch_id', $scope))
+            ->whereBetween('created_at', [$prevStart, $prevEnd])
+            ->count();
+
         $lowStockCount = $this->lowStockItems($scope)->count();
         $expiringCount = ProductBatch::query()
             ->where('quantity', '>', 0)
@@ -55,17 +70,53 @@ class DashboardController extends Controller
             ->where('expiry_date', '<=', now()->addDays(90))
             ->when($scope !== null, fn ($q) => $q->whereHas('product', fn ($p) => $p->whereIn('branch_id', $scope)))
             ->count();
+
+        $salesTrend = $salesPrev > 0 ? round((($salesCurrent - $salesPrev) / $salesPrev) * 100, 1) : ($salesCurrent > 0 ? 100 : 0);
+        $transactionTrend = $transactionCountPrev > 0 ? round((($transactionCount - $transactionCountPrev) / $transactionCountPrev) * 100, 1) : ($transactionCount > 0 ? 100 : 0);
+
         $user = $request->user();
         return response()->json([
             'status' => 'success',
             'data' => [
                 'role' => $user?->role ?? null,
-                'sales_today' => (float) $salesToday,
+                'period' => $period,
+                'sales' => (float) $salesCurrent,
+                'sales_today' => (float) $salesCurrent,
+                'sales_trend_pct' => $salesTrend,
                 'transaction_count' => $transactionCount,
+                'transaction_trend_pct' => $transactionTrend,
                 'low_stock_count' => $lowStockCount,
                 'expiring_soon_count' => $expiringCount,
+                'last_updated' => now()->toIso8601String(),
             ],
         ]);
+    }
+
+    /**
+     * @return array{0: \Carbon\Carbon, 1: \Carbon\Carbon, 2: \Carbon\Carbon, 3: \Carbon\Carbon} [start, end, prevStart, prevEnd]
+     */
+    private function periodRanges(string $period): array
+    {
+        $now = now();
+        if ($period === 'week') {
+            $end = $now->copy()->endOfDay();
+            $start = $now->copy()->startOfWeek();
+            $prevEnd = $start->copy()->subSecond();
+            $prevStart = $prevEnd->copy()->startOfWeek();
+            return [$start, $end, $prevStart, $prevEnd];
+        }
+        if ($period === 'month') {
+            $end = $now->copy()->endOfDay();
+            $start = $now->copy()->startOfMonth();
+            $prevEnd = $start->copy()->subSecond();
+            $prevStart = $prevEnd->copy()->startOfMonth();
+            return [$start, $end, $prevStart, $prevEnd];
+        }
+        $start = $now->copy()->startOfDay();
+        $end = $now->copy()->endOfDay();
+        $prevStart = $start->copy()->subDay()->startOfDay();
+        $prevEnd = $start->copy()->subSecond();
+        return [$start, $end, $prevStart, $prevEnd];
     }
 
     /**
@@ -119,8 +170,8 @@ class DashboardController extends Controller
     }
 
     /**
-     * GET /api/v1/dashboard/branch-overview — for chain owners: all branches with today's sales.
-     * super_admin: all branches; admin: only their company's branches.
+     * GET /api/v1/dashboard/branch-overview — for chain owners: all branches with sales in period.
+     * Query: period=today|week|month. super_admin: all branches; admin: only their company's branches.
      */
     public function branchOverview(Request $request): JsonResponse
     {
@@ -131,29 +182,35 @@ class DashboardController extends Controller
                 'message' => 'You do not have permission to view branch overview.',
             ], 403);
         }
+        $period = $request->query('period', 'today');
+        [$start, $end] = $this->periodRanges($period);
         $query = Branch::with('company:id,name');
         if ($user->role === 'admin' && $user->company_id) {
             $query->where('company_id', $user->company_id);
         }
-        $branches = $query->get()->map(function (Branch $branch) {
-            $todaySales = Transaction::where('branch_id', $branch->id)
+        $branches = $query->get()->map(function (Branch $branch) use ($start, $end) {
+            $sales = Transaction::where('branch_id', $branch->id)
                 ->where('status', 'completed')
-                ->whereDate('created_at', today())
+                ->whereBetween('created_at', [$start, $end])
                 ->sum('total');
-            $todayCount = Transaction::where('branch_id', $branch->id)
+            $count = Transaction::where('branch_id', $branch->id)
                 ->where('status', 'completed')
-                ->whereDate('created_at', today())
+                ->whereBetween('created_at', [$start, $end])
                 ->count();
             return [
                 'id' => $branch->id,
                 'name' => $branch->name,
                 'address' => $branch->address,
                 'company' => $branch->company,
-                'sales_today' => (float) $todaySales,
-                'transaction_count_today' => $todayCount,
+                'sales_today' => (float) $sales,
+                'transaction_count_today' => $count,
             ];
         });
-        return response()->json(['status' => 'success', 'data' => $branches]);
+        return response()->json([
+            'status' => 'success',
+            'data' => $branches,
+            'last_updated' => now()->toIso8601String(),
+        ]);
     }
 
     /**
@@ -166,6 +223,7 @@ class DashboardController extends Controller
             ->where('is_active', true)
             ->where('reorder_level', '>', 0)
             ->withSum('batches', 'quantity')
+            ->with('branch:id,name,company_id', 'branch.company:id,name')
             ->get()
             ->filter(fn ($p) => (float) ($p->batches_sum_quantity ?? 0) <= $p->reorder_level);
     }

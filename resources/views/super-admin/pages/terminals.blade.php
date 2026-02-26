@@ -28,10 +28,8 @@
         </span>
     </div>
 
-    <div class="intro-y mt-4 sm:mt-5">
-        <div class="box overflow-x-auto">
-            <div id="terminals-accordion-wrapper" class="min-w-[520px] md:min-w-0"></div>
-        </div>
+    <div class="intro-y mt-4 sm:mt-5 space-y-3">
+        <div id="terminals-accordion-wrapper" class="min-w-0"></div>
     </div>
 
     <div id="terminals-empty" class="intro-y mt-6 hidden text-center py-16 text-slate-400 dark:text-slate-500">
@@ -423,17 +421,15 @@
             var chevronId = sectionId + '-chevron';
             var tableClass = 'w-full text-sm' + (!hasAnyLastUsed ? ' hide-last-used' : '');
             var tbodyHtml = buildTerminalRowsHtml(company.terminals, badges, companyId);
-            var sectionHtml = '<div class="terminals-accordion-section intro-y mb-4 last:mb-0">'
-                + '<div class="rounded-xl border border-slate-200 dark:border-darkmode-500 bg-slate-50/50 dark:bg-darkmode-700/30 overflow-hidden border-l-4 border-l-indigo-500">'
-                + '<button type="button" id="' + btnId + '" class="terminals-accordion-btn w-full flex items-center justify-between gap-3 px-4 sm:px-5 py-3 sm:py-3.5 text-left font-semibold text-slate-800 dark:text-slate-100 hover:bg-slate-100/80 dark:hover:bg-darkmode-600/50 transition-colors touch-manipulation" aria-expanded="true" aria-controls="' + contentId + '" data-section="' + sectionId + '">'
-                + '<span class="flex items-center gap-2 min-w-0">'
-                + '<svg id="' + chevronId + '" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="terminals-accordion-chevron text-slate-500 dark:text-slate-400 transition-transform flex-shrink-0" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg>'
-                + '<span class="truncate">' + escapeHtml(company.company_name) + ' <span class="text-xs font-medium text-slate-500 dark:text-slate-400">(' + terminalCount + ' terminal' + (terminalCount !== 1 ? 's' : '') + ' · ' + branchCount + ' branch' + (branchCount !== 1 ? 'es' : '') + ')</span></span>'
-                + '</span>'
+            var summaryText = '(' + terminalCount + ' terminal' + (terminalCount !== 1 ? 's' : '') + ' · ' + branchCount + ' branch' + (branchCount !== 1 ? 'es' : '') + ')';
+            var sectionHtml = '<div class="terminals-accordion-section rounded-2xl border border-slate-200/80 dark:border-darkmode-600 bg-white dark:bg-darkmode-800 shadow-sm overflow-hidden">'
+                + '<button type="button" id="' + btnId + '" class="terminals-accordion-btn w-full flex items-center gap-3 px-4 sm:px-5 py-4 sm:py-5 text-left font-semibold text-slate-800 dark:text-slate-100 hover:bg-slate-50/80 dark:hover:bg-darkmode-700/50 transition-colors touch-manipulation" aria-expanded="true" aria-controls="' + contentId + '" data-section="' + sectionId + '">'
+                + '<svg id="' + chevronId + '" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="terminals-accordion-chevron text-slate-400 dark:text-slate-500 transition-transform flex-shrink-0" aria-hidden="true"><polyline points="9 18 15 12 9 6"/></svg>'
+                + '<span class="flex-1 min-w-0"><span class="text-slate-800 dark:text-slate-100">' + escapeHtml(company.company_name) + '</span> <span class="text-sm font-normal text-slate-500 dark:text-slate-400">' + summaryText + '</span></span>'
                 + '</button>'
-                + '<div id="' + contentId + '" class="terminals-accordion-content border-t border-slate-200 dark:border-darkmode-500" role="region">'
-                + '<div class="min-w-[520px] md:min-w-0"><table class="' + tableClass + '">' + theadHtml + '<tbody class="divide-y divide-slate-200 dark:divide-darkmode-500">' + tbodyHtml + '</tbody></table></div>'
-                + '</div></div></div>';
+                + '<div id="' + contentId + '" class="terminals-accordion-content border-t border-slate-200/80 dark:border-darkmode-600 bg-slate-50/30 dark:bg-darkmode-700/30" role="region">'
+                + '<div class="overflow-x-auto"><div class="min-w-[520px] md:min-w-0"><table class="' + tableClass + '">' + theadHtml + '<tbody class="divide-y divide-slate-200 dark:divide-darkmode-500">' + tbodyHtml + '</tbody></table></div></div>'
+                + '</div></div>';
             wrapper.insertAdjacentHTML('beforeend', sectionHtml);
 
             var contentDiv = document.getElementById(contentId);
@@ -442,11 +438,12 @@
 
             var btn = document.getElementById(btnId);
             var chevron = document.getElementById(chevronId);
+            if (chevron) chevron.style.transform = 'rotate(90deg)';
             if (btn && contentDiv) {
                 btn.addEventListener('click', function () {
                     var hidden = contentDiv.classList.toggle('hidden');
                     btn.setAttribute('aria-expanded', !hidden);
-                    if (chevron) chevron.style.transform = hidden ? 'rotate(-90deg)' : '';
+                    if (chevron) chevron.style.transform = hidden ? '' : 'rotate(90deg)';
                 });
             }
         });

@@ -8,14 +8,11 @@ use Illuminate\Support\Facades\Route;
 |--------------------------------------------------------------------------
 */
 
-// Inventory
-Route::get('inventory/products', [\App\Http\Controllers\API\Inventory\InventoryProductController::class, 'index']);
+// Inventory (write/show/update/delete and stock-in/out — GET products & stock-levels are in main api.php)
 Route::post('inventory/products', [\App\Http\Controllers\API\Inventory\InventoryProductController::class, 'store']);
 Route::get('inventory/products/{product}', [\App\Http\Controllers\API\Inventory\InventoryProductController::class, 'show']);
 Route::put('inventory/products/{product}', [\App\Http\Controllers\API\Inventory\InventoryProductController::class, 'update']);
 Route::delete('inventory/products/{product}', [\App\Http\Controllers\API\Inventory\InventoryProductController::class, 'destroy']);
-
-Route::get('inventory/stock-levels', [\App\Http\Controllers\API\Inventory\StockLevelController::class, 'index']);
 Route::post('inventory/stock-in', [\App\Http\Controllers\API\Inventory\StockInController::class, 'store']);
 Route::post('inventory/stock-out', [\App\Http\Controllers\API\Inventory\StockOutController::class, 'store']);
 Route::post('inventory/stock-transfer', [\App\Http\Controllers\API\Inventory\StockTransferController::class, 'store']);

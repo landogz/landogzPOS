@@ -55,7 +55,7 @@ class SuperAdminViewController extends Controller
 
     public function inventory(): View
     {
-        return view('super-admin.pages.placeholder', ['title' => 'Inventory', 'breadcrumb' => 'Inventory', 'apiModule' => 'inventory']);
+        return view('super-admin.pages.inventory');
     }
 
     public function branches(): View

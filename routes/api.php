@@ -73,6 +73,9 @@ Route::prefix('v1')->middleware(['auth:sanctum'])->group(function () {
     Route::get('branches/{branch}/dashboard', [\App\Http\Controllers\API\BranchController::class, 'dashboard']);
     Route::get('branches/{branch}/stock', [\App\Http\Controllers\API\BranchController::class, 'stock']);
     Route::post('branches/{branch}/replenishment-request', [\App\Http\Controllers\API\BranchController::class, 'replenishmentRequest']);
+    // Inventory (read: stock-levels + products list — available on all nodes; write/stock-in/out stay in api-local)
+    Route::get('inventory/stock-levels', [\App\Http\Controllers\API\Inventory\StockLevelController::class, 'index']);
+    Route::get('inventory/products', [\App\Http\Controllers\API\Inventory\InventoryProductController::class, 'index']);
     // Terminals: one branch can have multiple POS terminals
     Route::get('terminals', [\App\Http\Controllers\API\TerminalController::class, 'indexAll']);
     Route::get('branches/{branch}/terminals', [\App\Http\Controllers\API\TerminalController::class, 'index']);

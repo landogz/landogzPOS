@@ -8,10 +8,10 @@
     $can = fn(string $p) => SuperAdminMenuService::canAccess($menuRole ?? null, $p);
 @endphp
 <!-- BEGIN: Side Menu (filtered by JS from /auth/me when using API login) -->
-<nav class="side-nav hidden w-[80px] pb-16 pr-5 md:block xl:w-[230px]" data-simplebar data-super-admin-sidebar>
+<nav class="side-nav hidden w-[80px] pb-16 pr-5 md:block xl:w-[230px]" data-simplebar data-super-admin-sidebar id="super-admin-side-nav">
     <a class="flex items-center pt-4 pl-5 intro-x" href="{{ route('dashboard.dashboard') }}">
-        <img class="w-6" src="{{ asset('images/logo.png') }}" alt="Landogz POS">
-        <span class="hidden ml-3 text-lg text-white xl:block">Landogz POS</span>
+        <img class="w-6 shrink-0" src="{{ asset('images/logo.png') }}" alt="Landogz POS">
+        <span class="side-nav__logo-text hidden ml-3 text-lg text-white xl:block">Landogz POS</span>
     </a>
     <div class="my-6 side-nav__divider"></div>
     <ul>
@@ -249,6 +249,15 @@
                 </div>
                 <div class="side-menu__title">Receipts</div>
             </a>
+        </li>
+        <li class="my-6 side-nav__divider"></li>
+        <li>
+            <button type="button" id="side-nav-collapse-btn" class="side-menu w-full cursor-pointer text-left" aria-label="Collapse sidebar" title="Collapse sidebar">
+                <div class="side-menu__icon">
+                    <i data-lucide="panel-left-close" class="stroke-1.5 w-5 h-5"></i>
+                </div>
+                <div class="side-menu__title">Collapse</div>
+            </button>
         </li>
     </ul>
 </nav>

@@ -109,6 +109,11 @@ document.addEventListener('DOMContentLoaded', function() {
                     var branch = d.branch && d.branch.name ? d.branch.name : '';
                     subEl.textContent = branch ? roleLabel + ' \u2022 ' + branch : roleLabel || 'User';
                 }
+                var roleBadge = document.getElementById('super-admin-role-badge');
+                if (roleBadge) {
+                    var rbLabel = (d.user.role || '').replace(/_/g, ' ');
+                    roleBadge.textContent = rbLabel ? rbLabel.charAt(0).toUpperCase() + rbLabel.slice(1) : '';
+                }
                 // Sidebar & mobile menu: show only items allowed for this role (pharmacist = inventory only; manager = no branches/terminals/BIR; etc.)
                 document.querySelectorAll('[data-menu-permission]').forEach(function(el) {
                     var p = el.getAttribute('data-menu-permission');
@@ -126,6 +131,40 @@ document.addEventListener('DOMContentLoaded', function() {
                     }
                     el.style.display = show ? '' : 'none';
                 });
+            })
+            .catch(function() {});
+    }
+    // Sidebar collapse toggle (persist in localStorage)
+    var sideNav = document.getElementById('super-admin-side-nav');
+    var collapseBtn = document.getElementById('side-nav-collapse-btn');
+    if (sideNav && collapseBtn) {
+        var collapsed = localStorage.getItem('super_admin_side_nav_collapsed') === 'true';
+        if (collapsed) sideNav.classList.add('side-nav--collapsed');
+        collapseBtn.addEventListener('click', function() {
+            var nowCollapsed = sideNav.classList.toggle('side-nav--collapsed');
+            localStorage.setItem('super_admin_side_nav_collapsed', nowCollapsed ? 'true' : 'false');
+            var icon = collapseBtn.querySelector('[data-lucide]');
+            var title = collapseBtn.querySelector('.side-menu__title');
+            if (icon && title) {
+                if (nowCollapsed) { icon.setAttribute('data-lucide', 'panel-right-open'); title.textContent = 'Expand'; }
+                else { icon.setAttribute('data-lucide', 'panel-left-close'); title.textContent = 'Collapse'; }
+                if (typeof lucide !== 'undefined' && lucide.createIcons) lucide.createIcons();
+            }
+        });
+        if (collapsed && collapseBtn.querySelector('.side-menu__title')) collapseBtn.querySelector('.side-menu__title').textContent = 'Expand';
+        if (collapsed && collapseBtn.querySelector('[data-lucide]')) collapseBtn.querySelector('[data-lucide]').setAttribute('data-lucide', 'panel-right-open');
+    }
+    // Notification badge: fetch dashboard summary when logged in and update badge
+    var badgeEl = document.getElementById('notification-badge');
+    if (token && badgeEl) {
+        axios.get('{{ url("/api/v1/dashboard/summary") }}', { params: { period: 'today' }, headers: { Authorization: 'Bearer ' + token, Accept: 'application/json' } })
+            .then(function(r) {
+                var d = r.data && r.data.data ? r.data.data : r.data;
+                if (d) {
+                    var n = (d.low_stock_count || 0) + (d.expiring_soon_count || 0);
+                    badgeEl.textContent = n > 99 ? '99+' : n;
+                    badgeEl.parentElement.classList.toggle('hidden', n === 0);
+                }
             })
             .catch(function() {});
     }
