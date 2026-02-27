@@ -287,6 +287,18 @@
                             >
                         </div>
                         <div class="space-y-1">
+                            <label for="pos-customer-address" class="text-xs font-medium text-slate-600">
+                                Address (optional)
+                            </label>
+                            <input
+                                type="text"
+                                id="pos-customer-address"
+                                class="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs text-slate-900 placeholder-slate-400 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition"
+                                placeholder="Customer address"
+                                autocomplete="off"
+                            >
+                        </div>
+                        <div class="space-y-1 hidden">
                             <label for="pos-order-note" class="text-xs font-medium text-slate-600">
                                 Order notes (optional)
                             </label>
@@ -1010,6 +1022,10 @@
         cartItems = [];
         appliedDiscounts = [];
         serviceChargeAmount = 0;
+        var customerNameEl = document.getElementById('pos-customer-name');
+        var customerAddressEl = document.getElementById('pos-customer-address');
+        if (customerNameEl) customerNameEl.value = '';
+        if (customerAddressEl) customerAddressEl.value = '';
         renderCart();
         renderAppliedDiscounts();
         saveCartToStorage();
@@ -1701,6 +1717,10 @@
             if (lastPaymentReference) payload.payment_reference = lastPaymentReference;
             if (lastPaymentProvider) payload.payment_provider = lastPaymentProvider;
         }
+        var customerNameEl = document.getElementById('pos-customer-name');
+        var customerAddressEl = document.getElementById('pos-customer-address');
+        if (customerNameEl && (customerNameEl.value || '').trim()) payload.customer_name = String(customerNameEl.value).trim().slice(0, 255);
+        if (customerAddressEl && (customerAddressEl.value || '').trim()) payload.customer_address = String(customerAddressEl.value).trim().slice(0, 500);
         var btn = document.getElementById('pos-complete-sale-btn');
         if (btn) btn.disabled = true;
         axios.post(apiBase + '/pos/transactions', payload, headers)

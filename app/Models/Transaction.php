@@ -13,7 +13,7 @@ class Transaction extends Model
 
     protected $fillable = [
         'branch_id', 'terminal_id', 'or_number', 'cashier_id', 'total', 'vat_amount',
-        'discount_amount', 'payment_method', 'payment_reference', 'payment_provider', 'status', 'synced_at',
+        'discount_amount', 'payment_method', 'payment_reference', 'payment_provider', 'customer_name', 'customer_address', 'status', 'synced_at',
     ];
 
     protected $casts = [

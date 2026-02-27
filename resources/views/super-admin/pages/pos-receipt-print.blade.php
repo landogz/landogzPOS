@@ -200,8 +200,8 @@
             html += '</div>';
 
             html += '<div class="receipt-customer-blanks receipt-section">';
-            html += '<div class="row"><span class="label">Customer:</span><span class="line"></span></div>';
-            html += '<div class="row"><span class="label">Address:</span><span class="line"></span></div>';
+            html += '<div class="row"><span class="label">Customer:</span><span class="line">' + escapeHtml(r.customer_name || '') + '</span></div>';
+            html += '<div class="row"><span class="label">Address:</span><span class="line">' + escapeHtml(r.customer_address || '') + '</span></div>';
             html += '<div class="row"><span class="label">TIN:</span><span class="line"></span></div>';
             html += '<div class="row"><span class="label">SC ID No:</span><span class="line"></span></div>';
             html += '<div class="row"><span class="label">Signature:</span><span class="line"></span></div>';

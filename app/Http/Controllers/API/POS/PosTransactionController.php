@@ -27,6 +27,8 @@ class PosTransactionController extends Controller
             'payment_method' => 'nullable|string|in:cash,card,other,ewallet',
             'payment_reference' => 'nullable|string|max:100',
             'payment_provider' => 'nullable|string|max:100',
+            'customer_name' => 'nullable|string|max:255',
+            'customer_address' => 'nullable|string|max:500',
             'discount_amount' => 'nullable|numeric|min:0',
             'discounts' => 'nullable|array',
             'discounts.*.type' => 'required|string|in:sc_pwd,senior_citizen,pwd,employee,promo,manual',
@@ -80,6 +82,8 @@ class PosTransactionController extends Controller
             'payment_method' => $validated['payment_method'] ?? 'cash',
             'payment_reference' => $validated['payment_reference'] ?? null,
             'payment_provider' => $validated['payment_provider'] ?? null,
+            'customer_name' => $validated['customer_name'] ?? null,
+            'customer_address' => $validated['customer_address'] ?? null,
             'status' => 'completed',
         ]);
 
