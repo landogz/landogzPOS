@@ -93,6 +93,8 @@ class ReceiptController extends Controller
             'discount_amount' => (float) $transaction->discount_amount,
             'total' => (float) $transaction->total,
             'payment_method' => $transaction->payment_method,
+            'payment_reference' => $transaction->payment_reference,
+            'payment_provider' => $transaction->payment_provider,
             'cashier_name' => $transaction->cashier?->name,
             'issued_at' => $transaction->created_at->format('Y-m-d H:i:s'),
             'footer_text' => $receiptFooter['footer_text'],

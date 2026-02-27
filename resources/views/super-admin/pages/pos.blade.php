@@ -324,15 +324,15 @@
                     </span>
                 </div>
                 <div class="flex flex-wrap gap-2">
-                    <button type="button" class="pos-tender-type-btn flex-1 min-w-[0] inline-flex items-center justify-center gap-2 rounded-xl border border-slate-200 dark:border-darkmode-500 bg-slate-50/70 dark:bg-darkmode-700/60 px-3 py-2.5 text-xs sm:text-sm font-semibold text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-darkmode-600 transition-colors" data-type="cash">
+                    <button type="button" class="pos-tender-type-btn flex-1 min-w-[0] inline-flex items-center justify-center gap-2 rounded-xl border border-slate-200 dark:border-darkmode-500 bg-slate-100 dark:bg-darkmode-700 px-3 py-2.5 text-xs sm:text-sm font-semibold text-slate-700 dark:text-slate-200 hover:bg-slate-200 hover:border-slate-300 dark:hover:bg-darkmode-600 dark:hover:border-darkmode-500 transition-colors" data-type="cash">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="12" cy="12" r="2.5"/></svg>
                         <span>Cash</span>
                     </button>
-                    <button type="button" class="pos-tender-type-btn flex-1 min-w-[0] inline-flex items-center justify-center gap-2 rounded-xl border border-slate-200 dark:border-darkmode-500 bg-slate-50/70 dark:bg-darkmode-700/60 px-3 py-2.5 text-xs sm:text-sm font-semibold text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-darkmode-600 transition-colors" data-type="card">
+                    <button type="button" class="pos-tender-type-btn flex-1 min-w-[0] inline-flex items-center justify-center gap-2 rounded-xl border border-slate-200 dark:border-darkmode-500 bg-slate-100 dark:bg-darkmode-700 px-3 py-2.5 text-xs sm:text-sm font-semibold text-slate-700 dark:text-slate-200 hover:bg-slate-200 hover:border-slate-300 dark:hover:bg-darkmode-600 dark:hover:border-darkmode-500 transition-colors" data-type="card">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/><path d="M7 15h3"/></svg>
                         <span>Card</span>
                     </button>
-                    <button type="button" class="pos-tender-type-btn flex-1 min-w-[0] inline-flex items-center justify-center gap-2 rounded-xl border border-slate-200 dark:border-darkmode-500 bg-slate-50/70 dark:bg-darkmode-700/60 px-3 py-2.5 text-xs sm:text-sm font-semibold text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-darkmode-600 transition-colors" data-type="ewallet">
+                    <button type="button" class="pos-tender-type-btn flex-1 min-w-[0] inline-flex items-center justify-center gap-2 rounded-xl border border-slate-200 dark:border-darkmode-500 bg-slate-100 dark:bg-darkmode-700 px-3 py-2.5 text-xs sm:text-sm font-semibold text-slate-700 dark:text-slate-200 hover:bg-slate-200 hover:border-slate-300 dark:hover:bg-darkmode-600 dark:hover:border-darkmode-500 transition-colors" data-type="ewallet">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                             <rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/>
                             <rect x="14" y="14" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/>
@@ -486,6 +486,16 @@
                         <div class="flex items-center justify-between rounded-xl bg-slate-50 dark:bg-darkmode-700 px-3 py-2.5">
                             <span class="text-sm font-medium text-slate-600 dark:text-slate-300">Change</span>
                             <span id="pos-payment-modal-change" class="text-lg font-bold text-slate-800 dark:text-slate-100">₱0.00</span>
+                        </div>
+                        <div id="pos-payment-modal-card-ewallet-fields" class="hidden space-y-3 pt-2 border-t border-slate-200 dark:border-darkmode-600">
+                            <div>
+                                <label for="pos-payment-modal-reference" class="block text-xs font-medium text-slate-600 dark:text-slate-300 mb-1.5">Reference / Approval no.</label>
+                                <input type="text" id="pos-payment-modal-reference" maxlength="100" class="w-full rounded-lg border border-slate-200 dark:border-darkmode-500 bg-white dark:bg-darkmode-700 px-3 py-2.5 text-sm text-slate-900 dark:text-slate-100 placeholder-slate-400 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition" placeholder="e.g. 123456789">
+                            </div>
+                            <div>
+                                <label for="pos-payment-modal-provider" class="block text-xs font-medium text-slate-600 dark:text-slate-300 mb-1.5">Provider</label>
+                                <input type="text" id="pos-payment-modal-provider" maxlength="100" class="w-full rounded-lg border border-slate-200 dark:border-darkmode-500 bg-white dark:bg-darkmode-700 px-3 py-2.5 text-sm text-slate-900 dark:text-slate-100 placeholder-slate-400 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition" placeholder="e.g. GCash, Maya, Visa, Mastercard">
+                            </div>
                         </div>
                     </div>
                     <div class="mt-6 flex flex-wrap items-center justify-end gap-2">
@@ -1206,6 +1216,8 @@
 
     var paymentModalCallback = null;
     var paymentModalType = 'cash';
+    var lastPaymentReference = '';
+    var lastPaymentProvider = '';
 
     function updatePaymentModalChangeFromDom() {
         var totalEl = document.getElementById('pos-payment-modal-total');
@@ -1294,6 +1306,19 @@
         amountInput.value = existingAmount || '';
         if (errorEl) errorEl.classList.add('hidden');
 
+        var cardEwalletBlock = document.getElementById('pos-payment-modal-card-ewallet-fields');
+        var refInput = document.getElementById('pos-payment-modal-reference');
+        var provInput = document.getElementById('pos-payment-modal-provider');
+        if (paymentModalType === 'card' || paymentModalType === 'ewallet') {
+            if (cardEwalletBlock) cardEwalletBlock.classList.remove('hidden');
+            if (refInput) { refInput.value = ''; refInput.placeholder = paymentModalType === 'card' ? 'Approval / reference no.' : 'Transaction / reference no.'; }
+            if (provInput) { provInput.value = ''; provInput.placeholder = paymentModalType === 'card' ? 'e.g. Visa, Mastercard' : 'e.g. GCash, Maya'; }
+        } else {
+            if (cardEwalletBlock) cardEwalletBlock.classList.add('hidden');
+            if (refInput) refInput.value = '';
+            if (provInput) provInput.value = '';
+        }
+
         updatePaymentModalChangeFromDom();
 
         modal.classList.remove('hidden');
@@ -1334,6 +1359,10 @@
         }
         if (errorEl) errorEl.classList.add('hidden');
         hiddenAmountInput.value = val;
+        var refInput = document.getElementById('pos-payment-modal-reference');
+        var provInput = document.getElementById('pos-payment-modal-provider');
+        lastPaymentReference = (refInput && refInput.value) ? String(refInput.value).trim().slice(0, 100) : '';
+        lastPaymentProvider = (provInput && provInput.value) ? String(provInput.value).trim().slice(0, 100) : '';
         updateChange();
         closePaymentModal(true);
     }
@@ -1416,11 +1445,11 @@
         document.querySelectorAll('.pos-tender-type-btn').forEach(function (btn) {
             var t = btn.getAttribute('data-type');
             if (t === type) {
-                btn.classList.remove('border-slate-200', 'dark:border-darkmode-500', 'bg-slate-50/70', 'dark:bg-darkmode-700/60', 'text-slate-700', 'dark:text-slate-200');
-                btn.classList.add('border-primary', 'bg-primary', 'text-white', 'shadow-sm');
+                btn.classList.remove('border-slate-200', 'dark:border-darkmode-500', 'border-slate-300', 'bg-slate-100', 'dark:bg-darkmode-700', 'text-slate-700', 'dark:text-slate-200', 'hover:bg-slate-200', 'hover:border-slate-300', 'dark:hover:bg-darkmode-600', 'dark:hover:border-darkmode-500');
+                btn.classList.add('border-primary', 'bg-primary', 'text-white', 'shadow-sm', 'hover:bg-primary/90', 'hover:border-primary');
             } else {
-                btn.classList.add('border-slate-200', 'dark:border-darkmode-500', 'bg-slate-50/70', 'dark:bg-darkmode-700/60', 'text-slate-700', 'dark:text-slate-200');
-                btn.classList.remove('border-primary', 'bg-primary', 'text-white', 'shadow-sm');
+                btn.classList.add('border-slate-200', 'dark:border-darkmode-500', 'bg-slate-100', 'dark:bg-darkmode-700', 'text-slate-700', 'dark:text-slate-200', 'hover:bg-slate-200', 'hover:border-slate-300', 'dark:hover:bg-darkmode-600', 'dark:hover:border-darkmode-500');
+                btn.classList.remove('border-primary', 'bg-primary', 'text-white', 'shadow-sm', 'hover:bg-primary/90', 'hover:border-primary');
             }
         });
         var tenderLabel = document.getElementById('pos-tender-label');
@@ -1649,9 +1678,10 @@
     }
 
     function doCompleteSale(prescriptionForRx) {
+        var paymentMethod = (currentTenderType === 'ewallet' ? 'ewallet' : (currentTenderType === 'card' ? 'card' : 'cash'));
         var payload = {
             terminal_id: currentTerminalId,
-            payment_method: currentTenderType === 'ewallet' ? 'ewallet' : (currentTenderType || 'cash'),
+            payment_method: paymentMethod,
             discount_amount: appliedDiscounts.reduce(function (sum, d) { return sum + (parseFloat(d.amount) || 0); }, 0),
             discounts: appliedDiscounts.map(function (d) {
                 return { type: d.type, amount: d.amount, reference_id: d.reference_id || null, customer_name: d.customer_name || null };
@@ -1667,6 +1697,10 @@
                 };
             })
         };
+        if (paymentMethod === 'card' || paymentMethod === 'ewallet') {
+            if (lastPaymentReference) payload.payment_reference = lastPaymentReference;
+            if (lastPaymentProvider) payload.payment_provider = lastPaymentProvider;
+        }
         var btn = document.getElementById('pos-complete-sale-btn');
         if (btn) btn.disabled = true;
         axios.post(apiBase + '/pos/transactions', payload, headers)

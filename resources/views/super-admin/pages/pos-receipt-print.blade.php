@@ -158,6 +158,8 @@
             html += '<hr class="receipt-sep">';
             html += '<div class="receipt-row font-bold"><span class="left">TOTAL:</span><span class="right">' + itemCount + ' Item' + (itemCount !== 1 ? 's' : '') + ' ' + formatMoney(total) + '</span></div>';
             html += '<div class="receipt-row"><span class="left">Payment Received:</span><span class="right">' + formatMoney(amountRecv) + '</span></div>';
+            if (r.payment_reference) html += '<div class="receipt-row"><span class="left">Ref/Approval:</span><span class="right">' + escapeHtml(r.payment_reference) + '</span></div>';
+            if (r.payment_provider) html += '<div class="receipt-row"><span class="left">Provider:</span><span class="right">' + escapeHtml(r.payment_provider) + '</span></div>';
             html += '<div class="receipt-row font-bold"><span class="left">CHANGE:</span><span class="right">' + formatMoney(changeAmount) + '</span></div>';
             html += '</div>';
 
@@ -227,7 +229,10 @@
                 html += '<div class="receipt-validity-statement">' + escapeHtml(defaultValidityLine1) + '</div>';
                 html += '<div>' + escapeHtml(defaultValidityLine2) + '</div>';
             } else {
-                var validityParts = validityStatement.split(/<br\s*\/?>/gi);
+                var normalized = validityStatement
+                    .replace(/&lt;br\s*\/?&gt;/gi, '\n')
+                    .replace(/<br\s*\/?>/gi, '\n');
+                var validityParts = normalized.split(/\n/);
                 validityParts.forEach(function (part) {
                     var trimmed = (part || '').trim();
                     if (trimmed) html += '<div class="receipt-validity-statement">' + escapeHtml(trimmed) + '</div>';
