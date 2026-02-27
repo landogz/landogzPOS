@@ -18,6 +18,7 @@ class Terminal extends Model
         'code',
         'name',
         'min',
+        'sn',
         'tin',
         'is_active',
         'api_key_prefix',

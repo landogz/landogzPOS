@@ -63,6 +63,21 @@ class SuperAdminViewController extends Controller
         return view('super-admin.pages.pos');
     }
 
+    public function posLock(): View
+    {
+        return view('super-admin.pages.pos-lock');
+    }
+
+    /**
+     * POS Official Receipt print page (BIR-compliant). Opens in new window; script fetches receipt via API and triggers print.
+     */
+    public function posReceiptPrint(): View
+    {
+        return view('super-admin.pages.pos-receipt-print', [
+            'apiBase' => url('/api/v1'),
+        ]);
+    }
+
     public function branches(): View
     {
         return view('super-admin.pages.branches');

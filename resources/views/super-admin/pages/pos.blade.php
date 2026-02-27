@@ -4,8 +4,77 @@
 @section('breadcrumb', 'POS')
 
 @section('content')
-    {{-- Top header: branch, terminal, cashier, shift status --}}
-    <div class="intro-y mt-6 sm:mt-8 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+    {{-- POS status & actions bar (top: Shift, Branch, Terminal, Cashier + Lock/Logout) --}}
+    <div class="mt-2 mb-4 px-3 sm:px-0 print:hidden">
+        <div class="mx-auto max-w-6xl">
+            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 rounded-2xl bg-white/95 backdrop-blur shadow-xl ring-1 ring-slate-200 px-3 py-2 sm:px-5 sm:py-3">
+                {{-- Live system status: Shift, Branch, Terminal, Cashier + status --}}
+                <div class="flex flex-wrap items-center gap-2 text-[11px] sm:text-xs text-slate-600">
+                    <div class="inline-flex items-center gap-2 rounded-full bg-slate-50 px-2.5 py-1 border border-slate-200">
+                        <span class="inline-flex h-2 w-2 rounded-full bg-emerald-500 shadow-[0_0_0_3px_rgba(16,185,129,0.25)]"></span>
+                        <span class="font-semibold tracking-tight">POS ready</span>
+                    </div>
+                    <span class="inline-flex items-center gap-1.5 rounded-full bg-slate-50 dark:bg-darkmode-700/80 px-2.5 py-1 border border-slate-200 font-medium text-slate-700 dark:text-slate-200 sm:border-l sm:border-slate-200 sm:pl-3 sm:ml-1">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 text-emerald-500 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg>
+                        <span id="pos-shift-label">Shift: Day</span>
+                    </span>
+                    <span class="inline-flex items-center gap-1.5 rounded-full bg-slate-50 dark:bg-darkmode-700/80 px-2.5 py-1 border border-slate-200 font-medium text-slate-700 dark:text-slate-200 truncate max-w-[200px] sm:max-w-[280px] sm:border-l sm:border-slate-200 sm:pl-3 sm:ml-1">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 text-primary shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3h18v4H3z"/><path d="M8 7v14"/><path d="M16 7v14"/><path d="M10 11h4"/><path d="M10 15h4"/></svg>
+                        <span id="pos-branch-label">Branch: —</span>
+                    </span>
+                    <span class="inline-flex items-center gap-1.5 rounded-full bg-slate-50 dark:bg-darkmode-700/80 px-2.5 py-1 border border-slate-200 font-medium text-slate-700 dark:text-slate-200 sm:border-l sm:border-slate-200 sm:pl-3 sm:ml-1">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 text-sky-500 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M7 8h10"/></svg>
+                        <span id="pos-terminal-label">Terminal: —</span>
+                    </span>
+                    <span class="inline-flex items-center gap-1.5 rounded-full bg-slate-50 dark:bg-darkmode-700/80 px-2.5 py-1 border border-slate-200 font-medium text-slate-700 dark:text-slate-200 truncate max-w-[140px] sm:max-w-[180px] sm:border-l sm:border-slate-200 sm:pl-3 sm:ml-1">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 text-indigo-500 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="7" r="4"/><path d="M5.5 21a6.5 6.5 0 0 1 13 0"/></svg>
+                        <span id="pos-cashier-label">Cashier: —</span>
+                    </span>
+                    <span class="hidden md:inline-flex items-center gap-1 px-2 py-1 rounded-full bg-slate-50 border border-slate-200 sm:border-l sm:border-slate-200 sm:pl-3 sm:ml-1">
+                        <span class="inline-flex h-1.5 w-1.5 rounded-full bg-emerald-500"></span>
+                        <span id="pos-status-printer" class="whitespace-nowrap">Printer: Online</span>
+                    </span>
+                    <span class="hidden md:inline-flex items-center gap-1 px-2 py-1 rounded-full bg-slate-50 border border-slate-200 sm:border-l sm:border-slate-200 sm:pl-3 sm:ml-1">
+                        <span class="inline-flex h-1.5 w-1.5 rounded-full bg-emerald-500"></span>
+                        <span id="pos-status-network" class="whitespace-nowrap">Network: Connected</span>
+                    </span>
+                    <span class="hidden lg:inline-flex items-center gap-1 px-2 py-1 rounded-full bg-slate-50 border border-slate-200 sm:border-l sm:border-slate-200 sm:pl-3 sm:ml-1">
+                        <span class="inline-flex h-1.5 w-1.5 rounded-full bg-sky-400"></span>
+                        <span id="pos-status-sync" class="whitespace-nowrap">Synced: Just now</span>
+                    </span>
+                    <span class="hidden lg:inline-flex items-center gap-1 px-2 py-1 rounded-full bg-slate-50 border border-slate-200 sm:border-l sm:border-slate-200 sm:pl-3 sm:ml-1">
+                        <span class="inline-flex h-1.5 w-1.5 rounded-full bg-slate-400"></span>
+                        <span id="pos-status-last-or" class="whitespace-nowrap">Last OR: —</span>
+                    </span>
+                </div>
+
+                {{-- Actions --}}
+                <div class="flex items-center justify-end gap-2 sm:gap-3">
+                    <button
+                        type="button"
+                        id="pos-lock-btn"
+                        class="inline-flex items-center gap-1.5 rounded-xl border border-slate-200 bg-slate-50 px-3 py-1.5 text-xs sm:text-sm font-medium text-slate-700 hover:bg-slate-100 hover:border-slate-300 transition-colors"
+                        title="Lock POS (return to login without clearing token)"
+                    >
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-slate-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="10" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                        <span class="hidden xs:inline">Lock POS</span>
+                    </button>
+                    <button
+                        type="button"
+                        id="pos-logout-btn"
+                        class="inline-flex items-center gap-1.5 rounded-xl bg-rose-500 px-3.5 py-1.5 text-xs sm:text-sm font-semibold text-white shadow-sm hover:bg-rose-600 focus:ring-2 focus:ring-rose-400/40 transition-colors"
+                        title="Logout and close POS"
+                    >
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+                        <span class="hidden xs:inline">Logout</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {{-- Page title and actions (no duplicate badges) --}}
+    <div class="intro-y mt-4 sm:mt-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div class="space-y-1">
             <h1 class="text-base sm:text-lg font-semibold text-slate-800 dark:text-slate-100">
                 POS – Cashier
@@ -13,24 +82,6 @@
             <p class="text-xs sm:text-sm text-slate-500 dark:text-slate-400 max-w-2xl">
                 Search items, add to the order, and collect payment. Prices are VAT-inclusive by default (12% VAT – Philippines).
             </p>
-            <div class="mt-1.5 flex flex-wrap items-center gap-2 text-xs sm:text-[13px]">
-                <span class="inline-flex items-center gap-1.5 rounded-full bg-slate-100 dark:bg-darkmode-700 px-3 py-1 font-medium text-slate-700 dark:text-slate-200">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 text-emerald-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg>
-                    <span id="pos-shift-label">Shift: Day</span>
-                </span>
-                <span class="inline-flex items-center gap-1.5 rounded-full bg-slate-100 dark:bg-darkmode-700 px-3 py-1 font-medium text-slate-700 dark:text-slate-200">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 text-primary" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3h18v4H3z"/><path d="M8 7v14"/><path d="M16 7v14"/><path d="M10 11h4"/><path d="M10 15h4"/></svg>
-                    <span id="pos-branch-label">Branch: —</span>
-                </span>
-                <span class="inline-flex items-center gap-1.5 rounded-full bg-slate-100 dark:bg-darkmode-700 px-3 py-1 font-medium text-slate-700 dark:text-slate-200">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 text-sky-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M7 8h10"/></svg>
-                    <span id="pos-terminal-label">Terminal: —</span>
-                </span>
-                <span class="inline-flex items-center gap-1.5 rounded-full bg-slate-100 dark:bg-darkmode-700 px-3 py-1 font-medium text-slate-700 dark:text-slate-200">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 text-indigo-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="7" r="4"/><path d="M5.5 21a6.5 6.5 0 0 1 13 0"/></svg>
-                    <span id="pos-cashier-label">Cashier: —</span>
-                </span>
-            </div>
         </div>
         <div class="flex flex-wrap items-center gap-2 sm:justify-end">
             <div class="inline-flex items-center gap-2 rounded-xl border border-slate-200 dark:border-darkmode-600 bg-white dark:bg-darkmode-800 px-3 py-2 text-xs sm:text-sm text-slate-600 dark:text-slate-300">
@@ -47,51 +98,51 @@
 
     {{-- Main POS layout: products on the left, order/payment on the right (always 2 columns) --}}
     <div class="intro-y mt-5 grid grid-cols-12 gap-4">
-        {{-- Product catalog --}}
-        <div class="col-span-7 2xl:col-span-8 flex flex-col min-h-[360px]">
-            {{-- Search + filters --}}
-            <div class="rounded-2xl border border-slate-200/80 dark:border-darkmode-600 bg-white dark:bg-darkmode-800 shadow-sm px-4 py-3 sm:px-5 sm:py-4">
-                <div class="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
-                    <div class="flex flex-wrap items-center gap-2">
-                        <div class="relative text-slate-500">
-                            <input
-                                type="text"
-                                id="pos-search-input"
-                                placeholder="Search product name, generic name, or barcode…"
-                                class="pos-search-input transition duration-200 ease-in-out text-sm border-slate-200 dark:border-transparent shadow-sm rounded-lg placeholder:text-slate-400/90 focus:ring-4 focus:ring-primary/15 focus:border-primary dark:bg-darkmode-700 dark:placeholder:text-slate-500 box w-full sm:w-72 pr-9 py-2.5 sm:py-2.5 min-h-[44px]"
-                                autocomplete="off"
-                            >
-                            <svg xmlns="http://www.w3.org/2000/svg" class="absolute inset-y-0 right-0 my-auto mr-3 h-4 w-4 pointer-events-none text-slate-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-                        </div>
-                        <button type="button" id="pos-scan-btn" class="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 dark:border-darkmode-500 bg-slate-50/80 dark:bg-darkmode-700/60 px-3 py-2 text-xs sm:text-sm font-medium text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-darkmode-600 transition-colors">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 7V5a2 2 0 0 1 2-2h2"/><path d="M17 3h2a2 2 0 0 1 2 2v2"/><path d="M21 17v2a2 2 0 0 1-2 2h-2"/><path d="M7 21H5a2 2 0 0 1-2-2v-2"/><path d="M7 8h10"/><path d="M7 12h6"/><path d="M17 12h.01"/><path d="M7 16h4"/></svg>
-                            Scan barcode
+        {{-- Product catalog (≈60%) --}}
+        <div class="col-span-8 flex flex-col min-h-[360px]">
+            {{-- Search + filters: 2 rows — search+scan top, tabs+display bottom --}}
+            <div class="rounded-2xl border border-slate-200/80 dark:border-darkmode-600 bg-white dark:bg-darkmode-800 shadow-sm px-3 py-3 sm:px-5 sm:py-4">
+                {{-- Row 1: Search + Scan (pair) --}}
+                <div class="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3 w-full">
+                    <div class="relative text-slate-500 flex-1 min-w-0">
+                        <input
+                            type="text"
+                            id="pos-search-input"
+                            placeholder="Search product name, generic name, or barcode…"
+                            class="pos-search-input w-full rounded-xl border border-slate-200 dark:border-darkmode-500 bg-slate-50/50 dark:bg-darkmode-700/50 px-4 py-3 pr-10 text-sm text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 focus:ring-2 focus:ring-primary/20 focus:border-primary dark:focus:border-primary transition"
+                            autocomplete="off"
+                        >
+                        <svg xmlns="http://www.w3.org/2000/svg" class="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 pointer-events-none text-slate-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                    </div>
+                    <button type="button" id="pos-scan-btn" class="inline-flex items-center justify-center gap-2 rounded-xl border border-slate-200 dark:border-darkmode-500 bg-white dark:bg-darkmode-700 px-4 py-3 text-sm font-medium text-slate-700 dark:text-slate-200 hover:border-primary hover:bg-primary/5 hover:text-primary transition whitespace-nowrap shrink-0">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 7V5a2 2 0 0 1 2-2h2"/><path d="M17 3h2a2 2 0 0 1 2 2v2"/><path d="M21 17v2a2 2 0 0 1-2 2h-2"/><path d="M7 21H5a2 2 0 0 1-2-2v-2"/><path d="M7 8h10"/><path d="M7 12h6"/><path d="M17 12h.01"/><path d="M7 16h4"/></svg>
+                        Scan
+                    </button>
+                </div>
+                {{-- Row 2: Category tabs + Display toggle --}}
+                <div class="mt-3 flex flex-wrap items-center justify-between gap-2">
+                    <div class="flex items-center gap-2 overflow-x-auto pb-0.5">
+                        <button type="button" class="pos-category-chip inline-flex items-center h-9 rounded-full border-[1.5px] border-primary bg-primary text-white font-semibold text-sm px-4 whitespace-nowrap transition shadow-sm" data-category="">
+                            All <span id="pos-tab-count-all" class="pos-tab-badge ml-1 rounded-full bg-white/25 px-1.5 py-0.5 text-[0.7rem] font-medium">0</span>
+                        </button>
+                        <button type="button" class="pos-category-chip inline-flex items-center h-9 rounded-full border-[1.5px] border-slate-200 dark:border-darkmode-500 bg-transparent text-slate-500 dark:text-slate-400 font-medium text-sm px-4 whitespace-nowrap transition hover:border-primary hover:bg-primary/5 hover:text-primary dark:hover:bg-primary/10" data-category="rx" title="Prescription Items">
+                            Rx <span id="pos-tab-count-rx" class="pos-tab-badge ml-1 rounded-full bg-slate-100 dark:bg-darkmode-600 text-slate-500 dark:text-slate-400 px-1.5 py-0.5 text-[0.7rem] font-medium">0</span>
+                        </button>
+                        <button type="button" class="pos-category-chip inline-flex items-center h-9 rounded-full border-[1.5px] border-slate-200 dark:border-darkmode-500 bg-transparent text-slate-500 dark:text-slate-400 font-medium text-sm px-4 whitespace-nowrap transition hover:border-primary hover:bg-primary/5 hover:text-primary dark:hover:bg-primary/10" data-category="otc">
+                            OTC <span id="pos-tab-count-otc" class="pos-tab-badge ml-1 rounded-full bg-slate-100 dark:bg-darkmode-600 text-slate-500 dark:text-slate-400 px-1.5 py-0.5 text-[0.7rem] font-medium">0</span>
+                        </button>
+                        <button type="button" class="pos-category-chip inline-flex items-center h-9 rounded-full border-[1.5px] border-slate-200 dark:border-darkmode-500 bg-transparent text-slate-500 dark:text-slate-400 font-medium text-sm px-4 whitespace-nowrap transition hover:border-primary hover:bg-primary/5 hover:text-primary dark:hover:bg-primary/10" data-category="supplies">
+                            Supplies <span id="pos-tab-count-supplies" class="pos-tab-badge ml-1 rounded-full bg-slate-100 dark:bg-darkmode-600 text-slate-500 dark:text-slate-400 px-1.5 py-0.5 text-[0.7rem] font-medium">0</span>
                         </button>
                     </div>
-                    <div class="flex flex-wrap items-center gap-2 justify-between lg:justify-end w-full lg:w-auto">
-                        <div class="flex flex-wrap items-center gap-2">
-                            <button type="button" class="pos-category-chip inline-flex items-center rounded-full px-3 py-1.5 text-xs sm:text-sm font-medium bg-primary text-white shadow-sm" data-category="">
-                                All items
-                            </button>
-                            <button type="button" class="pos-category-chip inline-flex items-center rounded-full px-3 py-1.5 text-xs sm:text-sm font-medium bg-slate-100 text-slate-700 dark:bg-darkmode-700 dark:text-slate-200 hover:bg-slate-200 dark:hover:bg-darkmode-600 transition-colors" data-category="rx">
-                                Rx / Prescription
-                            </button>
-                            <button type="button" class="pos-category-chip inline-flex items-center rounded-full px-3 py-1.5 text-xs sm:text-sm font-medium bg-slate-100 text-slate-700 dark:bg-darkmode-700 dark:text-slate-200 hover:bg-slate-200 dark:hover:bg-darkmode-600 transition-colors" data-category="otc">
-                                OTC
-                            </button>
-                            <button type="button" class="pos-category-chip inline-flex items-center rounded-full px-3 py-1.5 text-xs sm:text-sm font-medium bg-slate-100 text-slate-700 dark:bg-darkmode-700 dark:text-slate-200 hover:bg-slate-200 dark:hover:bg-darkmode-600 transition-colors" data-category="supplies">
-                                Supplies
-                            </button>
-                        </div>
-                        <div class="inline-flex items-center gap-1 rounded-full bg-slate-50 dark:bg-darkmode-700 px-2 py-1 text-[11px] font-medium text-slate-500 dark:text-slate-400">
-                            <span>Display:</span>
-                            <button type="button" id="pos-view-grid" class="inline-flex h-7 w-7 items-center justify-center rounded-full bg-white dark:bg-darkmode-800 text-primary shadow-sm">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
-                            </button>
-                            <button type="button" id="pos-view-list" class="inline-flex h-7 w-7 items-center justify-center rounded-full text-slate-400 hover:text-primary hover:bg-white/70 dark:hover:bg-darkmode-800/80 transition">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><circle cx="4" cy="6" r="1.5"/><circle cx="4" cy="12" r="1.5"/><circle cx="4" cy="18" r="1.5"/></svg>
-                            </button>
-                        </div>
+                    <div class="inline-flex items-center gap-1 rounded-full bg-slate-100 dark:bg-darkmode-700 px-1.5 py-1">
+                        <span class="text-[11px] font-medium text-slate-500 dark:text-slate-400 px-1.5">Display</span>
+                        <button type="button" id="pos-view-grid" class="pos-display-btn inline-flex h-8 w-8 items-center justify-center rounded-lg bg-primary text-white shadow-sm" title="Grid view">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+                        </button>
+                        <button type="button" id="pos-view-list" class="pos-display-btn inline-flex h-8 w-8 items-center justify-center rounded-lg text-slate-400 hover:text-primary hover:bg-white dark:hover:bg-darkmode-600 transition" title="List view">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><circle cx="4" cy="6" r="1.5"/><circle cx="4" cy="12" r="1.5"/><circle cx="4" cy="18" r="1.5"/></svg>
+                        </button>
                     </div>
                 </div>
             </div>
@@ -108,7 +159,7 @@
                     </div>
                 </div>
                 <div id="pos-products-grid" class="hidden flex-1 overflow-auto">
-                    <div class="grid grid-cols-2 md:grid-cols-3 gap-3 sm:gap-4 p-4 sm:p-5 w-full">
+                    <div class="grid grid-cols-3 gap-3 sm:gap-4 p-4 sm:p-5 w-full">
                         {{-- Product cards will be rendered here by JavaScript --}}
                     </div>
                 </div>
@@ -120,23 +171,23 @@
             </div>
         </div>
 
-        {{-- Current order / payment summary --}}
-        <div class="col-span-5 2xl:col-span-4 flex flex-col gap-3 sticky top-4 self-start">
+        {{-- Current order / payment summary (≈40%) --}}
+        <div class="col-span-4 flex flex-col gap-3 sticky top-4 self-start">
             {{-- Current order --}}
-            <div class="pos-order-panel rounded-2xl border bg-slate-900 text-slate-50 shadow-sm flex flex-col">
-                <div class="flex items-start justify-between gap-2 border-b border-slate-800 px-4 py-2.5 sm:px-5 sm:py-3">
+            <div class="pos-order-panel flex flex-col rounded-2xl border border-slate-200/90 bg-slate-50/90 shadow-lg backdrop-blur-sm">
+                <div class="flex items-start justify-between gap-2 border-b border-slate-200 bg-white px-4 py-2.5 sm:px-5 sm:py-3">
                     <div>
-                        <h2 class="text-sm sm:text-base font-semibold text-slate-100 flex items-center gap-2">
+                        <h2 class="text-sm sm:text-base font-semibold text-slate-900 flex items-center gap-2">
                             Current order
                             <span id="pos-order-item-badge" class="inline-flex items-center justify-center rounded-full bg-primary/15 text-primary px-2.5 py-0.5 text-[11px] font-semibold hidden">0 items</span>
                         </h2>
-                        <p class="mt-0.5 text-xs text-slate-300">
+                        <p class="mt-0.5 text-xs text-slate-500">
                             <span id="pos-order-type-label">Walk-in</span> ·
                             <span id="pos-table-label">Counter sale</span>
                         </p>
                     </div>
                     <div class="flex flex-col items-end gap-1">
-                        <span id="pos-or-badge" class="inline-flex items-center rounded-full bg-amber-100/90 px-3 py-1 text-[11px] font-medium text-amber-900">
+                        <span id="pos-or-badge" class="inline-flex items-center rounded-full border border-amber-300 bg-amber-50 px-3 py-1 text-[11px] font-semibold text-amber-700">
                             OR: <span id="pos-or-placeholder" class="ml-1 font-semibold tracking-wide">Pending</span>
                         </span>
                         <div class="flex items-center gap-1.5">
@@ -148,45 +199,61 @@
                         </div>
                     </div>
                 </div>
-                <div id="pos-order-items" class="flex-1 min-h-[140px] max-h-64 overflow-y-auto px-3 sm:px-4 py-2 space-y-2">
-                    <div class="px-4 py-6 sm:px-5 text-center text-slate-300 text-xs">
-                        No items in the order yet. Tap <span class="font-semibold text-slate-100">Add</span> on items from the list to build an order.
+                <div id="pos-order-items" class="flex-1 min-h-[140px] max-h-64 overflow-y-auto mx-3 sm:mx-4 my-2 px-3 sm:px-4 py-2 space-y-2 rounded-xl border border-dashed border-slate-200 bg-white font-mono text-[11px] leading-relaxed">
+                    <div class="px-2 py-5 sm:px-3 text-center text-slate-400">
+                        No items in the order yet. Tap <span class="font-semibold text-sky-600">Add</span> on items from the list to build an order.
                     </div>
                 </div>
-                <div class="border-t border-slate-800 px-4 py-2.5 sm:px-5 sm:py-3 space-y-1.5">
-                    <div class="flex items-center justify-between text-xs text-slate-300">
+                <div class="border-t border-slate-200 px-4 py-2.5 sm:px-5 sm:py-3 space-y-1.5">
+                    <div class="flex items-center justify-between text-xs text-slate-500">
                         <span>Items</span>
                         <span id="pos-item-count">0</span>
                     </div>
-                    <div class="flex items-center justify-between text-xs text-slate-300">
-                        <span>Total sales (VAT inclusive)</span>
-                        <span id="pos-subtotal">₱0.00</span>
+                    <button
+                        type="button"
+                        id="pos-vat-toggle"
+                        class="mt-0.5 flex w-full items-center justify-between text-xs text-slate-500 hover:text-slate-700"
+                    >
+                        <span class="inline-flex items-center gap-1.5">
+                            <svg id="pos-vat-toggle-icon" xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 text-slate-400 transition-transform" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M7 6a1 1 0 0 1 .707.293l3 3a1 1 0 0 1 0 1.414l-3 3A1 1 0 0 1 6 12.293L8.293 10 6 7.707A1 1 0 0 1 7 6z" clip-rule="evenodd" />
+                            </svg>
+                            <span>VAT details</span>
+                        </span>
+                        <span id="pos-vat-summary" class="text-xs font-semibold text-slate-600">₱0.00</span>
+                    </button>
+                    {{-- VAT breakdown: collapsible in UI, always visible on print --}}
+                    <div id="pos-vat-breakdown" class="mt-1 space-y-0.5 hidden print:block">
+                        <div class="flex items-center justify-between text-xs text-slate-500">
+                            <span>Total sales (VAT inclusive)</span>
+                            <span id="pos-subtotal">₱0.00</span>
+                        </div>
+                        <div class="flex items-center justify-between text-[11px] text-slate-500">
+                            <span>VAT Sales</span>
+                            <span id="pos-vatable-sales">₱0.00</span>
+                        </div>
+                        <div class="flex items-center justify-between text-[11px] text-slate-500">
+                            <span>Non‑VAT Sales</span>
+                            <span id="pos-vat-exempt">₱0.00</span>
+                        </div>
+                        <div class="flex items-center justify-between text-[11px] text-slate-500">
+                            <span>Zero-Rated Sales</span>
+                            <span id="pos-zero-rated">₱0.00</span>
+                        </div>
+                        <div class="flex items-center justify-between text-xs text-slate-500">
+                            <span>Total VAT (12%)</span>
+                            <span id="pos-vat-amount">₱0.00</span>
+                        </div>
+                        <div class="flex items-center justify-between text-xs text-slate-500">
+                            <span>Total Discount</span>
+                            <span id="pos-total-discount">₱0.00</span>
+                        </div>
+                        <div class="flex items-center justify-between text-xs text-slate-500">
+                            <span>VAT Exemption</span>
+                            <span id="pos-vat-exemption">₱0.00</span>
+                        </div>
                     </div>
-                    <div class="flex items-center justify-between text-[11px] text-slate-300">
-                        <span>VAT Sales</span>
-                        <span id="pos-vatable-sales">₱0.00</span>
-                    </div>
-                    <div class="flex items-center justify-between text-[11px] text-slate-300">
-                        <span>Non‑VAT Sales</span>
-                        <span id="pos-vat-exempt">₱0.00</span>
-                    </div>
-                    <div class="flex items-center justify-between text-[11px] text-slate-300">
-                        <span>Zero-Rated Sales</span>
-                        <span id="pos-zero-rated">₱0.00</span>
-                    </div>
-                    <div class="flex items-center justify-between text-xs text-slate-300">
-                        <span>Total VAT (12%)</span>
-                        <span id="pos-vat-amount">₱0.00</span>
-                    </div>
-                    <div class="flex items-center justify-between text-xs text-slate-300">
-                        <span>Total Discount</span>
-                        <span id="pos-total-discount">₱0.00</span>
-                    </div>
-                    <div class="flex items-center justify-between text-xs text-slate-300">
-                        <span>VAT Exemption</span>
-                        <span id="pos-vat-exemption">₱0.00</span>
-                    </div>
-                    <div class="flex items-center justify-between text-xs text-slate-500 dark:text-slate-400">
+                    <div class="flex items-center justify-between text-xs text-slate-500">
                         <span>Discounts</span>
                         <div class="flex items-center gap-1">
                             <button type="button" id="pos-sc-pwd-btn" class="inline-flex items-center gap-1 rounded-lg bg-emerald-600 text-white px-2.5 py-1 text-[11px] font-semibold hover:bg-emerald-700 transition-colors">SC/PWD 20%</button>
@@ -202,45 +269,44 @@
                         </div>
                     </div>
                     <div id="pos-applied-discounts" class="space-y-0.5 hidden"></div>
-                    <div class="flex flex-col gap-2 pt-1 border-t border-dashed border-slate-200 dark:border-darkmode-600 mt-2">
+                    <div class="mt-2 flex items-center justify-between rounded-xl bg-sky-50 border border-sky-100 px-3 py-3">
+                        <span class="text-xs font-semibold text-slate-600">Total due</span>
+                        <span id="pos-total-due" class="text-lg sm:text-xl font-bold text-sky-900">₱0.00</span>
+                    </div>
+                    <div class="flex flex-col gap-2 pt-1 border-t border-dashed border-slate-200 mt-2">
                         <div class="space-y-1">
-                            <label for="pos-customer-name" class="text-xs font-medium text-slate-600 dark:text-slate-300">
+                            <label for="pos-customer-name" class="text-xs font-medium text-slate-600">
                                 Customer (optional)
                             </label>
                             <input
                                 type="text"
                                 id="pos-customer-name"
-                                class="w-full rounded-lg border border-slate-200 dark:border-darkmode-500 bg-white dark:bg-darkmode-700 px-3 py-2 text-xs text-slate-900 dark:text-slate-100 placeholder-slate-400 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition"
+                                class="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs text-slate-900 placeholder-slate-400 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition"
                                 placeholder="Customer name or ID"
                                 autocomplete="off"
                             >
                         </div>
                         <div class="space-y-1">
-                            <label for="pos-order-note" class="text-xs font-medium text-slate-600 dark:text-slate-300">
+                            <label for="pos-order-note" class="text-xs font-medium text-slate-600">
                                 Order notes (optional)
                             </label>
                             <textarea
                                 id="pos-order-note"
                                 rows="2"
-                                class="w-full rounded-lg border border-slate-200 dark:border-darkmode-500 bg-white dark:bg-darkmode-700 px-3 py-2 text-xs text-slate-900 dark:text-slate-100 placeholder-slate-400 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition resize-none"
+                                class="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs text-slate-900 placeholder-slate-400 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition resize-none"
                                 placeholder="Add special instructions (e.g. loyalty ID, allergy notes)"
                             ></textarea>
                         </div>
                     </div>
-                    <div class="flex items-center justify-between text-xs text-slate-500 dark:text-slate-400">
+                    <div class="hidden flex items-center justify-between text-xs text-slate-500">
                         <div class="flex items-center gap-1.5">
                             <span>Service charge</span>
-                            <span id="pos-service-charge-amount" class="hidden text-xs font-semibold text-slate-100">₱0.00</span>
+                            <span id="pos-service-charge-amount" class="hidden text-xs font-semibold text-slate-700">₱0.00</span>
                         </div>
                         <button type="button" id="pos-service-charge-btn" class="text-xs font-medium text-primary hover:underline">Add</button>
                     </div>
-                    <div class="h-px bg-slate-700 my-1.5"></div>
-                    <div class="flex items-center justify-between text-sm font-semibold text-slate-100">
-                        <span>Total due</span>
-                        <span id="pos-total-due" class="text-base sm:text-lg">₱0.00</span>
-                    </div>
                 </div>
-                <div id="pos-bir-footer" class="border-t border-slate-800 px-4 py-2 sm:px-5 text-[10px] text-slate-300 space-y-0.5 bg-slate-800/70">
+                <div id="pos-bir-footer" class="border-t border-amber-100 bg-amber-50 px-4 py-2 sm:px-5 text-[10px] text-amber-700 space-y-0.5">
                     <div id="pos-bir-tin-ptu"></div>
                     <p id="pos-bir-disclaimer" class="italic">This document is not valid for claim of input tax.</p>
                 </div>
@@ -252,20 +318,26 @@
                     <h3 class="text-sm font-semibold text-slate-800 dark:text-slate-100">
                         Payment
                     </h3>
-                    <span class="inline-flex items-center gap-1 rounded-full bg-slate-100 dark:bg-darkmode-700 px-2.5 py-1 text-[11px] font-medium text-slate-600 dark:text-slate-300">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg>
-                        Cash / Card / E-wallet
+                    <span class="inline-flex items-center gap-1.5 rounded-full bg-slate-100 dark:bg-darkmode-700 px-2.5 py-1 text-[11px] font-medium text-slate-600 dark:text-slate-300">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 text-primary" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg>
+                        <span id="pos-tender-label">Mode: Cash</span>
                     </span>
                 </div>
                 <div class="flex flex-wrap gap-2">
-                    <button type="button" class="pos-tender-type-btn flex-1 min-w-[0] inline-flex items-center justify-center gap-1.5 rounded-xl border border-primary/30 bg-primary/5 px-3 py-2.5 text-xs sm:text-sm font-semibold text-primary hover:bg-primary/10 transition-colors" data-type="cash">
-                        Cash
+                    <button type="button" class="pos-tender-type-btn flex-1 min-w-[0] inline-flex items-center justify-center gap-2 rounded-xl border border-slate-200 dark:border-darkmode-500 bg-slate-50/70 dark:bg-darkmode-700/60 px-3 py-2.5 text-xs sm:text-sm font-semibold text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-darkmode-600 transition-colors" data-type="cash">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="12" cy="12" r="2.5"/></svg>
+                        <span>Cash</span>
                     </button>
-                    <button type="button" class="pos-tender-type-btn flex-1 min-w-[0] inline-flex items-center justify-center gap-1.5 rounded-xl border border-slate-200 dark:border-darkmode-500 bg-slate-50/70 dark:bg-darkmode-700/60 px-3 py-2.5 text-xs sm:text-sm font-semibold text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-darkmode-600 transition-colors" data-type="card">
-                        Card
+                    <button type="button" class="pos-tender-type-btn flex-1 min-w-[0] inline-flex items-center justify-center gap-2 rounded-xl border border-slate-200 dark:border-darkmode-500 bg-slate-50/70 dark:bg-darkmode-700/60 px-3 py-2.5 text-xs sm:text-sm font-semibold text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-darkmode-600 transition-colors" data-type="card">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/><path d="M7 15h3"/></svg>
+                        <span>Card</span>
                     </button>
-                    <button type="button" class="pos-tender-type-btn flex-1 min-w-[0] inline-flex items-center justify-center gap-1.5 rounded-xl border border-slate-200 dark:border-darkmode-500 bg-slate-50/70 dark:bg-darkmode-700/60 px-3 py-2.5 text-xs sm:text-sm font-semibold text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-darkmode-600 transition-colors" data-type="ewallet">
-                        E-wallet / QR
+                    <button type="button" class="pos-tender-type-btn flex-1 min-w-[0] inline-flex items-center justify-center gap-2 rounded-xl border border-slate-200 dark:border-darkmode-500 bg-slate-50/70 dark:bg-darkmode-700/60 px-3 py-2.5 text-xs sm:text-sm font-semibold text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-darkmode-600 transition-colors" data-type="ewallet">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/>
+                            <rect x="14" y="14" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/>
+                        </svg>
+                        <span>E-wallet / QR</span>
                     </button>
                 </div>
                 <div class="space-y-2 hidden">
@@ -288,6 +360,7 @@
                     type="button"
                     id="pos-complete-sale-btn"
                     class="mt-1 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-primary px-4 py-3 text-sm sm:text-base font-semibold text-white shadow-sm hover:bg-primary/90 focus:ring-4 focus:ring-primary/20 transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
+                    title="Add items to complete a sale"
                 >
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
                     <span id="pos-complete-sale-label">Complete sale</span>
@@ -295,6 +368,47 @@
                 <p class="mt-1 text-[11px] text-slate-400 dark:text-slate-500">
                     Official receipt number and BIR-required details will be generated after completing the sale.
                 </p>
+            </div>
+        </div>
+    </div>
+
+    {{-- Line void manager approval modal (custom, not Swal) --}}
+    <div id="pos-void-modal" class="fixed inset-0 z-[100] hidden" aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="pos-void-modal-title">
+        <div id="pos-void-modal-backdrop" class="absolute inset-0 bg-slate-900/50 dark:bg-slate-900/70 backdrop-blur-sm transition-opacity"></div>
+        <div class="absolute inset-0 flex items-center justify-center p-4">
+            <div class="relative w-full max-w-md rounded-2xl border border-slate-200 dark:border-darkmode-600 bg-white dark:bg-darkmode-800 shadow-xl" role="document">
+                <div class="p-6 sm:p-6">
+                    <h2 id="pos-void-modal-title" class="text-lg font-semibold text-slate-800 dark:text-slate-100">Void line?</h2>
+                    <p class="mt-1 text-sm text-slate-600 dark:text-slate-300">
+                        Remove this item from the order. Enter manager PIN or password for this branch.
+                    </p>
+                    <div class="mt-4 space-y-2">
+                        <div>
+                            <label for="pos-void-manager-input-modal" class="block text-xs font-medium text-slate-600 dark:text-slate-300 mb-1.5">
+                                Manager PIN or password
+                            </label>
+                            <input
+                                type="password"
+                                id="pos-void-manager-input-modal"
+                                class="w-full rounded-lg border border-slate-200 dark:border-darkmode-500 bg-white dark:bg-darkmode-700 px-3 py-2.5 text-sm text-slate-900 dark:text-slate-100 placeholder-slate-400 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition"
+                                placeholder="••••••••"
+                                autocomplete="off"
+                                maxlength="255"
+                            >
+                            <p id="pos-void-manager-error" class="mt-1 text-xs text-rose-600 dark:text-rose-400 hidden">
+                                Enter manager PIN or password.
+                            </p>
+                        </div>
+                    </div>
+                    <div class="mt-6 flex flex-wrap items-center justify-end gap-2">
+                        <button type="button" id="pos-void-modal-cancel" class="rounded-lg border border-slate-200 dark:border-darkmode-500 bg-white dark:bg-darkmode-700 px-5 py-2.5 text-sm font-medium text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-darkmode-600 transition-colors">
+                            Cancel
+                        </button>
+                        <button type="button" id="pos-void-modal-confirm" class="rounded-lg bg-rose-600 hover:bg-rose-700 px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition-colors focus:ring-4 focus:ring-rose-500/30">
+                            Void
+                        </button>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -487,18 +601,42 @@
     var birDisplay = { tin: '', ptu_number: '', footer_text: 'This document is not valid for claim of input tax.' };
     var STOCK_LOW = 10;
     var STOCK_CRITICAL = 2;
+    var pendingVoidProductId = null;
+    var POS_CART_STORAGE_KEY = 'landogz_pos_cart';
+
+    function saveCartToStorage() {
+        try {
+            var state = { cartItems: cartItems, appliedDiscounts: appliedDiscounts, serviceChargeAmount: serviceChargeAmount };
+            localStorage.setItem(POS_CART_STORAGE_KEY, JSON.stringify(state));
+        } catch (e) {}
+    }
+
+    function loadCartFromStorage() {
+        try {
+            var raw = localStorage.getItem(POS_CART_STORAGE_KEY);
+            if (!raw) return;
+            var state = JSON.parse(raw);
+            if (state && Array.isArray(state.cartItems)) {
+                cartItems = state.cartItems;
+                appliedDiscounts = state.appliedDiscounts || [];
+                serviceChargeAmount = parseFloat(state.serviceChargeAmount) || 0;
+                renderCart();
+                renderAppliedDiscounts();
+            }
+        } catch (e) {}
+    }
 
     function getStockBadgeHtml(stock) {
         if (stock <= 0) {
-            return '<span class="inline-flex items-center gap-1 rounded-full bg-slate-200 dark:bg-darkmode-600 px-1.5 py-0.5 text-[10px] font-medium text-slate-600 dark:text-slate-400">Out of stock</span>';
+            return '<span class="inline-flex items-center gap-1 rounded-full border border-slate-200 dark:border-darkmode-500 bg-slate-100 dark:bg-darkmode-600 px-1.5 py-0.5 text-[10px] font-medium text-slate-500 dark:text-slate-400">Out of stock</span>';
         }
         if (stock <= STOCK_CRITICAL) {
-            return '<span class="inline-flex items-center gap-1 rounded-full bg-rose-100 dark:bg-rose-900/30 px-1.5 py-0.5 text-[10px] font-medium text-rose-700 dark:text-rose-300">' + stock + ' in stock</span>';
+            return '<span class="inline-flex items-center gap-1 rounded-full border border-rose-200 dark:border-rose-800 bg-rose-50 dark:bg-rose-900/30 px-1.5 py-0.5 text-[10px] font-medium text-rose-700 dark:text-rose-300 animate-pulse">' + stock + ' in stock</span>';
         }
         if (stock <= STOCK_LOW) {
-            return '<span class="inline-flex items-center gap-1 rounded-full bg-amber-100 dark:bg-amber-900/30 px-1.5 py-0.5 text-[10px] font-medium text-amber-700 dark:text-amber-300">' + stock + ' in stock</span>';
+            return '<span class="inline-flex items-center gap-1 rounded-full border border-amber-200 dark:border-amber-800 bg-amber-50 dark:bg-amber-900/30 px-1.5 py-0.5 text-[10px] font-medium text-amber-700 dark:text-amber-300 animate-pulse">' + stock + ' in stock</span>';
         }
-        return '<span class="inline-flex items-center gap-1 rounded-full bg-emerald-100 dark:bg-emerald-900/30 px-1.5 py-0.5 text-[10px] font-medium text-emerald-700 dark:text-emerald-300">' + stock + ' in stock</span>';
+        return '<span class="inline-flex items-center gap-1 rounded-full border border-emerald-200 dark:border-emerald-800 bg-emerald-50 dark:bg-emerald-900/30 px-1.5 py-0.5 text-[10px] font-medium text-emerald-700 dark:text-emerald-300">' + stock + ' in stock</span>';
     }
 
     function getCategoryPillClass(cat) {
@@ -554,6 +692,9 @@
             // Leave defaults if /auth/me fails
         });
 
+    // Init floating menu events
+    initFloatingMenu();
+
     // Resolve terminal from backend using TERMINAL_API_KEY and load products for the cashier's branch
     function loadTerminalAndProducts() {
         axios.get(apiBase + '/pos/terminal/current', headers)
@@ -562,10 +703,13 @@
                 if (!t) return;
                 currentTerminalId = t.id;
                 var terminalLabel = document.getElementById('pos-terminal-label');
-                if (terminalLabel) {
+                var terminalLabelInline = document.getElementById('pos-terminal-label-inline');
+                if (terminalLabel || terminalLabelInline) {
                     var code = t.code || ('T' + t.id);
                     var name = t.name || '';
-                    terminalLabel.textContent = 'Terminal: ' + code + (name ? ' · ' + name : '');
+                    var text = 'Terminal: ' + code + (name ? ' · ' + name : '');
+                    if (terminalLabel) terminalLabel.textContent = text;
+                    if (terminalLabelInline) terminalLabelInline.textContent = text;
                 }
                 if (t.bir_display) {
                     birDisplay.tin = t.bir_display.tin || '';
@@ -633,6 +777,30 @@
         renderProducts();
     }
 
+    function countByCategory(list) {
+        var all = list.length;
+        var rx = 0, otc = 0, supplies = 0;
+        list.forEach(function (p) {
+            var catName = (p.category && p.category.name ? p.category.name : '').toLowerCase();
+            if (/rx|prescription/.test(catName)) rx++;
+            else if (/otc|over[- ]the[- ]counter/.test(catName)) otc++;
+            else if (/supply|supplies|disposables?/.test(catName)) supplies++;
+        });
+        return { all: all, rx: rx, otc: otc, supplies: supplies };
+    }
+
+    function updateCategoryTabCounts() {
+        var counts = countByCategory(allProducts);
+        var elAll = document.getElementById('pos-tab-count-all');
+        var elRx = document.getElementById('pos-tab-count-rx');
+        var elOtc = document.getElementById('pos-tab-count-otc');
+        var elSupplies = document.getElementById('pos-tab-count-supplies');
+        if (elAll) elAll.textContent = counts.all;
+        if (elRx) elRx.textContent = counts.rx;
+        if (elOtc) elOtc.textContent = counts.otc;
+        if (elSupplies) elSupplies.textContent = counts.supplies;
+    }
+
     function renderProducts() {
         var emptyEl = document.getElementById('pos-products-empty');
         var gridOuter = document.getElementById('pos-products-grid');
@@ -678,35 +846,30 @@
                 var isRx = isProductRx(p);
                 var card = document.createElement('button');
                 card.type = 'button';
-                card.className = 'pos-product-card flex flex-col border border-slate-200/80 dark:border-darkmode-600 bg-white dark:bg-darkmode-800 text-left overflow-hidden' + (outOfStock ? ' opacity-75 cursor-not-allowed' : '');
+                card.className = 'pos-product-card group relative flex flex-col rounded-[14px] border-[1.5px] border-slate-200 dark:border-darkmode-600 bg-white dark:bg-darkmode-800 text-left overflow-hidden shadow-sm transition-all duration-200 hover:border-primary/40 hover:shadow-md hover:-translate-y-0.5' + (outOfStock ? ' opacity-60 cursor-not-allowed' : '');
                 card.setAttribute('data-product-id', p.id);
                 card.disabled = outOfStock;
                 card.innerHTML =
-                    '<div class="flex-1 p-3.5 sm:p-4 flex flex-col gap-2.5">' +
+                    '<div class="flex-1 p-3 flex flex-col gap-1">' +
                         '<div class="flex items-center justify-between gap-2">' +
-                            '<span class="text-[11px] font-medium rounded-full px-2 py-0.5 inline-flex w-fit ' + catPillClass + '">' + (catName || '—') + '</span>' +
-                            (isRx ? '<span class="inline-flex items-center justify-center rounded-full bg-rose-100 text-rose-700 px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide">Rx</span>' : '') +
+                            '<div class="flex items-center gap-1.5 min-w-0">' +
+                                (isRx ? '<span class="inline-flex items-center rounded-md border border-rose-200 dark:border-rose-800 bg-rose-50 dark:bg-rose-900/30 px-1.5 py-0.5 text-[10px] font-bold text-rose-600 dark:text-rose-300 uppercase">Rx</span>' : '<span class="text-[11px] font-medium rounded-full px-2 py-0.5 inline-flex shrink-0 ' + catPillClass + '">' + (catName || '—') + '</span>') +
+                            '</div>' +
+                            (!outOfStock ? '<span class="pos-add-circle flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary text-white shadow-sm transition-all hover:scale-110 hover:bg-primary/90" aria-label="Add to order"><svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></span>' : '') +
                         '</div>' +
-                        '<div class="text-sm sm:text-base font-bold text-slate-800 dark:text-slate-100 leading-tight line-clamp-2">' + name + '</div>' +
-                        (generic ? '<div class="text-xs text-slate-500 dark:text-slate-400 truncate">' + generic + '</div>' : '') +
-                        '<div class="mt-auto flex items-center justify-between flex-wrap gap-1 text-[11px] sm:text-xs">' +
-                            stockBadge +
-                            (unit ? '<span class="text-slate-400 dark:text-slate-500">' + unit + '</span>' : '') +
-                            '<span class="ml-auto text-sm font-bold text-primary">' + price + '</span>' +
-                        '</div>' +
-                    '</div>' +
-                    '<div class="border-t border-slate-100 dark:border-darkmode-600 p-1.5">' +
-                        '<div class="pos-add-btn w-full inline-flex items-center justify-center gap-1 rounded-lg border-2 border-primary text-primary py-1.5 text-xs font-semibold bg-transparent hover:bg-primary/10 transition-colors' + (outOfStock ? ' opacity-50 pointer-events-none' : '') + '">' +
-                            '<svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>' +
-                            'Add' +
+                        '<div class="text-sm font-bold text-slate-800 dark:text-slate-100 leading-tight line-clamp-2 min-h-[2.5rem] mb-0.5">' + name + '</div>' +
+                        (generic ? '<div class="text-xs text-slate-600 dark:text-slate-400 truncate">' + generic + '</div>' : '') +
+                        '<div class="mt-auto flex items-center justify-between flex-wrap gap-1.5 text-[11px]">' +
+                            '<span class="flex items-center gap-1 min-w-0">' + stockBadge + (unit ? ' <span class="text-slate-400 dark:text-slate-500 truncate">' + unit + '</span>' : '') + '</span>' +
+                            '<span class="text-base font-bold text-primary shrink-0">' + price + '</span>' +
                         '</div>' +
                     '</div>';
                 if (!outOfStock) {
                     card.addEventListener('click', function () {
                         addToCart(p);
-                        card.classList.add('pos-product-card-just-added');
+                        card.classList.add('pos-product-card-just-added', 'border-emerald-300', 'bg-emerald-50/50', 'dark:border-emerald-700', 'dark:bg-emerald-900/20');
                         setTimeout(function () {
-                            card.classList.remove('pos-product-card-just-added');
+                            card.classList.remove('pos-product-card-just-added', 'border-emerald-300', 'bg-emerald-50/50', 'dark:border-emerald-700', 'dark:bg-emerald-900/20');
                         }, 400);
                     });
                 }
@@ -797,6 +960,7 @@
             });
         }
         renderCart();
+        saveCartToStorage();
     }
 
     function updateCartQuantity(productId, delta) {
@@ -813,6 +977,7 @@
             }
         }
         renderCart();
+        saveCartToStorage();
     }
 
     function setCartQuantity(productId, quantity) {
@@ -828,6 +993,7 @@
             }
         }
         renderCart();
+        saveCartToStorage();
     }
 
     function clearCart() {
@@ -836,11 +1002,13 @@
         serviceChargeAmount = 0;
         renderCart();
         renderAppliedDiscounts();
+        saveCartToStorage();
     }
 
     function removeCartItem(productId) {
         cartItems = cartItems.filter(function (item) { return item.product_id !== productId; });
         renderCart();
+        saveCartToStorage();
     }
 
     function renderBirFooter() {
@@ -882,6 +1050,7 @@
                 appliedDiscounts.splice(idx, 1);
                 renderAppliedDiscounts();
                 renderCart();
+                saveCartToStorage();
             });
         });
     }
@@ -891,29 +1060,29 @@
         var badgeEl = document.getElementById('pos-order-item-badge');
         if (!container) return;
         if (!cartItems.length) {
-            container.innerHTML = '<div class="px-4 py-6 sm:px-5 text-center text-slate-300 text-xs">No items in the order yet. Tap <span class="font-semibold text-slate-100">Add</span> on items from the list to build an order.</div>';
+            container.innerHTML = '<div class="px-4 py-6 sm:px-5 text-center text-slate-400 text-xs">No items in the order yet. Tap <span class="font-semibold text-sky-600">Add</span> on items from the list to build an order.</div>';
             if (badgeEl) { badgeEl.classList.add('hidden'); badgeEl.textContent = '0 items'; }
         } else {
             var html = '';
             cartItems.forEach(function (item) {
                 var lineTotal = item.unit_price * item.quantity;
-                html += '<div class="pos-order-item flex items-center justify-between gap-3 group">' +
+                html += '<div class="pos-order-item flex items-center justify-between gap-3 group rounded-xl border border-slate-200 bg-white px-3 py-2 shadow-sm hover:shadow-md transition-shadow">' +
                     '<div class="min-w-0 flex-1">' +
                         '<div class="flex items-center gap-1.5">' +
-                            (item.is_rx ? '<span class="inline-flex items-center justify-center rounded-full bg-rose-100 dark:bg-rose-900/30 px-1.5 py-0.5 text-[10px] font-semibold text-rose-700 dark:text-rose-300 uppercase tracking-wide">Rx</span>' : '') +
-                            '<span class="pos-order-item-name text-sm font-semibold text-slate-800 dark:text-slate-100">' + item.name + '</span>' +
+                            (item.is_rx ? '<span class="inline-flex items-center justify-center rounded-full bg-rose-100 px-1.5 py-0.5 text-[10px] font-semibold text-rose-700 uppercase tracking-wide">Rx</span>' : '') +
+                            '<span class="pos-order-item-name text-sm font-semibold text-slate-900">' + item.name + '</span>' +
                         '</div>' +
-                        (item.generic_name ? '<div class="text-xs text-slate-500 dark:text-slate-400 truncate">' + item.generic_name + '</div>' : '') +
-                        '<div class="mt-0.5 text-[11px] text-slate-500 dark:text-slate-400">₱' + (item.unit_price.toFixed ? item.unit_price.toFixed(2) : item.unit_price) + ' · x ' + item.quantity + '</div>' +
+                        (item.generic_name ? '<div class="text-xs text-slate-500 truncate">' + item.generic_name + '</div>' : '') +
+                        '<div class="mt-0.5 text-[11px] text-slate-500">₱' + (item.unit_price.toFixed ? item.unit_price.toFixed(2) : item.unit_price) + ' · x ' + item.quantity + '</div>' +
                     '</div>' +
                     '<div class="flex items-center gap-2 flex-shrink-0">' +
-                        '<div class="pos-qty-control">' +
-                            '<button type="button" class="pos-cart-qty-btn inline-flex h-7 w-7 items-center justify-center rounded-full border border-slate-500 text-slate-100" data-id="' + item.product_id + '" data-delta="-1">-</button>' +
-                            '<input type="number" class="pos-cart-qty-input w-12 min-w-[2.5rem] text-center text-sm font-semibold text-slate-100 rounded-lg border border-slate-500 bg-slate-900 py-1 px-1 focus:ring-2 focus:ring-primary/20 focus:border-primary" min="1" value="' + item.quantity + '" data-id="' + item.product_id + '" inputmode="numeric">' +
-                            '<button type="button" class="pos-cart-qty-btn inline-flex h-7 w-7 items-center justify-center rounded-full border border-slate-500 text-slate-100" data-id="' + item.product_id + '" data-delta="1">+</button>' +
+                        '<div class="pos-qty-control inline-flex items-center gap-1.5 bg-slate-50 rounded-full px-1.5 py-1">' +
+                            '<button type="button" class="pos-cart-qty-btn inline-flex h-7 w-7 items-center justify-center rounded-full border border-slate-300 bg-white text-slate-700 hover:bg-slate-50" data-id="' + item.product_id + '" data-delta="-1">-</button>' +
+                            '<input type="number" class="pos-cart-qty-input w-12 min-w-[2.5rem] text-center text-sm font-semibold text-slate-800 rounded-lg border border-slate-200 bg-white py-1 px-1 focus:ring-2 focus:ring-primary/20 focus:border-primary" min="1" value="' + item.quantity + '" data-id="' + item.product_id + '" inputmode="numeric">' +
+                            '<button type="button" class="pos-cart-qty-btn inline-flex h-7 w-7 items-center justify-center rounded-full border border-slate-300 bg-white text-slate-700 hover:bg-slate-50" data-id="' + item.product_id + '" data-delta="1">+</button>' +
                         '</div>' +
-                        '<span class="ml-2 text-sm font-semibold text-slate-100">' + formatMoney(lineTotal) + '</span>' +
-                        '<button type="button" class="pos-cart-void-btn inline-flex h-7 w-7 items-center justify-center rounded-full border border-rose-200 dark:border-rose-800 text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-900/20 ml-1" data-id="' + item.product_id + '" title="Void line">×</button>' +
+                        '<span class="ml-2 text-sm font-semibold text-sky-900">' + formatMoney(lineTotal) + '</span>' +
+                        '<button type="button" class="pos-cart-void-btn inline-flex h-7 w-7 items-center justify-center rounded-full border border-rose-200 text-rose-600 hover:bg-rose-50 ml-1" data-id="' + item.product_id + '" title="Void line">×</button>' +
                     '</div>' +
                 '</div>';
             });
@@ -943,92 +1112,7 @@
             container.querySelectorAll('.pos-cart-void-btn').forEach(function (btn) {
                 btn.addEventListener('click', function () {
                     var id = parseInt(this.getAttribute('data-id'), 10);
-                    if (typeof Swal !== 'undefined') {
-                        Swal.fire({
-                            icon: 'question',
-                            title: 'Void line?',
-                            html: '<p class="text-sm text-slate-600 dark:text-slate-400">Remove this item from the order. Enter manager PIN or password for this branch.</p>' +
-                                '<input type="password" id="pos-void-manager-input" class="swal2-input mt-3" placeholder="Manager PIN or password" autocomplete="off" maxlength="255">',
-                            showCancelButton: true,
-                            confirmButtonText: 'Void',
-                            cancelButtonText: 'Cancel',
-                            preConfirm: function () {
-                                var input = document.getElementById('pos-void-manager-input');
-                                var val = input && input.value ? input.value.trim() : '';
-                                if (!val) {
-                                    Swal.showValidationMessage('Enter manager PIN or password.');
-                                    return false;
-                                }
-                                return val;
-                            },
-                            didOpen: function () {
-                                var input = document.getElementById('pos-void-manager-input');
-                                if (input) {
-                                    input.focus();
-                                    input.addEventListener('keydown', function (e) {
-                                        if (e.key === 'Enter') {
-                                            e.preventDefault();
-                                            Swal.clickConfirm();
-                                        }
-                                    });
-                                }
-                            }
-                        }).then(function (res) {
-                            if (!res.isConfirmed || res.value === false) return;
-                            var pinOrPassword = res.value;
-                            axios.post(apiBase + '/pos/verify-manager', { pin_or_password: pinOrPassword }, headers)
-                                .then(function () {
-                                    var item = findCartItem(id);
-                                    var productName = item ? item.name : '';
-                                    var reasonOptions = [
-                                        { value: 'wrong_item', label: 'Wrong item' },
-                                        { value: 'customer_changed_mind', label: 'Customer changed mind' },
-                                        { value: 'damaged', label: 'Damaged' },
-                                        { value: 'other', label: 'Other' }
-                                    ];
-                                    var optionsHtml = reasonOptions.map(function (o) { return '<option value="' + o.value + '">' + o.label + '</option>'; }).join('');
-                                    if (typeof Swal !== 'undefined') {
-                                        Swal.fire({
-                                            icon: 'question',
-                                            title: 'Reason for void',
-                                            html: '<p class="text-sm text-slate-600 dark:text-slate-400 mb-2">Select reason for audit trail.</p>' +
-                                                '<select id="pos-void-reason" class="swal2-input mt-2" style="min-width: 220px;">' + optionsHtml + '</select>',
-                                            showCancelButton: true,
-                                            confirmButtonText: 'Void line',
-                                            cancelButtonText: 'Cancel',
-                                            preConfirm: function () {
-                                                var sel = document.getElementById('pos-void-reason');
-                                                return sel ? sel.value : 'other';
-                                            }
-                                        }).then(function (res2) {
-                                            if (!res2.isConfirmed) return;
-                                            var reason = res2.value || 'other';
-                                            axios.post(apiBase + '/pos/log-line-void', { product_id: id, product_name: productName, reason: reason }, headers)
-                                                .then(function () {
-                                                    removeCartItem(id);
-                                                    if (typeof Swal !== 'undefined') Swal.fire({ toast: true, position: 'top-end', icon: 'success', title: 'Line voided', text: 'Item removed from the order.', timer: 1200, showConfirmButton: false, timerProgressBar: true });
-                                                })
-                                                .catch(function () {
-                                                    removeCartItem(id);
-                                                    if (typeof Swal !== 'undefined') Swal.fire({ toast: true, position: 'top-end', icon: 'success', title: 'Line voided', text: 'Item removed.', timer: 1200, showConfirmButton: false, timerProgressBar: true });
-                                                });
-                                        });
-                                    } else {
-                                        removeCartItem(id);
-                                    }
-                                })
-                                .catch(function (err) {
-                                    var msg = err.response && err.response.data && err.response.data.message
-                                        ? err.response.data.message
-                                        : (err.response && err.response.data && err.response.data.errors && err.response.data.errors.pin_or_password && err.response.data.errors.pin_or_password[0])
-                                            ? err.response.data.errors.pin_or_password[0]
-                                            : 'Manager verification failed.';
-                                    if (typeof Swal !== 'undefined') Swal.fire({ icon: 'error', title: 'Cannot void', text: msg });
-                                });
-                        });
-                    } else {
-                        removeCartItem(id);
-                    }
+                    openVoidManagerModal(id);
                 });
             });
             var itemsCount = cartItems.reduce(function (sum, item) { return sum + item.quantity; }, 0);
@@ -1059,6 +1143,8 @@
         if (vatExemptEl) vatExemptEl.textContent = formatMoney(vatExempt);
         if (zeroEl) zeroEl.textContent = formatMoney(zeroRated);
         document.getElementById('pos-vat-amount').textContent = formatMoney(vatAmount);
+        var vatSummaryEl = document.getElementById('pos-vat-summary');
+        if (vatSummaryEl) vatSummaryEl.textContent = formatMoney(vatAmount);
         var totalDueEl = document.getElementById('pos-total-due');
         if (totalDueEl) {
             totalDueEl.textContent = formatMoney(totalDue);
@@ -1137,6 +1223,42 @@
         var change = received - total;
         if (change < 0) change = 0;
         changeEl.textContent = formatMoney(change);
+    }
+
+    // Floating action menu: lock and logout
+    function initFloatingMenu() {
+        var lockBtn = document.getElementById('pos-lock-btn');
+        var logoutBtn = document.getElementById('pos-logout-btn');
+        if (lockBtn) {
+            lockBtn.addEventListener('click', function () {
+                // Lock: keep token, remember lock time, then go to POS lock screen
+                try {
+                    localStorage.setItem('pos_locked_at', String(Date.now()));
+                } catch (e) {}
+                window.location.href = '{{ route('dashboard.pos.lock') }}';
+            });
+        }
+        if (logoutBtn) {
+            logoutBtn.addEventListener('click', function () {
+                if (typeof Swal !== 'undefined') {
+                    Swal.fire({
+                        icon: 'question',
+                        title: 'Logout from POS?',
+                        text: 'Current POS session will be closed.',
+                        showCancelButton: true,
+                        confirmButtonText: 'Yes, logout',
+                        cancelButtonText: 'Cancel',
+                    }).then(function (res) {
+                        if (!res.isConfirmed) return;
+                        localStorage.removeItem('super_admin_token');
+                        window.location.href = dashboardBase + '/login';
+                    });
+                } else {
+                    localStorage.removeItem('super_admin_token');
+                    window.location.href = dashboardBase + '/login';
+                }
+            });
+        }
     }
 
     function openPaymentModal(type, onDone) {
@@ -1295,13 +1417,41 @@
             var t = btn.getAttribute('data-type');
             if (t === type) {
                 btn.classList.remove('border-slate-200', 'dark:border-darkmode-500', 'bg-slate-50/70', 'dark:bg-darkmode-700/60', 'text-slate-700', 'dark:text-slate-200');
-                btn.classList.add('border-primary/30', 'bg-primary/5', 'text-primary');
+                btn.classList.add('border-primary', 'bg-primary', 'text-white', 'shadow-sm');
             } else {
                 btn.classList.add('border-slate-200', 'dark:border-darkmode-500', 'bg-slate-50/70', 'dark:bg-darkmode-700/60', 'text-slate-700', 'dark:text-slate-200');
-                btn.classList.remove('border-primary/30', 'bg-primary/5', 'text-primary');
+                btn.classList.remove('border-primary', 'bg-primary', 'text-white', 'shadow-sm');
             }
         });
+        var tenderLabel = document.getElementById('pos-tender-label');
+        if (tenderLabel) {
+            var map = {
+                cash: 'Mode: Cash',
+                card: 'Mode: Card',
+                ewallet: 'Mode: E-wallet / QR',
+            };
+            tenderLabel.textContent = map[type] || 'Mode: Cash';
+        }
         updateCompleteSaleButtonState();
+    }
+
+    function toggleVatDetails() {
+        var panel = document.getElementById('pos-vat-breakdown');
+        var icon = document.getElementById('pos-vat-toggle-icon');
+        if (!panel) return;
+        var willShow = panel.classList.contains('hidden');
+        if (willShow) {
+            panel.classList.remove('hidden');
+        } else {
+            panel.classList.add('hidden');
+        }
+        if (icon) {
+            if (willShow) {
+                icon.classList.add('rotate-90');
+            } else {
+                icon.classList.remove('rotate-90');
+            }
+        }
     }
 
     function setView(mode) {
@@ -1310,12 +1460,14 @@
         var listBtn = document.getElementById('pos-view-list');
         if (gridBtn && listBtn) {
             if (viewMode === 'grid') {
-                gridBtn.classList.add('bg-white', 'dark:bg-darkmode-800', 'text-primary', 'shadow-sm');
-                listBtn.classList.remove('bg-white', 'dark:bg-darkmode-800', 'text-primary', 'shadow-sm');
+                gridBtn.classList.add('bg-primary', 'text-white', 'shadow-sm');
+                gridBtn.classList.remove('text-slate-400');
+                listBtn.classList.remove('bg-primary', 'text-white', 'shadow-sm');
                 listBtn.classList.add('text-slate-400');
             } else {
-                listBtn.classList.add('bg-white', 'dark:bg-darkmode-800', 'text-primary', 'shadow-sm');
-                gridBtn.classList.remove('bg-white', 'dark:bg-darkmode-800', 'text-primary', 'shadow-sm');
+                listBtn.classList.add('bg-primary', 'text-white', 'shadow-sm');
+                listBtn.classList.remove('text-slate-400');
+                gridBtn.classList.remove('bg-primary', 'text-white', 'shadow-sm');
                 gridBtn.classList.add('text-slate-400');
             }
         }
@@ -1438,6 +1590,7 @@
                 var d = r.data && r.data.data ? r.data.data : r.data;
                 var items = Array.isArray(d.data) ? d.data : (Array.isArray(d) ? d : []);
                 allProducts = items;
+                updateCategoryTabCounts();
                 applyFilters();
             })
             .catch(function (err) {
@@ -1540,6 +1693,13 @@
                         timerProgressBar: true,
                     });
                 }
+                var amountInput = document.getElementById('pos-amount-received');
+                var received = amountInput ? parseAmount(amountInput.value) : 0;
+                var totalAmount = parseFloat(d.total) || 0;
+                var changeAmt = Math.max(0, received - totalAmount);
+                var receiptPrintUrl = dashboardBase + '/pos/receipt-print';
+                var qs = '?transaction_id=' + encodeURIComponent(d.id) + '&amount_received=' + encodeURIComponent(received) + '&change=' + encodeURIComponent(changeAmt);
+                window.open(receiptPrintUrl + qs, 'pos_receipt_print', 'width=800,height=900,scrollbars=yes');
                 clearCart();
                 document.getElementById('pos-amount-received').value = '';
                 updateChange();
@@ -1554,6 +1714,105 @@
             })
             .finally(function () {
                 if (btn) btn.disabled = false;
+            });
+    }
+
+    function openVoidManagerModal(productId) {
+        pendingVoidProductId = productId;
+        var modal = document.getElementById('pos-void-modal');
+        var input = document.getElementById('pos-void-manager-input-modal');
+        var errorEl = document.getElementById('pos-void-manager-error');
+        if (!modal) return;
+        if (input) {
+            input.value = '';
+            input.classList.remove('border-rose-500');
+        }
+        if (errorEl) errorEl.classList.add('hidden');
+        modal.classList.remove('hidden');
+        if (input) input.focus();
+    }
+
+    function closeVoidManagerModal() {
+        var modal = document.getElementById('pos-void-modal');
+        if (modal) modal.classList.add('hidden');
+    }
+
+    function confirmVoidManagerModal() {
+        var input = document.getElementById('pos-void-manager-input-modal');
+        var errorEl = document.getElementById('pos-void-manager-error');
+        var pinOrPassword = input && input.value ? input.value.trim() : '';
+        if (!pinOrPassword) {
+            if (errorEl) errorEl.classList.remove('hidden');
+            if (input) {
+                input.classList.add('border-rose-500');
+                input.focus();
+            }
+            return;
+        }
+        if (errorEl) errorEl.classList.add('hidden');
+        if (input) input.classList.remove('border-rose-500');
+        if (!pendingVoidProductId) {
+            closeVoidManagerModal();
+            return;
+        }
+        var id = pendingVoidProductId;
+        axios.post(apiBase + '/pos/verify-manager', { pin_or_password: pinOrPassword }, headers)
+            .then(function () {
+                var item = findCartItem(id);
+                var productName = item ? item.name : '';
+                var reasonOptions = [
+                    { value: 'wrong_item', label: 'Wrong item' },
+                    { value: 'customer_changed_mind', label: 'Customer changed mind' },
+                    { value: 'damaged', label: 'Damaged' },
+                    { value: 'other', label: 'Other' }
+                ];
+                var optionsHtml = reasonOptions.map(function (o) { return '<option value="' + o.value + '">' + o.label + '</option>'; }).join('');
+                if (typeof Swal !== 'undefined') {
+                    Swal.fire({
+                        icon: 'question',
+                        title: 'Reason for void',
+                        html: '<p class="text-sm text-slate-600 dark:text-slate-400 mb-2">Select reason for audit trail.</p>' +
+                            '<select id="pos-void-reason" class="swal2-input mt-2" style="min-width: 220px;">' + optionsHtml + '</select>',
+                        showCancelButton: true,
+                        confirmButtonText: 'Void line',
+                        cancelButtonText: 'Cancel',
+                        preConfirm: function () {
+                            var sel = document.getElementById('pos-void-reason');
+                            return sel ? sel.value : 'other';
+                        }
+                    }).then(function (res2) {
+                        if (!res2.isConfirmed) return;
+                        var reason = res2.value || 'other';
+                        axios.post(apiBase + '/pos/log-line-void', { product_id: id, product_name: productName, reason: reason }, headers)
+                            .then(function () {
+                                removeCartItem(id);
+                                if (typeof Swal !== 'undefined') Swal.fire({ toast: true, position: 'top-end', icon: 'success', title: 'Line voided', text: 'Item removed from the order.', timer: 1200, showConfirmButton: false, timerProgressBar: true });
+                            })
+                            .catch(function () {
+                                removeCartItem(id);
+                                if (typeof Swal !== 'undefined') Swal.fire({ toast: true, position: 'top-end', icon: 'success', title: 'Line voided', text: 'Item removed.', timer: 1200, showConfirmButton: false, timerProgressBar: true });
+                            });
+                    });
+                } else {
+                    removeCartItem(id);
+                }
+                pendingVoidProductId = null;
+                closeVoidManagerModal();
+            })
+            .catch(function (err) {
+                var msg = err.response && err.response.data && err.response.data.message
+                    ? err.response.data.message
+                    : (err.response && err.response.data && err.response.data.errors && err.response.data.errors.pin_or_password && err.response.data.errors.pin_or_password[0])
+                        ? err.response.data.errors.pin_or_password[0]
+                        : 'Manager verification failed.';
+                if (errorEl) {
+                    errorEl.textContent = msg;
+                    errorEl.classList.remove('hidden');
+                }
+                if (input) {
+                    input.classList.add('border-rose-500');
+                    input.focus();
+                }
             });
     }
 
@@ -1605,6 +1864,7 @@
         var name = nameInput && nameInput.value ? nameInput.value.trim() : '';
         appliedDiscounts.push({ type: 'sc_pwd', amount: scPwdModalDiscountAmount, reference_id: id, customer_name: name });
         renderCart();
+        saveCartToStorage();
         closeScPwdModal();
         if (typeof Swal !== 'undefined') Swal.fire({ toast: true, position: 'top-end', icon: 'success', title: 'Applied', text: 'SC/PWD 20% discount applied.', timer: 1200, showConfirmButton: false, timerProgressBar: true });
     }
@@ -1631,6 +1891,7 @@
             if (!res.isConfirmed || !res.value) return;
             appliedDiscounts.push({ type: typeKey, amount: res.value, reference_id: null, customer_name: null });
             renderCart();
+            saveCartToStorage();
         });
     }
 
@@ -1746,6 +2007,7 @@
         heldOrders.splice(index, 1);
         updateHoldButtonText();
         renderCart();
+        saveCartToStorage();
     }
 
     // Event bindings
@@ -1789,6 +2051,30 @@
         var scPwdBtn = document.getElementById('pos-sc-pwd-btn');
         if (scPwdBtn) scPwdBtn.addEventListener('click', function () { document.getElementById('pos-discount-dropdown').classList.add('hidden'); openScPwdModal(); });
 
+        var voidModal = document.getElementById('pos-void-modal');
+        var voidModalBackdrop = document.getElementById('pos-void-modal-backdrop');
+        var voidModalCancel = document.getElementById('pos-void-modal-cancel');
+        var voidModalConfirm = document.getElementById('pos-void-modal-confirm');
+        var voidManagerInput = document.getElementById('pos-void-manager-input-modal');
+        if (voidModalBackdrop) voidModalBackdrop.addEventListener('click', closeVoidManagerModal);
+        if (voidModalCancel) voidModalCancel.addEventListener('click', closeVoidManagerModal);
+        if (voidModalConfirm) voidModalConfirm.addEventListener('click', confirmVoidManagerModal);
+        if (voidManagerInput) {
+            voidManagerInput.addEventListener('keydown', function (e) {
+                if (e.key === 'Enter') { e.preventDefault(); confirmVoidManagerModal(); }
+            });
+        }
+        if (voidModal) {
+            voidModal.addEventListener('keydown', function (e) {
+                if (e.key === 'Escape') { e.preventDefault(); closeVoidManagerModal(); }
+            });
+        }
+
+        var vatToggleBtn = document.getElementById('pos-vat-toggle');
+        if (vatToggleBtn) {
+            vatToggleBtn.addEventListener('click', toggleVatDetails);
+        }
+
         var scPwdModal = document.getElementById('pos-sc-pwd-modal');
         var scPwdModalBackdrop = document.getElementById('pos-sc-pwd-modal-backdrop');
         var scPwdModalCancel = document.getElementById('pos-sc-pwd-modal-cancel');
@@ -1831,7 +2117,7 @@
             serviceChargeBtn.addEventListener('click', function () {
                 var subtotal = cartItems.reduce(function (s, i) { return s + i.unit_price * i.quantity; }, 0);
                 if (subtotal <= 0) { if (typeof Swal !== 'undefined') Swal.fire({ icon: 'warning', title: 'No items', text: 'Add items first.' }); return; }
-                if (typeof Swal === 'undefined') { serviceChargeAmount = Math.round(subtotal * 0.05 * 100) / 100; renderCart(); return; }
+                if (typeof Swal === 'undefined') { serviceChargeAmount = Math.round(subtotal * 0.05 * 100) / 100; renderCart(); saveCartToStorage(); return; }
                 Swal.fire({
                     title: 'Service charge',
                     input: 'number',
@@ -1841,7 +2127,7 @@
                     showCancelButton: true,
                     confirmButtonText: 'Add'
                 }).then(function (res) {
-                    if (res.isConfirmed && res.value !== undefined) { serviceChargeAmount = parseFloat(res.value) || 0; renderCart(); }
+                    if (res.isConfirmed && res.value !== undefined) { serviceChargeAmount = parseFloat(res.value) || 0; renderCart(); saveCartToStorage(); }
                 });
             });
         }
@@ -1944,11 +2230,21 @@
         document.querySelectorAll('.pos-category-chip').forEach(function (chip) {
             chip.addEventListener('click', function () {
                 document.querySelectorAll('.pos-category-chip').forEach(function (c) {
-                    c.classList.remove('bg-primary', 'text-white', 'shadow-sm');
-                    c.classList.add('bg-slate-100', 'text-slate-700', 'dark:bg-darkmode-700', 'dark:text-slate-200');
+                    c.classList.remove('border-primary', 'bg-primary', 'text-white', 'font-semibold', 'shadow-sm');
+                    c.classList.add('border-slate-200', 'dark:border-darkmode-500', 'bg-transparent', 'text-slate-500', 'dark:text-slate-400', 'font-medium');
+                    var badge = c.querySelector('.pos-tab-badge');
+                    if (badge) {
+                        badge.classList.remove('bg-white/25');
+                        badge.classList.add('bg-slate-100', 'dark:bg-darkmode-600', 'text-slate-500', 'dark:text-slate-400');
+                    }
                 });
-                this.classList.add('bg-primary', 'text-white', 'shadow-sm');
-                this.classList.remove('bg-slate-100', 'text-slate-700', 'dark:bg-darkmode-700', 'dark:text-slate-200');
+                this.classList.add('border-primary', 'bg-primary', 'text-white', 'font-semibold', 'shadow-sm');
+                this.classList.remove('border-slate-200', 'dark:border-darkmode-500', 'bg-transparent', 'text-slate-500', 'dark:text-slate-400', 'font-medium');
+                var badge = this.querySelector('.pos-tab-badge');
+                if (badge) {
+                    badge.classList.add('bg-white/25');
+                    badge.classList.remove('bg-slate-100', 'dark:bg-darkmode-600', 'text-slate-500', 'dark:text-slate-400');
+                }
                 currentCategory = this.getAttribute('data-category') || '';
                 applyFilters();
             });
@@ -1979,7 +2275,8 @@
         });
     })();
 
-    // Initial load
+    // Initial load: restore cart from localStorage, then load terminal and products
+    loadCartFromStorage();
     loadTerminalAndProducts();
 })();
 </script>

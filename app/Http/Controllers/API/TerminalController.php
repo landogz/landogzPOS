@@ -35,6 +35,7 @@ class TerminalController extends Controller
                 'code' => $t->code,
                 'name' => $t->name,
                 'min' => $t->min,
+                'sn' => $t->sn,
                 'tin' => $t->tin,
                 'is_active' => $t->is_active,
                 'is_registered' => $t->hasApiKey(),
@@ -67,6 +68,7 @@ class TerminalController extends Controller
             'code' => $t->code,
             'name' => $t->name,
             'min' => $t->min,
+            'sn' => $t->sn,
             'tin' => $t->tin,
             'is_active' => $t->is_active,
             'is_registered' => $t->hasApiKey(),
@@ -87,6 +89,7 @@ class TerminalController extends Controller
             'code' => 'required|string|max:50',
             'name' => 'nullable|string|max:255',
             'min' => 'nullable|string|max:50',
+            'sn' => 'nullable|string|max:50',
             'tin' => 'nullable|string|max:50',
             'is_active' => 'nullable|boolean',
         ]);
@@ -173,12 +176,13 @@ class TerminalController extends Controller
             'code' => 'sometimes|string|max:50',
             'name' => 'nullable|string|max:255',
             'min' => 'nullable|string|max:50',
+            'sn' => 'nullable|string|max:50',
             'tin' => 'nullable|string|max:50',
             'is_active' => 'nullable|boolean',
         ]);
-        $old = $terminal->only(['code', 'name', 'is_active']);
+        $old = $terminal->only(['code', 'name', 'min', 'sn', 'tin', 'is_active']);
         $terminal->update($validated);
-        AuditLogService::log('updated', 'terminals', (int) $terminal->id, $old, $terminal->fresh()->only(['code', 'name', 'is_active']), $request, $branch->id);
+        AuditLogService::log('updated', 'terminals', (int) $terminal->id, $old, $terminal->fresh()->only(['code', 'name', 'min', 'sn', 'tin', 'is_active']), $request, $branch->id);
         return response()->json([
             'status' => 'success',
             'message' => 'Terminal updated.',

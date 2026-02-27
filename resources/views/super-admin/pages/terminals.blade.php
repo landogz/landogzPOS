@@ -68,6 +68,10 @@
                         <input type="text" id="create-min" maxlength="50" placeholder="Machine Identification Number (BIR)" class="w-full rounded-xl border border-slate-200 dark:border-darkmode-500 bg-slate-50/50 dark:bg-darkmode-700/50 px-4 py-3 text-slate-900 dark:text-slate-100 placeholder-slate-400 focus:border-primary focus:ring-2 focus:ring-primary/20 focus:bg-white dark:focus:bg-darkmode-700 outline-none transition" />
                     </div>
                     <div>
+                        <label for="create-sn" class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">SN</label>
+                        <input type="text" id="create-sn" maxlength="50" placeholder="Serial Number (BIR receipt header)" class="w-full rounded-xl border border-slate-200 dark:border-darkmode-500 bg-slate-50/50 dark:bg-darkmode-700/50 px-4 py-3 text-slate-900 dark:text-slate-100 placeholder-slate-400 focus:border-primary focus:ring-2 focus:ring-primary/20 focus:bg-white dark:focus:bg-darkmode-700 outline-none transition" />
+                    </div>
+                    <div>
                         <label for="create-tin" class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">TIN</label>
                         <input type="text" id="create-tin" maxlength="50" placeholder="Tax Identification Number" class="w-full rounded-xl border border-slate-200 dark:border-darkmode-500 bg-slate-50/50 dark:bg-darkmode-700/50 px-4 py-3 text-slate-900 dark:text-slate-100 placeholder-slate-400 focus:border-primary focus:ring-2 focus:ring-primary/20 focus:bg-white dark:focus:bg-darkmode-700 outline-none transition" />
                     </div>
@@ -112,6 +116,10 @@
                     <div>
                         <label for="edit-min" class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">MIN</label>
                         <input type="text" id="edit-min" maxlength="50" class="w-full rounded-xl border border-slate-200 dark:border-darkmode-500 bg-slate-50/50 dark:bg-darkmode-700/50 px-4 py-3 text-slate-900 dark:text-slate-100 placeholder-slate-400 focus:border-primary focus:ring-2 focus:ring-primary/20 focus:bg-white dark:focus:bg-darkmode-700 outline-none transition" />
+                    </div>
+                    <div>
+                        <label for="edit-sn" class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">SN</label>
+                        <input type="text" id="edit-sn" maxlength="50" class="w-full rounded-xl border border-slate-200 dark:border-darkmode-500 bg-slate-50/50 dark:bg-darkmode-700/50 px-4 py-3 text-slate-900 dark:text-slate-100 placeholder-slate-400 focus:border-primary focus:ring-2 focus:ring-primary/20 focus:bg-white dark:focus:bg-darkmode-700 outline-none transition" />
                     </div>
                     <div>
                         <label for="edit-tin" class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">TIN</label>
@@ -567,6 +575,7 @@
             document.getElementById('create-code').value = '';
             document.getElementById('create-name').value = '';
             document.getElementById('create-min').value = '';
+            document.getElementById('create-sn').value = '';
             document.getElementById('create-tin').value = '';
             document.getElementById('create-is-active').checked = true;
             if (typeof TomSelect !== 'undefined') {
@@ -591,6 +600,7 @@
         document.getElementById('edit-code').value = data.code || '';
         document.getElementById('edit-name').value = data.name || '';
         document.getElementById('edit-min').value = data.min || '';
+        document.getElementById('edit-sn').value = data.sn || '';
         document.getElementById('edit-tin').value = data.tin || '';
         document.getElementById('edit-is-active').checked = !!data.is_active;
         if (editModal) { editModal.classList.remove('hidden'); editModal.style.display = 'flex'; document.body.style.overflow = 'hidden'; }
@@ -607,6 +617,7 @@
             code: code,
             name: document.getElementById('create-name').value.trim() || null,
             min: document.getElementById('create-min').value.trim() || null,
+            sn: document.getElementById('create-sn').value.trim() || null,
             tin: document.getElementById('create-tin').value.trim() || null,
             is_active: document.getElementById('create-is-active').checked
         };
@@ -638,6 +649,7 @@
             code: code,
             name: document.getElementById('edit-name').value.trim() || null,
             min: document.getElementById('edit-min').value.trim() || null,
+            sn: document.getElementById('edit-sn').value.trim() || null,
             tin: document.getElementById('edit-tin').value.trim() || null,
             is_active: document.getElementById('edit-is-active').checked
         };

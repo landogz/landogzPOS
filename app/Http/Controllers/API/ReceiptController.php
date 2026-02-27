@@ -31,24 +31,27 @@ class ReceiptController extends Controller
         $branch = $transaction->branch;
         $company = $branch?->company;
         $terminal = $transaction->terminal;
-        $bir = BirSetting::where('branch_id', $transaction->branch_id)->first();
+        $birBranch = BirSetting::where('branch_id', $transaction->branch_id)->first();
 
-        // Top of receipt: from branch + company + terminal (dashboard/branches + terminals)
+        // Top of receipt: company (name, TIN) + branch (address) + terminal (MIN, SN) — header TIN is company TIN
         $receiptHeader = [
             'company_name' => $company?->name ?? $branch?->name ?? config('app.name'),
             'branch_name' => $branch?->name ?? '',
             'address' => $branch?->address ?? '',
-            'vat_registered_tin' => $bir?->tin ?? $branch?->tin ?? '',
+            'vat_registered_tin' => $company?->tin ?? $branch?->tin ?? '',
             'terminal_code' => $terminal?->code ?? '',
             'terminal_name' => $terminal?->name ?? '',
             'min' => $terminal?->min ?? '',
-            'tin' => $terminal?->tin ?? $bir?->tin ?? $branch?->tin ?? '',
+            'sn' => $terminal?->sn ?? $terminal?->code ?? '',
+            'tin' => $company?->tin ?? $branch?->tin ?? '',
+            'logo_url' => $branch?->logo_url ?? $company?->logo_url ?? null,
         ];
 
-        // Bottom of receipt: from BIR settings only (dashboard/bir-settings)
+        // System provider footer (BIR required): ONE config for ALL receipts — from first BIR record (dashboard/bir-settings)
+        $birProvider = BirSetting::orderBy('id')->first();
         $receiptFooter = [
-            'tin' => $bir?->tin ?? $branch?->tin ?? '',
-            'footer_text' => $bir?->footer_text ?? 'This document is not valid for claim of input tax.',
+            'tin' => $birProvider?->tin ?? $birBranch?->tin ?? $branch?->tin ?? '',
+            'footer_text' => $birProvider?->footer_text ?? 'This document is not valid for claim of input tax.',
         ];
 
         $receipt = [
@@ -58,20 +61,25 @@ class ReceiptController extends Controller
             'receipt_footer' => $receiptFooter,
             'pharmacy_name' => $receiptHeader['company_name'],
             'address' => $receiptHeader['address'],
-            'pos_system_provider' => $bir?->provider_name,
-            'provider_address' => $bir?->provider_address,
+            // System provider footer (BIR required) — same for all receipts, from /dashboard/bir-settings
+            'pos_system_provider' => $birProvider?->provider_name,
+            'provider_address' => $birProvider?->provider_address,
             'tin' => $receiptFooter['tin'],
-            'bir_accreditation_number' => $bir?->accreditation_number ?? $transaction->officialReceipt?->bir_accreditation,
-            'ptu_number' => $bir?->ptu_number,
-            'validity_statement' => $bir?->validity_statement,
-            'validity' => $bir ? [$bir->valid_from?->format('Y-m-d'), $bir->valid_until?->format('Y-m-d')] : null,
-            'items' => $transaction->items->map(fn ($i) => [
-                'product_name' => $i->product?->name,
-                'quantity' => (float) $i->quantity,
-                'unit_price' => (float) $i->unit_price,
-                'subtotal' => (float) $i->subtotal,
-                'prescription_number' => $i->prescription_number,
-            ])->values()->all(),
+            'bir_accreditation_number' => $birProvider?->accreditation_number ?? $transaction->officialReceipt?->bir_accreditation,
+            'ptu_number' => $birProvider?->ptu_number,
+            'validity_statement' => $birProvider?->validity_statement,
+            'validity' => $birProvider ? [$birProvider->valid_from?->format('Y-m-d'), $birProvider->valid_until?->format('Y-m-d')] : null,
+            'items' => $transaction->items->map(function ($i) use ($transaction) {
+                $vatExempt = (float) ($transaction->officialReceipt?->vat_exempt ?? 0);
+                return [
+                    'product_name' => $i->product?->name,
+                    'quantity' => (float) $i->quantity,
+                    'unit_price' => (float) $i->unit_price,
+                    'subtotal' => (float) $i->subtotal,
+                    'prescription_number' => $i->prescription_number,
+                    'is_vat_exempt' => $vatExempt > 0,
+                ];
+            })->values()->all(),
             'vatable_sales' => (float) ($transaction->officialReceipt?->vatable_sales ?? $transaction->total - $transaction->vat_amount),
             'vat_amount' => (float) ($transaction->officialReceipt?->vat_amount ?? $transaction->vat_amount),
             'vat_exempt' => (float) ($transaction->officialReceipt?->vat_exempt ?? 0),

@@ -21,6 +21,10 @@
             </div>
 
             <form id="bir-form" class="hidden">
+                <div class="px-5 sm:px-8 py-4 border-b border-slate-100 dark:border-darkmode-600 bg-amber-50/50 dark:bg-darkmode-700/30">
+                    <p class="text-sm font-medium text-amber-800 dark:text-amber-200">System provider (BIR required)</p>
+                    <p class="mt-0.5 text-xs text-slate-600 dark:text-slate-400">This footer appears on <strong>all</strong> official receipts, regardless of branch. Configure your POS system provider details once.</p>
+                </div>
                 <input type="hidden" id="bir-branch-id" name="branch_id" value="">
                 <div class="px-5 sm:px-8 py-6 sm:py-8">
                     <div class="grid grid-cols-1 lg:grid-cols-2 gap-5 lg:gap-6">
@@ -182,12 +186,7 @@
     }
 
     function getFormPayload() {
-        var branchId = branchIdInput ? branchIdInput.value : '';
-        if (!branchId) {
-            if (typeof Swal !== 'undefined') Swal.fire({ icon: 'warning', title: 'Cannot save', text: 'No provider settings loaded. Ensure at least one branch exists.' });
-            return null;
-        }
-        var payload = { branch_id: parseInt(branchId, 10) };
+        var payload = {};
         Object.keys(fieldIds).forEach(function (key) {
             var el = document.getElementById(fieldIds[key]);
             payload[key] = el ? (el.value || null) : null;
@@ -195,48 +194,30 @@
         return payload;
     }
 
+    function fillFormFromBirData(data) {
+        if (!data) return;
+        if (branchIdInput) branchIdInput.value = data.branch_id || '';
+        Object.keys(fieldIds).forEach(function (key) {
+            setFieldValue(key, data[key] != null ? data[key] : '');
+        });
+        updatePtuExpiryWarning();
+    }
+
     function loadProviderSettings() {
         loadingEl.classList.remove('hidden');
         form.classList.add('hidden');
-        axios.get(apiBase + '/branches', authHeaders())
-            .then(function (branchesRes) {
-                var list = (branchesRes.data && branchesRes.data.data) ? branchesRes.data.data : (Array.isArray(branchesRes.data) ? branchesRes.data : []);
-                var firstBranchId = (list && list.length) ? list[0].id : null;
-                if (!firstBranchId) {
-                    loadingEl.classList.add('hidden');
-                    form.classList.remove('hidden');
-                    if (branchIdInput) branchIdInput.value = '';
-                    Object.keys(fieldIds).forEach(function (key) { setFieldValue(key, ''); });
-                    return;
-                }
-                return axios.get(apiBase + '/bir/settings', { params: { branch_id: firstBranchId }, ...authHeaders() });
-            })
+        axios.get(apiBase + '/bir/settings', authHeaders())
             .then(function (r) {
-                if (!r || !r.data) {
-                    loadingEl.classList.add('hidden');
-                    form.classList.remove('hidden');
-                    return;
-                }
                 var data = (r.data && r.data.data) ? r.data.data : r.data;
                 loadingEl.classList.add('hidden');
                 form.classList.remove('hidden');
-                if (data && data.branch_id) {
-                    if (branchIdInput) branchIdInput.value = data.branch_id;
-                    Object.keys(fieldIds).forEach(function (key) {
-                        setFieldValue(key, data[key]);
-                    });
-                } else {
-                    if (branchIdInput) branchIdInput.value = data.branch_id || '';
-                    Object.keys(fieldIds).forEach(function (key) { setFieldValue(key, data[key] || ''); });
-                }
-                updatePtuExpiryWarning();
+                fillFormFromBirData(data || {});
             })
             .catch(function (err) {
                 loadingEl.classList.add('hidden');
                 form.classList.remove('hidden');
-                if (branchIdInput) branchIdInput.value = '';
-                Object.keys(fieldIds).forEach(function (key) { setFieldValue(key, ''); });
-                var msg = (err.response && err.response.data && err.response.data.message) ? err.response.data.message : 'Could not load provider settings.';
+                fillFormFromBirData({});
+                var msg = (err.response && err.response.data && err.response.data.message) ? err.response.data.message : 'Could not load BIR settings.';
                 if (typeof Swal !== 'undefined') Swal.fire({ icon: 'error', title: 'Error', text: msg });
             });
     }

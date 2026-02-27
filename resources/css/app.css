@@ -169,29 +169,19 @@
         transform: scale(0.98);
     }
 
-    /* POS order panel: dark, premium look */
+    /* POS order panel: structural helpers only; visual style comes from Tailwind classes */
     .pos-order-panel {
-        background-color: #1e293b;
         border-radius: 1rem;
-        border-color: #0f172a;
     }
 
     .pos-order-item {
-        background-color: #273549;
-        border-radius: 0.625rem;
+        border-radius: 0.75rem;
         padding: 0.75rem 1rem;
         margin-bottom: 0.5rem;
-        transition: background-color 0.2s ease, transform 0.15s ease;
-        animation: pos-slide-in-right 0.2s ease;
-    }
-    .pos-order-item:hover {
-        background-color: #2d3f57;
     }
 
     .pos-qty-control {
         border-radius: 9999px;
-        background-color: #1f2937;
-        padding: 0.25rem 0.5rem;
         display: inline-flex;
         align-items: center;
         gap: 0.5rem;
@@ -212,6 +202,11 @@
         border-color: #1e40af;
         box-shadow: 0 0 0 3px rgba(30, 64, 175, 0.15);
         transition: all 0.2s ease;
+    }
+
+    /* POS lock screen: subtle animated lock icon */
+    .pos-lock-icon {
+        animation: pos-lock-bounce 3s ease-in-out infinite;
     }
 }
 
@@ -252,6 +247,15 @@
     to {
         opacity: 0;
         transform: scale(0.95);
+    }
+}
+
+@keyframes pos-lock-bounce {
+    0%, 100% {
+        transform: translateY(0);
+    }
+    50% {
+        transform: translateY(-4px);
     }
 }
 
