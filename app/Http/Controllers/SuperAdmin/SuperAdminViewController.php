@@ -58,6 +58,11 @@ class SuperAdminViewController extends Controller
         return view('super-admin.pages.inventory');
     }
 
+    public function pos(): View
+    {
+        return view('super-admin.pages.pos');
+    }
+
     public function branches(): View
     {
         return view('super-admin.pages.branches');

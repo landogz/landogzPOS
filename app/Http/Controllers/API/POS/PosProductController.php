@@ -33,7 +33,7 @@ class PosProductController extends Controller
         $products = Product::query()
             ->where('branch_id', $branchId)
             ->where('is_active', true)
-            ->with(['category:id,name', 'batches' => fn ($b) => $b->where('quantity', '>', 0)->orderBy('expiry_date')])
+            ->with(['category:id,name,type', 'batches' => fn ($b) => $b->where('quantity', '>', 0)->orderBy('expiry_date')])
             ->orderBy('name')
             ->paginate($request->get('per_page', 100));
         return response()->json(['status' => true, 'data' => $products]);
@@ -59,7 +59,7 @@ class PosProductController extends Controller
                 ->where('barcode', 'like', '%' . $q . '%')
                 ->orWhere('name', 'like', '%' . $q . '%')
                 ->orWhere('generic_name', 'like', '%' . $q . '%')))
-            ->with(['batches' => fn ($b) => $b->where('quantity', '>', 0)->orderBy('expiry_date')])
+            ->with(['category:id,name,type', 'batches' => fn ($b) => $b->where('quantity', '>', 0)->orderBy('expiry_date')])
             ->limit(20)
             ->get();
         return response()->json(['status' => true, 'data' => $products]);

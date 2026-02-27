@@ -25,14 +25,20 @@ Route::get('inventory/purchase-history', [\App\Http\Controllers\API\Inventory\In
 
 // POS (products and inventory shown are always for the logged-in cashier's branch; terminal must be registered)
 Route::get('pos/terminal/check', [\App\Http\Controllers\API\POS\PosSessionController::class, 'checkTerminal']);
+Route::get('pos/terminal/current', [\App\Http\Controllers\API\POS\PosSessionController::class, 'currentFromEnv']);
 Route::post('pos/session/open', [\App\Http\Controllers\API\POS\PosSessionController::class, 'open']);
 Route::post('pos/session/close', [\App\Http\Controllers\API\POS\PosSessionController::class, 'close']);
+Route::post('pos/verify-manager', [\App\Http\Controllers\API\POS\PosSessionController::class, 'verifyManager']);
+Route::post('pos/log-line-void', [\App\Http\Controllers\API\POS\PosSessionController::class, 'logLineVoid']);
 Route::get('pos/products', [\App\Http\Controllers\API\POS\PosProductController::class, 'index']);
 Route::get('pos/products/search', [\App\Http\Controllers\API\POS\PosProductController::class, 'search']);
 Route::post('pos/transactions', [\App\Http\Controllers\API\POS\PosTransactionController::class, 'store']);
 Route::get('pos/transactions/{transaction}/receipt', [\App\Http\Controllers\API\POS\PosTransactionController::class, 'receipt']);
 Route::post('pos/transactions/{transaction}/void', [\App\Http\Controllers\API\POS\PosTransactionController::class, 'void']);
 Route::get('pos/cashier/summary', [\App\Http\Controllers\API\POS\PosCashierController::class, 'summary']);
+Route::get('pos/held-orders', [\App\Http\Controllers\API\POS\PosHeldOrderController::class, 'index']);
+Route::post('pos/held-orders', [\App\Http\Controllers\API\POS\PosHeldOrderController::class, 'store']);
+Route::delete('pos/held-orders/{id}', [\App\Http\Controllers\API\POS\PosHeldOrderController::class, 'destroy']);
 
 // Sync (local pushes to cloud; pull master data from cloud when SYNC_MODE=direct_db)
 Route::post('sync/push', [\App\Http\Controllers\API\Sync\SyncController::class, 'push']);

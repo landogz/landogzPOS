@@ -11,7 +11,7 @@ class Category extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['company_id', 'name', 'type'];
+    protected $fillable = ['company_id', 'name', 'type', 'image_path'];
 
     public function company(): BelongsTo
     {

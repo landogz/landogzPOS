@@ -19,7 +19,7 @@
                 <button id="view-list-btn" title="List view"
                     class="view-toggle-btn px-3 py-2.5 sm:px-2.5 sm:py-2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 transition-colors touch-manipulation min-h-[44px] sm:min-h-0">
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
-                </button>
+            </button>
             </div>
 
             {{-- Status filter --}}
@@ -30,7 +30,7 @@
                     <option value="inactive">Inactive</option>
                 </select>
                 <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400"><polyline points="6 9 12 15 18 9"/></svg>
-            </div>
+                </div>
 
             {{-- Search --}}
             <div class="relative text-slate-500 flex-1 min-w-0 sm:flex-initial sm:w-52">
@@ -82,7 +82,7 @@
                     {{-- JS rendered --}}
                 </tbody>
             </table>
-            </div>
+        </div>
         </div>
     </div>
 
@@ -104,34 +104,34 @@
                         <div class="card-margin rounded-2xl bg-white dark:bg-darkmode-800 shadow-sm ring-1 ring-slate-200/80 dark:ring-darkmode-600/80 px-5 py-4">
                             <div class="flex items-center gap-4">
                                 <div class="relative h-16 w-16 flex-shrink-0 rounded-xl overflow-hidden bg-slate-100 dark:bg-darkmode-700 ring-1 ring-slate-200/80 dark:ring-darkmode-600">
-                                    <img id="company-logo-preview" src="" alt="Logo preview" class="h-full w-full object-cover hidden">
+                                <img id="company-logo-preview" src="" alt="Logo preview" class="h-full w-full object-cover hidden">
                                     <span class="company-logo-placeholder absolute inset-0 flex items-center justify-center text-slate-400 dark:text-slate-500">
                                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="opacity-70"><rect width="18" height="18" x="3" y="3" rx="2" ry="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/></svg>
-                                    </span>
-                                </div>
-                                <div class="flex-1 min-w-0">
+                                </span>
+                        </div>
+                        <div class="flex-1 min-w-0">
                                     <label for="company-logo" class="inline-flex cursor-pointer items-center gap-2 rounded-xl border border-slate-200 dark:border-darkmode-500 bg-white dark:bg-darkmode-700 px-4 py-2.5 text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-darkmode-600 focus-within:ring-2 focus-within:ring-primary/20 focus-within:border-primary transition-shadow">
                                         <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" x2="12" y1="3" y2="15"/></svg>
-                                        <span id="company-logo-label">Choose file</span>
-                                        <input type="file" id="company-logo" name="logo" accept="image/*" class="sr-only">
-                                    </label>
+                                <span id="company-logo-label">Choose file</span>
+                                <input type="file" id="company-logo" name="logo" accept="image/*" class="sr-only">
+                            </label>
                                     <p class="mt-1.5 text-xs text-slate-500 dark:text-slate-400">PNG, JPG or GIF · Max 2MB</p>
-                                </div>
-                            </div>
                         </div>
+                    </div>
+                </div>
                         {{-- Basic Information --}}
                         <div class="card-margin rounded-2xl bg-white dark:bg-darkmode-800 shadow-sm ring-1 ring-slate-200/80 dark:ring-darkmode-600/80 p-5 sm:p-6 space-y-5">
                             <h3 class="text-[11px] font-semibold uppercase tracking-widest text-slate-400 dark:text-slate-500 pb-3 border-b border-slate-100 dark:border-darkmode-600">Basic Information</h3>
-                            <div>
-                                <label for="company-name" class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">Company name <span class="text-red-500">*</span></label>
+                <div>
+                    <label for="company-name" class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">Company name <span class="text-red-500">*</span></label>
                                 <input type="text" id="company-name" name="name" class="w-full rounded-xl border border-slate-200 dark:border-darkmode-500 bg-slate-50/50 dark:bg-darkmode-700/50 px-4 py-3 text-slate-900 dark:text-slate-100 placeholder-slate-400 focus:border-primary focus:ring-2 focus:ring-primary/20 focus:bg-white dark:focus:bg-darkmode-700 outline-none transition" placeholder="Enter company name" required>
-                            </div>
-                            <div>
-                                <label for="company-tin" class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">TIN</label>
+                </div>
+                    <div>
+                        <label for="company-tin" class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">TIN</label>
                                 <input type="text" id="company-tin" name="tin" class="w-full rounded-xl border border-slate-200 dark:border-darkmode-500 bg-slate-50/50 dark:bg-darkmode-700/50 px-4 py-3 text-slate-900 dark:text-slate-100 placeholder-slate-400 focus:border-primary focus:ring-2 focus:ring-primary/20 focus:bg-white dark:focus:bg-darkmode-700 outline-none transition" placeholder="Tax Identification Number">
-                            </div>
-                            <div>
-                                <label for="company-bir" class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">BIR accreditation</label>
+                    </div>
+                    <div>
+                        <label for="company-bir" class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">BIR accreditation</label>
                                 <input type="text" id="company-bir" name="bir_accreditation" class="w-full rounded-xl border border-slate-200 dark:border-darkmode-500 bg-slate-50/50 dark:bg-darkmode-700/50 px-4 py-3 text-slate-900 dark:text-slate-100 placeholder-slate-400 focus:border-primary focus:ring-2 focus:ring-primary/20 focus:bg-white dark:focus:bg-darkmode-700 outline-none transition" placeholder="BIR accreditation number">
                             </div>
                         </div>
@@ -195,8 +195,8 @@
                                 <div>
                                     <label for="company-admin-email" class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">Admin email</label>
                                     <input type="email" id="company-admin-email" name="admin_email" class="w-full rounded-xl border border-slate-200 dark:border-darkmode-500 bg-white dark:bg-darkmode-700 px-4 py-2.5 text-sm text-slate-900 dark:text-slate-100 placeholder-slate-400 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition" placeholder="admin@company.com">
-                                </div>
-                                <div>
+                </div>
+                <div>
                                     <label for="company-admin-password" class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">Password (min 8)</label>
                                     <div class="relative">
                                         <input type="password" id="company-admin-password" name="admin_password" class="w-full rounded-xl border border-slate-200 dark:border-darkmode-500 bg-white dark:bg-darkmode-700 pl-4 pr-11 py-2.5 text-sm text-slate-900 dark:text-slate-100 placeholder-slate-400 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition" placeholder="••••••••" autocomplete="new-password">
@@ -205,8 +205,8 @@
                                             <svg class="w-5 h-5 eye-off hidden" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"/></svg>
                                         </button>
                                     </div>
-                                </div>
-                                <div>
+                </div>
+                <div>
                                     <label for="company-admin-password-confirm" class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">Confirm password</label>
                                     <div class="relative">
                                         <input type="password" id="company-admin-password-confirm" name="admin_password_confirmation" class="w-full rounded-xl border border-slate-200 dark:border-darkmode-500 bg-white dark:bg-darkmode-700 pl-4 pr-11 py-2.5 text-sm text-slate-900 dark:text-slate-100 placeholder-slate-400 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition" placeholder="••••••••" autocomplete="new-password">
@@ -746,15 +746,15 @@
         if (id) { fd.append('_method', 'PUT'); p = axios.post(apiBase + '/companies/' + id, fd, authHeaders()); }
         else     { p = axios.post(apiBase + '/companies', fd, authHeaders()); }
         p.then(function () {
-            showToastNotification('success', 'Saved', id ? 'Company updated.' : 'Company created.');
+                showToastNotification('success', 'Saved', id ? 'Company updated.' : 'Company created.');
             closeModal(); loadCompanies();
         }).catch(function (err) {
-            var msg = (err.response && err.response.data && err.response.data.message) || 'Save failed.';
-            if (err.response && err.response.data && err.response.data.errors) {
-                var first = Object.values(err.response.data.errors)[0];
-                if (Array.isArray(first)) msg = first[0];
-            }
-            showToastNotification('error', 'Error', msg);
+                var msg = (err.response && err.response.data && err.response.data.message) || 'Save failed.';
+                if (err.response && err.response.data && err.response.data.errors) {
+                    var first = Object.values(err.response.data.errors)[0];
+                    if (Array.isArray(first)) msg = first[0];
+                }
+                showToastNotification('error', 'Error', msg);
         }).finally(function () { submitBtn.disabled = false; });
     });
 

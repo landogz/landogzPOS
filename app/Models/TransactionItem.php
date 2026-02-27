@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class TransactionItem extends Model
 {
-    protected $fillable = ['transaction_id', 'product_id', 'product_batch_id', 'quantity', 'unit_price', 'subtotal'];
+    protected $fillable = ['transaction_id', 'product_id', 'product_batch_id', 'quantity', 'unit_price', 'subtotal', 'prescription_number'];
 
     protected $casts = [
         'quantity' => 'decimal:3',

@@ -37,6 +37,7 @@ Route::prefix('dashboard')->name('dashboard.')->group(function () {
     Route::get('products', [SuperAdminViewController::class, 'products'])->name('products');
     Route::get('categories', [SuperAdminViewController::class, 'categories'])->name('categories');
     Route::get('transactions', [SuperAdminViewController::class, 'transactions'])->name('transactions');
+    Route::get('pos', [SuperAdminViewController::class, 'pos'])->name('pos');
     Route::get('inventory', [SuperAdminViewController::class, 'inventory'])->name('inventory');
     Route::get('chain', [SuperAdminViewController::class, 'chainDashboard'])->name('chain');
     Route::get('companies', [SuperAdminViewController::class, 'companies'])->name('companies');

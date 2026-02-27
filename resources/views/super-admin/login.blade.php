@@ -261,11 +261,15 @@
                         btn.disabled = false;
                         return;
                     }
-                    var token = res.data.token || (data && data.token);
+                    var token = (data && data.token) || res.data.token;
+                    var userRole = data && data.user && data.user.role;
                     if (token) {
                         localStorage.setItem('super_admin_token', token);
-                        Swal.fire({ icon: 'success', title: 'Success', text: 'Login successful.' });
-                        window.location.href = '{{ route("dashboard.dashboard") }}';
+                        var redirectUrl = userRole === 'cashier'
+                            ? '{{ route("dashboard.pos") }}'
+                            : '{{ route("dashboard.dashboard") }}';
+                        Swal.fire({ icon: 'success', title: 'Success', text: 'Login successful.' })
+                            .then(function () { window.location.href = redirectUrl; });
                     } else {
                         Swal.fire({ icon: 'error', title: 'Error', text: res.data?.message || 'Login failed.' });
                         btn.disabled = false;
@@ -292,11 +296,15 @@
                     axios.post('{{ url("/api/v1/auth/verify-login-otp") }}', { email: emailEl.value, code: code })
                         .then(function(res) {
                             var data = res.data && res.data.data ? res.data.data : res.data;
-                            var token = res.data.token || (data && data.token);
+                            var token = (data && data.token) || res.data.token;
+                            var userRole = data && data.user && data.user.role;
                             if (token) {
                                 localStorage.setItem('super_admin_token', token);
-                                Swal.fire({ icon: 'success', title: 'Success', text: 'Login successful.' });
-                                window.location.href = '{{ route("dashboard.dashboard") }}';
+                                var redirectUrl = userRole === 'cashier'
+                                    ? '{{ route("dashboard.pos") }}'
+                                    : '{{ route("dashboard.dashboard") }}';
+                                Swal.fire({ icon: 'success', title: 'Success', text: 'Login successful.' })
+                                    .then(function () { window.location.href = redirectUrl; });
                             } else {
                                 Swal.fire({ icon: 'error', title: 'Error', text: res.data?.message || 'Verification failed.' });
                                 otpVerifyBtn.disabled = false;

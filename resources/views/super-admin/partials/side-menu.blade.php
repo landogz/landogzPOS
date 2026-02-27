@@ -122,6 +122,15 @@
                 <div class="side-menu__title">Transactions</div>
             </a>
         </li>
+        {{-- POS (Cashier) --}}
+        <li data-menu-permission="transactions">
+            <a href="{{ route('dashboard.pos') }}" class="side-menu {{ $current === 'dashboard.pos' ? 'side-menu--active' : '' }}">
+                <div class="side-menu__icon">
+                    <i data-lucide="monitor-smartphone" class="stroke-1.5 w-5 h-5"></i>
+                </div>
+                <div class="side-menu__title">POS (Cashier)</div>
+            </a>
+        </li>
         {{-- Inventory --}}
         <li data-menu-permission="inventory">
             <a href="{{ route('dashboard.inventory') }}" class="side-menu {{ $current === 'dashboard.inventory' ? 'side-menu--active' : '' }}">
