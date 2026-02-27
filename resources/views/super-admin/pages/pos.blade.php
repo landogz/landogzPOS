@@ -4,95 +4,61 @@
 @section('breadcrumb', 'POS')
 
 @section('content')
-    {{-- POS status & actions bar (top: Shift, Branch, Terminal, Cashier + Lock/Logout) --}}
-    <div class="mt-2 mb-4 px-3 sm:px-0 print:hidden">
+    {{-- POS status bar: compact single row --}}
+    <div class="mt-1 mb-2 px-3 sm:px-0 print:hidden">
         <div class="mx-auto max-w-6xl">
-            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 rounded-2xl bg-white/95 backdrop-blur shadow-xl ring-1 ring-slate-200 px-3 py-2 sm:px-5 sm:py-3">
-                {{-- Live system status: Shift, Branch, Terminal, Cashier + status --}}
-                <div class="flex flex-wrap items-center gap-2 text-[11px] sm:text-xs text-slate-600">
-                    <div class="inline-flex items-center gap-2 rounded-full bg-slate-50 px-2.5 py-1 border border-slate-200">
-                        <span class="inline-flex h-2 w-2 rounded-full bg-emerald-500 shadow-[0_0_0_3px_rgba(16,185,129,0.25)]"></span>
-                        <span class="font-semibold tracking-tight">POS ready</span>
-                    </div>
-                    <span class="inline-flex items-center gap-1.5 rounded-full bg-slate-50 dark:bg-darkmode-700/80 px-2.5 py-1 border border-slate-200 font-medium text-slate-700 dark:text-slate-200 sm:border-l sm:border-slate-200 sm:pl-3 sm:ml-1">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 text-emerald-500 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg>
-                        <span id="pos-shift-label">Shift: Day</span>
-                    </span>
-                    <span class="inline-flex items-center gap-1.5 rounded-full bg-slate-50 dark:bg-darkmode-700/80 px-2.5 py-1 border border-slate-200 font-medium text-slate-700 dark:text-slate-200 truncate max-w-[200px] sm:max-w-[280px] sm:border-l sm:border-slate-200 sm:pl-3 sm:ml-1">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 text-primary shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3h18v4H3z"/><path d="M8 7v14"/><path d="M16 7v14"/><path d="M10 11h4"/><path d="M10 15h4"/></svg>
-                        <span id="pos-branch-label">Branch: —</span>
-                    </span>
-                    <span class="inline-flex items-center gap-1.5 rounded-full bg-slate-50 dark:bg-darkmode-700/80 px-2.5 py-1 border border-slate-200 font-medium text-slate-700 dark:text-slate-200 sm:border-l sm:border-slate-200 sm:pl-3 sm:ml-1">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 text-sky-500 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M7 8h10"/></svg>
-                        <span id="pos-terminal-label">Terminal: —</span>
-                    </span>
-                    <span class="inline-flex items-center gap-1.5 rounded-full bg-slate-50 dark:bg-darkmode-700/80 px-2.5 py-1 border border-slate-200 font-medium text-slate-700 dark:text-slate-200 truncate max-w-[140px] sm:max-w-[180px] sm:border-l sm:border-slate-200 sm:pl-3 sm:ml-1">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 text-indigo-500 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="7" r="4"/><path d="M5.5 21a6.5 6.5 0 0 1 13 0"/></svg>
-                        <span id="pos-cashier-label">Cashier: —</span>
-                    </span>
-                    <span class="hidden md:inline-flex items-center gap-1 px-2 py-1 rounded-full bg-slate-50 border border-slate-200 sm:border-l sm:border-slate-200 sm:pl-3 sm:ml-1">
-                        <span class="inline-flex h-1.5 w-1.5 rounded-full bg-emerald-500"></span>
-                        <span id="pos-status-printer" class="whitespace-nowrap">Printer: Online</span>
-                    </span>
-                    <span class="hidden md:inline-flex items-center gap-1 px-2 py-1 rounded-full bg-slate-50 border border-slate-200 sm:border-l sm:border-slate-200 sm:pl-3 sm:ml-1">
-                        <span class="inline-flex h-1.5 w-1.5 rounded-full bg-emerald-500"></span>
-                        <span id="pos-status-network" class="whitespace-nowrap">Network: Connected</span>
-                    </span>
-                    <span class="hidden lg:inline-flex items-center gap-1 px-2 py-1 rounded-full bg-slate-50 border border-slate-200 sm:border-l sm:border-slate-200 sm:pl-3 sm:ml-1">
-                        <span class="inline-flex h-1.5 w-1.5 rounded-full bg-sky-400"></span>
-                        <span id="pos-status-sync" class="whitespace-nowrap">Synced: Just now</span>
-                    </span>
-                    <span class="hidden lg:inline-flex items-center gap-1 px-2 py-1 rounded-full bg-slate-50 border border-slate-200 sm:border-l sm:border-slate-200 sm:pl-3 sm:ml-1">
-                        <span class="inline-flex h-1.5 w-1.5 rounded-full bg-slate-400"></span>
-                        <span id="pos-status-last-or" class="whitespace-nowrap">Last OR: —</span>
-                    </span>
+            <div class="flex flex-wrap items-center justify-between gap-x-2 gap-y-1.5 rounded-xl bg-white/95 dark:bg-darkmode-800 shadow-sm ring-1 ring-slate-200/80 dark:ring-darkmode-600 px-2.5 py-1.5 sm:px-4 sm:py-2">
+                <div class="flex flex-wrap items-center gap-x-1.5 gap-y-1 text-[10px] sm:text-[11px] text-slate-600 dark:text-slate-400">
+                    <span class="inline-flex items-center gap-1 rounded px-1.5 py-0.5 bg-emerald-50 dark:bg-emerald-900/20 text-emerald-700 dark:text-emerald-300 font-semibold"><span class="h-1.5 w-1.5 rounded-full bg-emerald-500"></span><span id="pos-status-ready">POS ready</span></span>
+                    <span class="text-slate-400 dark:text-slate-500">·</span>
+                    <span id="pos-shift-label">Shift: Day</span>
+                    <span class="text-slate-400 dark:text-slate-500">·</span>
+                    <span id="pos-branch-label" class="truncate max-w-[160px] sm:max-w-[220px]">Branch: —</span>
+                    <span class="text-slate-400 dark:text-slate-500">·</span>
+                    <span id="pos-terminal-label">Terminal: —</span>
+                    <span class="text-slate-400 dark:text-slate-500">·</span>
+                    <span id="pos-cashier-label" class="truncate max-w-[120px] sm:max-w-[160px]">Cashier: —</span>
+                    <span class="hidden md:inline text-slate-400 dark:text-slate-500">·</span>
+                    <span id="pos-status-printer" class="hidden md:inline whitespace-nowrap">Printer: Online</span>
+                    <span id="pos-status-network" class="hidden lg:inline">· <span class="whitespace-nowrap">Network: Connected</span></span>
                 </div>
-
-                {{-- Actions --}}
-                <div class="flex items-center justify-end gap-2 sm:gap-3">
-                    <button
-                        type="button"
-                        id="pos-lock-btn"
-                        class="inline-flex items-center gap-1.5 rounded-xl border border-slate-200 bg-slate-50 px-3 py-1.5 text-xs sm:text-sm font-medium text-slate-700 hover:bg-slate-100 hover:border-slate-300 transition-colors"
-                        title="Lock POS (return to login without clearing token)"
-                    >
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-slate-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="10" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-                        <span class="hidden xs:inline">Lock POS</span>
-                    </button>
-                    <button
-                        type="button"
-                        id="pos-logout-btn"
-                        class="inline-flex items-center gap-1.5 rounded-xl bg-rose-500 px-3.5 py-1.5 text-xs sm:text-sm font-semibold text-white shadow-sm hover:bg-rose-600 focus:ring-2 focus:ring-rose-400/40 transition-colors"
-                        title="Logout and close POS"
-                    >
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
-                        <span class="hidden xs:inline">Logout</span>
-                    </button>
+                <div class="flex items-center gap-1.5">
+                    <button type="button" id="pos-lock-btn" class="inline-flex items-center gap-1 rounded-lg border border-slate-200 dark:border-darkmode-600 bg-slate-50 dark:bg-darkmode-700 px-2 py-1 text-[11px] font-medium text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-darkmode-600 transition-colors" title="Lock POS"><svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="10" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg><span class="hidden sm:inline">Lock</span></button>
+                    <button type="button" id="pos-logout-btn" class="inline-flex items-center gap-1 rounded-lg bg-rose-500 px-2.5 py-1 text-[11px] font-semibold text-white hover:bg-rose-600 transition-colors" title="Logout"><svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg><span class="hidden sm:inline">Logout</span></button>
                 </div>
             </div>
         </div>
     </div>
 
-    {{-- Page title and actions (no duplicate badges) --}}
-    <div class="intro-y mt-4 sm:mt-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <div class="space-y-1">
-            <h1 class="text-base sm:text-lg font-semibold text-slate-800 dark:text-slate-100">
-                POS – Cashier
-            </h1>
-            <p class="text-xs sm:text-sm text-slate-500 dark:text-slate-400 max-w-2xl">
-                Search items, add to the order, and collect payment. Prices are VAT-inclusive by default (12% VAT – Philippines).
-            </p>
-        </div>
-        <div class="flex flex-wrap items-center gap-2 sm:justify-end">
-            <div class="inline-flex items-center gap-2 rounded-xl border border-slate-200 dark:border-darkmode-600 bg-white dark:bg-darkmode-800 px-3 py-2 text-xs sm:text-sm text-slate-600 dark:text-slate-300">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-slate-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 4h18"/><path d="M8 8h13"/><path d="M3 12h18"/><path d="M8 16h13"/><path d="M3 20h18"/></svg>
-                <span id="pos-date-label">Today · —</span>
+    {{-- Page title and actions: compact header --}}
+    <div class="intro-y mt-2 sm:mt-3">
+        <div class="rounded-xl border border-slate-200/80 dark:border-darkmode-600 bg-white dark:bg-darkmode-800 shadow-sm">
+            <div class="px-3 py-2 sm:px-4 sm:py-2.5 flex flex-wrap items-center justify-between gap-2">
+                <div class="flex flex-wrap items-center gap-x-2 gap-y-0.5 min-w-0">
+                    <h1 class="text-base sm:text-lg font-bold tracking-tight text-slate-800 dark:text-slate-100">POS</h1>
+                    <span class="rounded-md bg-slate-100 dark:bg-darkmode-700 px-1.5 py-0.5 text-[10px] font-semibold text-slate-600 dark:text-slate-300 uppercase">Cashier</span>
+                    <span class="text-slate-400 dark:text-slate-500 hidden sm:inline">·</span>
+                    <p class="text-[11px] sm:text-xs text-slate-500 dark:text-slate-400 hidden sm:inline">Search items, add to order, collect payment.</p>
+                    <span class="rounded bg-emerald-50 dark:bg-emerald-900/20 px-1.5 py-0.5 text-[10px] font-medium text-emerald-700 dark:text-emerald-300">VAT 12%</span>
+                </div>
+                <div class="flex flex-wrap items-center gap-1.5 sm:gap-2 shrink-0">
+                    <span id="pos-date-label" class="text-[10px] sm:text-[11px] text-slate-500 dark:text-slate-400 px-2 py-1 rounded-lg bg-slate-50 dark:bg-darkmode-700/80">Today · —</span>
+                    <div id="pos-shortcuts-bar" class="inline-flex flex-wrap items-center gap-x-1.5 gap-y-0.5 px-2 py-1 rounded-lg bg-slate-100 dark:bg-darkmode-700 border border-slate-200/80 dark:border-darkmode-600 text-[10px] text-slate-600 dark:text-slate-300">
+                        <span class="font-semibold text-slate-500 dark:text-slate-400">F1</span> New <span class="text-slate-400">·</span>
+                        <span class="font-semibold">F2</span> Scan <span class="text-slate-400">·</span>
+                        <span class="font-semibold">F3</span> Search <span class="text-slate-400">·</span>
+                        <span class="font-semibold">F4</span> Hold <span class="text-slate-400">·</span>
+                        <span class="font-semibold">F5</span> Disc <span class="text-slate-400">·</span>
+                        <span class="font-semibold">F6</span> SC/PWD <span class="text-slate-400">·</span>
+                        <span class="font-semibold">F7</span> Clear <span class="text-slate-400">·</span>
+                        <span class="font-semibold">F8</span> Complete
+                    </div>
+                    <button type="button" id="pos-new-sale-btn" class="inline-flex items-center justify-center gap-1.5 rounded-lg bg-primary text-white px-3 py-1.5 text-xs font-semibold shadow-sm hover:bg-primary/90 focus:ring-2 focus:ring-primary/30 min-h-[32px]">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                        New sale
+                    </button>
+                </div>
             </div>
-            <p class="hidden sm:block text-[10px] text-slate-400 dark:text-slate-500">F1 New sale · F2 Scan · F4 Hold · F8 Complete</p>
-            <button type="button" id="pos-new-sale-btn" class="inline-flex items-center justify-center gap-1.5 rounded-xl bg-primary text-white px-4 py-2.5 text-xs sm:text-sm font-semibold shadow-sm hover:bg-primary/90 focus:ring-4 focus:ring-primary/20 transition-colors min-h-[40px]">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-                New sale
-            </button>
         </div>
     </div>
 
@@ -318,7 +284,7 @@
                         <button type="button" id="pos-service-charge-btn" class="text-xs font-medium text-primary hover:underline">Add</button>
                     </div>
                 </div>
-                <div id="pos-bir-footer" class="border-t border-amber-100 bg-amber-50 px-4 py-2 sm:px-5 text-[10px] text-amber-700 space-y-0.5">
+                <div id="pos-bir-footer" class="hidden border-t border-amber-100 bg-amber-50 px-4 py-2 sm:px-5 text-[10px] text-amber-700 space-y-0.5">
                     <div id="pos-bir-tin-ptu"></div>
                     <p id="pos-bir-disclaimer" class="italic">This document is not valid for claim of input tax.</p>
                 </div>
@@ -2311,7 +2277,8 @@
 
         document.addEventListener('keydown', function (e) {
             var tag = document.activeElement && document.activeElement.tagName ? document.activeElement.tagName.toUpperCase() : '';
-            if (tag === 'INPUT' || tag === 'TEXTAREA' || (document.activeElement && document.activeElement.isContentEditable)) return;
+            var inInput = tag === 'INPUT' || tag === 'TEXTAREA' || (document.activeElement && document.activeElement.isContentEditable);
+            if (inInput && e.key !== 'F3') return;
             if (e.key === 'F1') {
                 e.preventDefault();
                 var newSaleBtn = document.getElementById('pos-new-sale-btn');
@@ -2319,9 +2286,30 @@
             } else if (e.key === 'F2') {
                 e.preventDefault();
                 triggerBarcodeScan();
+            } else if (e.key === 'F3') {
+                e.preventDefault();
+                var searchInput = document.getElementById('pos-search-input');
+                if (searchInput) { searchInput.focus(); searchInput.select(); }
             } else if (e.key === 'F4') {
                 e.preventDefault();
                 holdOrder();
+            } else if (e.key === 'F5') {
+                e.preventDefault();
+                var discountBtn = document.getElementById('pos-discount-dropdown-btn');
+                var discountDd = document.getElementById('pos-discount-dropdown');
+                if (discountBtn && discountDd) {
+                    discountDd.classList.toggle('hidden');
+                    if (!discountDd.classList.contains('hidden')) discountBtn.focus();
+                }
+            } else if (e.key === 'F6') {
+                e.preventDefault();
+                var dd = document.getElementById('pos-discount-dropdown');
+                if (dd && !dd.classList.contains('hidden')) dd.classList.add('hidden');
+                openScPwdModal();
+            } else if (e.key === 'F7') {
+                e.preventDefault();
+                var clearBtn = document.getElementById('pos-clear-order-btn');
+                if (clearBtn) clearBtn.click();
             } else if (e.key === 'F8') {
                 e.preventDefault();
                 completeSale();
