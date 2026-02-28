@@ -149,10 +149,10 @@
         </header>
     </div>
 
-    {{-- Main POS layout: fills remaining height; capped at 768px on lg --}}
-    <div class="mt-2 sm:mt-3 grid grid-cols-12 gap-2 sm:gap-3 max-h-[calc(100vh-11rem)] lg:max-h-none lg:flex-1 lg:min-h-0 lg:overflow-hidden min-h-0">
+    {{-- Main POS layout: fills remaining height; capped at 768px on lg; single row so products + order fit without page scroll --}}
+    <div class="mt-2 sm:mt-3 grid grid-cols-12 gap-2 sm:gap-3 max-h-[calc(100vh-11rem)] lg:max-h-none lg:flex-1 lg:min-h-0 lg:overflow-hidden lg:grid-rows-1 min-h-0">
         {{-- Product catalog --}}
-        <div class="col-span-8 flex flex-col min-h-0">
+        <div class="col-span-8 flex flex-col min-h-0 overflow-hidden">
             {{-- Search + filters --}}
             <div class="rounded-xl border border-slate-200/80 dark:border-darkmode-600 bg-white dark:bg-darkmode-800 shadow-sm px-2 py-2 sm:px-3 sm:py-2.5">
                 <div class="flex flex-col sm:flex-row sm:items-center gap-1.5 sm:gap-2 w-full">
@@ -472,9 +472,9 @@
     {{-- Payment amount modal (custom, not Swal) --}}
     <div id="pos-payment-modal" class="fixed inset-0 z-[100] hidden" aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="pos-payment-modal-title">
         <div id="pos-payment-modal-backdrop" class="absolute inset-0 bg-slate-900/50 dark:bg-slate-900/70 backdrop-blur-sm transition-opacity"></div>
-        <div class="absolute inset-0 flex items-center justify-center p-4">
-            <div class="relative w-full max-w-md rounded-2xl border border-slate-200 dark:border-darkmode-600 bg-white dark:bg-darkmode-800 shadow-xl" role="document">
-                <div class="p-6 sm:p-6">
+        <div class="absolute inset-0 flex items-center justify-center p-4 overflow-y-auto">
+            <div class="relative w-full max-w-md rounded-2xl border border-slate-200 dark:border-darkmode-600 bg-white dark:bg-darkmode-800 shadow-xl my-4 max-h-[calc(100vh-2rem)] flex flex-col overflow-hidden" role="document">
+                <div class="flex-1 min-h-0 overflow-y-auto p-6 sm:p-6">
                     <h2 id="pos-payment-modal-title" class="text-lg font-semibold text-slate-800 dark:text-slate-100">Payment</h2>
                     <p class="mt-1 text-sm text-slate-600 dark:text-slate-300">
                         Total due: <span id="pos-payment-modal-total" class="font-semibold">₱0.00</span>
@@ -493,6 +493,31 @@
                                 autocomplete="off"
                             >
                             <p id="pos-payment-modal-error" class="mt-1 text-xs text-rose-600 dark:text-rose-400 hidden"></p>
+                            {{-- Touch-friendly quick amount + keypad --}}
+                            <div class="mt-3 space-y-3">
+                                <div class="flex flex-wrap gap-2">
+                                    <button type="button" class="pos-payment-quick-amount flex-1 min-w-[100px] rounded-lg border border-primary bg-primary/10 px-3 py-2.5 text-sm font-semibold text-primary hover:bg-primary/20 active:scale-95 transition touch-manipulation" data-action="exact">Exact amount</button>
+                                    <button type="button" class="pos-payment-quick-amount rounded-lg border border-slate-200 dark:border-darkmode-500 bg-white dark:bg-darkmode-700 px-3 py-2.5 text-sm font-medium text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-darkmode-600 active:scale-95 transition touch-manipulation" data-action="100">+₱100</button>
+                                    <button type="button" class="pos-payment-quick-amount rounded-lg border border-slate-200 dark:border-darkmode-500 bg-white dark:bg-darkmode-700 px-3 py-2.5 text-sm font-medium text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-darkmode-600 active:scale-95 transition touch-manipulation" data-action="500">+₱500</button>
+                                    <button type="button" class="pos-payment-quick-amount rounded-lg border border-slate-200 dark:border-darkmode-500 bg-white dark:bg-darkmode-700 px-3 py-2.5 text-sm font-medium text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-darkmode-600 active:scale-95 transition touch-manipulation" data-action="1000">+₱1000</button>
+                                </div>
+                                <div class="grid grid-cols-4 gap-1.5">
+                                    <button type="button" class="pos-payment-numkey h-12 rounded-lg border border-slate-200 dark:border-darkmode-500 bg-white dark:bg-darkmode-700 text-slate-800 dark:text-slate-100 text-lg font-medium hover:bg-slate-100 dark:hover:bg-darkmode-600 active:scale-95 transition touch-manipulation select-none" data-key="7">7</button>
+                                    <button type="button" class="pos-payment-numkey h-12 rounded-lg border border-slate-200 dark:border-darkmode-500 bg-white dark:bg-darkmode-700 text-slate-800 dark:text-slate-100 text-lg font-medium hover:bg-slate-100 dark:hover:bg-darkmode-600 active:scale-95 transition touch-manipulation select-none" data-key="8">8</button>
+                                    <button type="button" class="pos-payment-numkey h-12 rounded-lg border border-slate-200 dark:border-darkmode-500 bg-white dark:bg-darkmode-700 text-slate-800 dark:text-slate-100 text-lg font-medium hover:bg-slate-100 dark:hover:bg-darkmode-600 active:scale-95 transition touch-manipulation select-none" data-key="9">9</button>
+                                    <button type="button" class="pos-payment-numkey h-12 rounded-lg border border-slate-200 dark:border-darkmode-500 bg-slate-100 dark:bg-darkmode-600 text-slate-600 dark:text-slate-300 text-sm font-medium hover:bg-slate-200 dark:hover:bg-darkmode-500 active:scale-95 transition touch-manipulation select-none" data-key="back">⌫</button>
+                                    <button type="button" class="pos-payment-numkey h-12 rounded-lg border border-slate-200 dark:border-darkmode-500 bg-white dark:bg-darkmode-700 text-slate-800 dark:text-slate-100 text-lg font-medium hover:bg-slate-100 dark:hover:bg-darkmode-600 active:scale-95 transition touch-manipulation select-none" data-key="4">4</button>
+                                    <button type="button" class="pos-payment-numkey h-12 rounded-lg border border-slate-200 dark:border-darkmode-500 bg-white dark:bg-darkmode-700 text-slate-800 dark:text-slate-100 text-lg font-medium hover:bg-slate-100 dark:hover:bg-darkmode-600 active:scale-95 transition touch-manipulation select-none" data-key="5">5</button>
+                                    <button type="button" class="pos-payment-numkey h-12 rounded-lg border border-slate-200 dark:border-darkmode-500 bg-white dark:bg-darkmode-700 text-slate-800 dark:text-slate-100 text-lg font-medium hover:bg-slate-100 dark:hover:bg-darkmode-600 active:scale-95 transition touch-manipulation select-none" data-key="6">6</button>
+                                    <button type="button" class="pos-payment-numkey h-12 rounded-lg border border-slate-200 dark:border-darkmode-500 bg-slate-100 dark:bg-darkmode-600 text-slate-600 dark:text-slate-300 text-sm font-medium hover:bg-slate-200 dark:hover:bg-darkmode-500 active:scale-95 transition touch-manipulation select-none" data-key="clear">C</button>
+                                    <button type="button" class="pos-payment-numkey h-12 rounded-lg border border-slate-200 dark:border-darkmode-500 bg-white dark:bg-darkmode-700 text-slate-800 dark:text-slate-100 text-lg font-medium hover:bg-slate-100 dark:hover:bg-darkmode-600 active:scale-95 transition touch-manipulation select-none" data-key="1">1</button>
+                                    <button type="button" class="pos-payment-numkey h-12 rounded-lg border border-slate-200 dark:border-darkmode-500 bg-white dark:bg-darkmode-700 text-slate-800 dark:text-slate-100 text-lg font-medium hover:bg-slate-100 dark:hover:bg-darkmode-600 active:scale-95 transition touch-manipulation select-none" data-key="2">2</button>
+                                    <button type="button" class="pos-payment-numkey h-12 rounded-lg border border-slate-200 dark:border-darkmode-500 bg-white dark:bg-darkmode-700 text-slate-800 dark:text-slate-100 text-lg font-medium hover:bg-slate-100 dark:hover:bg-darkmode-600 active:scale-95 transition touch-manipulation select-none" data-key="3">3</button>
+                                    <button type="button" class="pos-payment-numkey h-12 rounded-lg border border-slate-200 dark:border-darkmode-500 bg-white dark:bg-darkmode-700 text-slate-800 dark:text-slate-100 text-lg font-medium hover:bg-slate-100 dark:hover:bg-darkmode-600 active:scale-95 transition touch-manipulation select-none" data-key=".">.</button>
+                                    <button type="button" class="pos-payment-numkey h-12 rounded-lg border border-slate-200 dark:border-darkmode-500 bg-white dark:bg-darkmode-700 text-slate-800 dark:text-slate-100 text-lg font-medium hover:bg-slate-100 dark:hover:bg-darkmode-600 active:scale-95 transition touch-manipulation select-none col-span-2" data-key="0">0</button>
+                                    <button type="button" class="pos-payment-numkey h-12 rounded-lg border border-slate-200 dark:border-darkmode-500 bg-white dark:bg-darkmode-700 text-slate-800 dark:text-slate-100 text-sm font-medium hover:bg-slate-100 dark:hover:bg-darkmode-600 active:scale-95 transition touch-manipulation select-none" data-key="00">00</button>
+                                </div>
+                            </div>
                         </div>
                         <div class="flex items-center justify-between rounded-xl bg-slate-50 dark:bg-darkmode-700 px-3 py-2.5">
                             <span class="text-sm font-medium text-slate-600 dark:text-slate-300">Change</span>
@@ -520,14 +545,14 @@
                             </div>
                         </div>
                     </div>
-                    <div class="mt-6 flex flex-wrap items-center justify-end gap-2">
-                        <button type="button" id="pos-payment-modal-cancel" class="rounded-lg border border-slate-200 dark:border-darkmode-500 bg-white dark:bg-darkmode-700 px-5 py-2.5 text-sm font-medium text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-darkmode-600 transition-colors">
-                            Cancel
-                        </button>
-                        <button type="button" id="pos-payment-modal-apply" class="rounded-lg bg-primary hover:bg-primary/90 px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition-colors focus:ring-4 focus:ring-primary/30">
-                            Set amount
-                        </button>
-                    </div>
+                </div>
+                <div class="flex-shrink-0 flex flex-wrap items-center justify-end gap-2 px-6 py-4 border-t border-slate-200 dark:border-darkmode-600 bg-white dark:bg-darkmode-800">
+                    <button type="button" id="pos-payment-modal-cancel" class="rounded-lg border border-slate-200 dark:border-darkmode-500 bg-white dark:bg-darkmode-700 px-5 py-2.5 text-sm font-medium text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-darkmode-600 transition-colors">
+                        Cancel
+                    </button>
+                    <button type="button" id="pos-payment-modal-apply" class="rounded-lg bg-primary hover:bg-primary/90 px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition-colors focus:ring-4 focus:ring-primary/30">
+                        Set amount
+                    </button>
                 </div>
             </div>
         </div>
@@ -1272,9 +1297,9 @@
             });
             var paginationWrap = gridOuter.querySelector('.pos-products-pagination');
             if (paginationWrap) paginationWrap.remove();
-            if (totalPages > 1) {
+            if (totalFiltered > 0) {
                 var pagEl = document.createElement('div');
-                pagEl.className = 'pos-products-pagination flex items-center justify-between gap-2 px-4 py-2 border-t border-slate-200 dark:border-darkmode-600 bg-slate-50/50 dark:bg-darkmode-800/50';
+                pagEl.className = 'pos-products-pagination flex flex-shrink-0 items-center justify-between gap-2 px-4 py-2 border-t border-slate-200 dark:border-darkmode-600 bg-slate-50/50 dark:bg-darkmode-800/50';
                 var prevDisabled = productsCurrentPage <= 1 ? ' disabled' : '';
                 var nextDisabled = productsCurrentPage >= totalPages ? ' disabled' : '';
                 pagEl.innerHTML = '<span class="text-xs text-slate-500 dark:text-slate-400">Showing ' + (pageStart + 1) + '–' + Math.min(pageStart + productsPerPage, totalFiltered) + ' of ' + totalFiltered + '</span>' +
@@ -1334,7 +1359,7 @@
             });
             var listPaginationWrap = listOuter ? listOuter.querySelector('.pos-products-pagination') : null;
             if (listPaginationWrap) listPaginationWrap.remove();
-            if (totalPages > 1 && listOuter) {
+            if (totalFiltered > 0 && listOuter) {
                 var listPagEl = document.createElement('div');
                 listPagEl.className = 'pos-products-pagination flex items-center justify-between gap-2 px-4 py-2 border-t border-slate-200 dark:border-darkmode-600 bg-slate-50/50 dark:bg-darkmode-800/50 flex-shrink-0';
                 var prevDisabled = productsCurrentPage <= 1 ? ' disabled' : '';
@@ -3379,6 +3404,57 @@
                 }
             });
         }
+        (function initPaymentModalKeypad() {
+            var modal = document.getElementById('pos-payment-modal');
+            var amountInput = document.getElementById('pos-payment-modal-amount');
+            var totalEl = document.getElementById('pos-payment-modal-total');
+            if (!modal || !amountInput || !totalEl) return;
+            function getTotalDue() {
+                return parseAmount(totalEl.textContent.replace(/[^\d.,-]/g, ''));
+            }
+            function setAmountAndUpdate(val) {
+                var cleaned = String(val).replace(/[^\d.,-]/g, '');
+                amountInput.value = cleaned;
+                updatePaymentModalChangeFromDom();
+            }
+            modal.addEventListener('click', function (e) {
+                var quick = e.target && e.target.closest && e.target.closest('.pos-payment-quick-amount');
+                if (quick) {
+                    e.preventDefault();
+                    var action = quick.getAttribute('data-action');
+                    var total = getTotalDue();
+                    var current = parseAmount((amountInput.value || '').replace(/[^\d.,-]/g, ''));
+                    if (isNaN(current)) current = 0;
+                    if (action === 'exact') {
+                        setAmountAndUpdate(total % 1 === 0 ? String(Math.round(total)) : total.toFixed(2));
+                    } else if (action === '100' || action === '500' || action === '1000') {
+                        var add = parseInt(action, 10);
+                        setAmountAndUpdate((current + add) % 1 === 0 ? String(Math.round(current + add)) : (current + add).toFixed(2));
+                    }
+                    return;
+                }
+                var numkey = e.target && e.target.closest && e.target.closest('.pos-payment-numkey');
+                if (numkey) {
+                    e.preventDefault();
+                    var key = numkey.getAttribute('data-key');
+                    var cur = amountInput.value || '';
+                    var cleaned = cur.replace(/[^\d.]/g, '');
+                    if (key === 'back') {
+                        setAmountAndUpdate(cleaned.slice(0, -1));
+                    } else if (key === 'clear') {
+                        setAmountAndUpdate('');
+                    } else if (key === '.') {
+                        if (cleaned.indexOf('.') === -1) setAmountAndUpdate(cleaned + '.');
+                    } else if (key === '00') {
+                        setAmountAndUpdate(cleaned + '00');
+                    } else if (/^\d$/.test(key)) {
+                        var parts = cleaned.split('.');
+                        if (parts.length > 1 && parts[1].length >= 2) return;
+                        setAmountAndUpdate(cleaned + key);
+                    }
+                }
+            });
+        })();
         if (paymentModal) {
             paymentModal.addEventListener('keydown', function (e) {
                 if (e.key === 'Escape') {
