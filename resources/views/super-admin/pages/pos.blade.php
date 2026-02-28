@@ -67,8 +67,8 @@
     {{-- POS header: two-tier (branding + total | OR + date + welcome + actions), brand primary --}}
     <div class="sticky top-0 z-30 mt-1 mb-2 w-full print:hidden shrink-0">
         <header class="w-full overflow-hidden rounded-lg shadow-md">
-            {{-- Top bar: branding left, total right --}}
-            <div class="flex items-center justify-between gap-3 bg-primary px-3 py-2 sm:px-4 sm:py-2.5 shadow-sm">
+            {{-- Top bar: gradient, branding left, connection + total right --}}
+            <div class="flex items-center justify-between gap-3 bg-gradient-to-r from-slate-800 via-slate-700 to-slate-800 px-3 py-2 sm:px-4 sm:py-2.5 shadow-sm">
                 <div class="min-w-0">
                     <h1 class="text-base font-bold tracking-tight text-white sm:text-lg">Landogz POS</h1>
                     <p class="mt-0.5 text-[10px] sm:text-xs text-white/85">
@@ -78,13 +78,14 @@
                 <div class="flex shrink-0 items-center gap-2">
                     <span class="hidden sm:inline text-[10px] font-medium uppercase tracking-wider text-white/80">Total</span>
                     <div class="flex items-center justify-end rounded-lg bg-slate-900/90 px-3 py-2 min-w-[88px] sm:min-w-[112px] ring-1 ring-white/10">
-                        <span id="pos-header-total" class="text-base font-bold tabular-nums text-white sm:text-lg">₱0.00</span>
+                        <span id="pos-header-total" class="text-base font-bold tabular-nums text-white sm:text-lg pos-header-total-count">₱0.00</span>
                     </div>
                 </div>
             </div>
-            {{-- Bottom bar: OR, branch/terminal, date, welcome, actions --}}
-            <div class="flex flex-nowrap items-center justify-between gap-1.5 bg-slate-800 px-3 py-1.5 sm:px-4 sm:py-2 overflow-x-auto">
+            {{-- Bottom bar: connection status, OR, branch/terminal, shift timer, date, welcome, actions --}}
+            <div class="flex flex-nowrap items-center justify-between gap-1.5 bg-gradient-to-r from-slate-800 to-slate-900 px-3 py-1.5 sm:px-4 sm:py-2 overflow-x-auto">
                 <div class="flex flex-nowrap items-center gap-x-2 sm:gap-x-3 min-w-0">
+                    <span id="pos-connection-dot" class="shrink-0 inline-block h-2 w-2 rounded-full bg-emerald-400 shadow-[0_0_6px_rgba(52,211,153,0.8)]" title="Online" aria-hidden="true"></span>
                     <div class="flex items-center gap-1 text-white">
                         <span class="text-[10px] sm:text-xs font-medium">OR Number:</span>
                         <span id="pos-header-or" class="text-[10px] sm:text-xs font-semibold tracking-wide text-white">Pending</span>
@@ -96,6 +97,8 @@
                         <span id="pos-terminal-label" class="truncate text-white">—</span>
                         <span class="shrink-0 text-slate-400">·</span>
                         <span id="pos-shift-label" class="shrink-0 text-white">Day</span>
+                        <span class="hidden sm:inline shrink-0 text-slate-400">·</span>
+                        <span id="pos-shift-timer" class="hidden sm:inline shrink-0 text-white/90 font-medium" title="Session duration">Shift: 0m</span>
                     </div>
                     <span id="pos-status-ready" class="hidden md:inline text-[10px] text-slate-300">POS Ready</span>
                 </div>
@@ -186,6 +189,9 @@
                         <button type="button" class="pos-category-chip inline-flex items-center h-7 sm:h-8 rounded-full border-[1.5px] border-slate-200 dark:border-darkmode-500 bg-transparent text-slate-500 dark:text-slate-400 font-medium text-xs px-3 whitespace-nowrap transition-all duration-150 hover:border-primary hover:bg-primary/5 hover:text-primary dark:hover:bg-primary/10" data-category="supplies">
                             Supplies <span id="pos-tab-count-supplies" class="pos-tab-badge ml-1 rounded-full bg-slate-100 dark:bg-darkmode-600 text-slate-500 dark:text-slate-400 px-1 py-0.5 text-[10px] font-medium">0</span>
                         </button>
+                        <button type="button" class="pos-category-chip inline-flex items-center h-7 sm:h-8 rounded-full border-[1.5px] border-slate-200 dark:border-darkmode-500 bg-transparent text-slate-500 dark:text-slate-400 font-medium text-xs px-3 whitespace-nowrap transition-all duration-150 hover:border-amber-500 hover:bg-amber-50 hover:text-amber-700 dark:hover:bg-amber-900/20" data-category="favorites" title="Frequent / top sold">
+                            Frequent <span id="pos-tab-count-favorites" class="pos-tab-badge ml-1 rounded-full bg-slate-100 dark:bg-darkmode-600 text-slate-500 dark:text-slate-400 px-1 py-0.5 text-[10px] font-medium">0</span>
+                        </button>
                     </div>
                     <div class="inline-flex items-center gap-0.5 rounded-full bg-slate-100 dark:bg-darkmode-700 px-1 py-0.5">
                         <span class="text-[10px] font-medium text-slate-500 dark:text-slate-400 px-1">Display</span>
@@ -233,6 +239,7 @@
                     <div class="flex items-center justify-between gap-2 flex-wrap min-w-0">
                         <h2 class="text-sm sm:text-base font-bold text-slate-900 shrink-0">Current Order</h2>
                         <div class="flex items-center gap-1.5 shrink-0">
+                            <button type="button" id="pos-customer-quick-add-btn" class="inline-flex items-center gap-0.5 rounded-md bg-emerald-50 border border-emerald-200 px-2 py-1 text-[10px] font-medium text-emerald-700 hover:bg-emerald-100 transition-colors" title="Add customer / Senior or PWD ID for discount">Customer</button>
                             <span id="pos-order-item-badge" class="inline-flex items-center rounded-md bg-sky-100 text-sky-700 px-2 py-0.5 text-[10px] font-semibold hidden">0 items</span>
                             <button type="button" id="pos-hold-order-btn" class="inline-flex items-center gap-0.5 rounded-md bg-amber-50 border border-amber-200 px-2 py-1 text-[10px] font-medium text-amber-700 hover:bg-amber-100 transition-colors" title="Hold / Retrieve"><span id="pos-hold-btn-text">Hold</span></button>
                             <button type="button" id="pos-clear-order-btn" class="inline-flex items-center gap-0.5 rounded-md bg-rose-50 border border-rose-200 px-2 py-1 text-[10px] font-medium text-rose-600 hover:bg-rose-100 transition-colors">
@@ -354,15 +361,16 @@
                             <span class="flex items-center justify-center w-6 h-6 rounded-md bg-sky-100 text-sky-600 text-base leading-none" aria-hidden="true">💳</span>
                             <span class="text-[9px] font-semibold text-slate-700">Card</span>
                         </button>
-                        <button type="button" class="pos-tender-type-btn flex flex-col items-center justify-center gap-0.5 rounded-md border-2 border-slate-200 bg-white px-1 py-1.5 text-center transition-all duration-200 hover:border-slate-300 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:ring-offset-0 data-[selected=true]:border-sky-400 data-[selected=true]:bg-sky-50" data-type="ewallet">
-                            <span class="flex items-center justify-center w-6 h-6 rounded-md bg-violet-100 text-violet-600 text-base leading-none" aria-hidden="true">📱</span>
-                            <span class="text-[9px] font-semibold text-slate-700">E-wallet</span>
+                        <button type="button" class="pos-tender-type-btn flex flex-col items-center justify-center gap-0.5 rounded-md border-2 border-slate-200 bg-white px-1 py-1.5 text-center transition-all duration-200 hover:border-slate-300 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:ring-offset-0 data-[selected=true]:border-sky-400 data-[selected=true]:bg-sky-50" data-type="ewallet" title="GCash, Maya, etc.">
+                            <span class="flex items-center justify-center w-6 h-6 rounded-md bg-violet-100 text-violet-600 text-[10px] font-bold leading-none" aria-hidden="true">G/M</span>
+                            <span class="text-[9px] font-semibold text-slate-700">GCash / Maya</span>
                         </button>
-                        <button type="button" class="pos-tender-type-btn flex flex-col items-center justify-center gap-0.5 rounded-md border-2 border-slate-200 bg-white px-1 py-1.5 text-center transition-all duration-200 hover:border-slate-300 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:ring-offset-0 data-[selected=true]:border-sky-400 data-[selected=true]:bg-sky-50" data-type="split">
+                        <button type="button" class="pos-tender-type-btn flex flex-col items-center justify-center gap-0.5 rounded-md border-2 border-slate-200 bg-white px-1 py-1.5 text-center transition-all duration-200 hover:border-slate-300 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:ring-offset-0 data-[selected=true]:border-sky-400 data-[selected=true]:bg-sky-50" data-type="split" title="Split payment across methods">
                             <span class="flex items-center justify-center w-6 h-6 rounded-md bg-amber-100 text-amber-600 text-base leading-none" aria-hidden="true">🔀</span>
                             <span class="text-[9px] font-semibold text-slate-700">Split</span>
                         </button>
                     </div>
+                    <p id="pos-payment-split-hint" class="hidden mt-1 text-[10px] text-slate-500">Split amount per method at checkout.</p>
                 </div>
                 <div class="space-y-2 hidden">
                     <label for="pos-amount-received" class="text-xs font-medium text-slate-600">Amount received (₱)</label>
@@ -857,53 +865,61 @@
     {{-- Fixed bottom action bar: icon + label + shortcut [ Fn ], with animations (concept: top-border hover) --}}
     <nav id="pos-bottom-bar" class="fixed bottom-0 left-0 right-0 z-40 flex w-full items-center bg-primary px-2 py-2 shadow-[0_-2px_10px_rgba(0,0,0,0.1)] print:hidden transition-shadow duration-300" aria-label="POS actions">
         <div class="flex flex-1 items-center justify-around gap-0.5 min-w-0">
-            <button type="button" id="pos-bottom-new-sale" class="pos-bottom-btn flex flex-col items-center justify-center gap-0 rounded-lg px-1.5 py-1 text-white border-t-2 border-transparent hover:bg-white/20 hover:border-t-white/90 transition-all duration-200 ease-out hover:scale-105 active:scale-95 origin-center min-w-0 flex-1 max-w-[72px] sm:max-w-none" title="New sale (F1)">
+            <button type="button" id="pos-bottom-new-sale" class="pos-bottom-btn flex flex-col items-center justify-center gap-0 rounded-lg px-1.5 py-1 text-white border-t-2 border-transparent hover:bg-white/20 hover:border-t-white/90 transition-all duration-200 ease-out hover:scale-105 active:scale-95 origin-center min-w-0 flex-1 max-w-[72px] sm:max-w-none" title="New sale — start a fresh transaction [ F1 ]">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
                 <span class="text-[9px] font-medium uppercase tracking-wide truncate w-full text-center leading-tight">New Sale</span>
                 <span class="text-[8px] text-white/80 font-mono">[ F1 ]</span>
             </button>
-            <button type="button" id="pos-bottom-scan" class="pos-bottom-btn flex flex-col items-center justify-center gap-0 rounded-lg px-1.5 py-1 text-white border-t-2 border-transparent hover:bg-white/20 hover:border-t-white/90 transition-all duration-200 ease-out hover:scale-105 active:scale-95 origin-center min-w-0 flex-1 max-w-[72px] sm:max-w-none" title="Scan (F2)">
+            <button type="button" id="pos-bottom-scan" class="pos-bottom-btn flex flex-col items-center justify-center gap-0 rounded-lg px-1.5 py-1 text-white border-t-2 border-transparent hover:bg-white/20 hover:border-t-white/90 transition-all duration-200 ease-out hover:scale-105 active:scale-95 origin-center min-w-0 flex-1 max-w-[72px] sm:max-w-none" title="Scan — focus barcode scanner or open scanner [ F2 ]">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 7V5a2 2 0 0 1 2-2h2"/><path d="M17 3h2a2 2 0 0 1 2 2v2"/><path d="M21 17v2a2 2 0 0 1-2 2h-2"/><path d="M7 21H5a2 2 0 0 1-2-2v-2"/><path d="M7 8h10"/><path d="M7 12h6"/><path d="M17 12h.01"/><path d="M7 16h4"/></svg>
                 <span class="text-[9px] font-medium uppercase tracking-wide truncate w-full text-center leading-tight">Scan</span>
                 <span class="text-[8px] text-white/80 font-mono">[ F2 ]</span>
             </button>
-            <button type="button" id="pos-bottom-hold" class="pos-bottom-btn flex flex-col items-center justify-center gap-0 rounded-lg px-1.5 py-1 text-white border-t-2 border-transparent hover:bg-white/20 hover:border-t-white/90 transition-all duration-200 ease-out hover:scale-105 active:scale-95 origin-center min-w-0 flex-1 max-w-[72px] sm:max-w-none" title="Hold (F4)">
+            <button type="button" id="pos-bottom-hold" class="pos-bottom-btn flex flex-col items-center justify-center gap-0 rounded-lg px-1.5 py-1 text-white border-t-2 border-transparent hover:bg-white/20 hover:border-t-white/90 transition-all duration-200 ease-out hover:scale-105 active:scale-95 origin-center min-w-0 flex-1 max-w-[72px] sm:max-w-none" title="Hold — save current order and retrieve later [ F4 ]. Disabled when cart is empty.">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v4"/><path d="M12 18v4"/><path d="M4.93 4.93l2.83 2.83"/><path d="M16.24 16.24l2.83 2.83"/><path d="M2 12h4"/><path d="M18 12h4"/><path d="M4.93 19.07l2.83-2.83"/><path d="M16.24 7.76l2.83-2.83"/><circle cx="12" cy="12" r="3"/></svg>
                 <span class="text-[9px] font-medium uppercase tracking-wide truncate w-full text-center leading-tight">Hold</span>
                 <span class="text-[8px] text-white/80 font-mono">[ F4 ]</span>
             </button>
-            <button type="button" id="pos-bottom-discount" class="pos-bottom-btn flex flex-col items-center justify-center gap-0 rounded-lg px-1.5 py-1 text-white border-t-2 border-transparent hover:bg-white/20 hover:border-t-white/90 transition-all duration-200 ease-out hover:scale-105 active:scale-95 origin-center min-w-0 flex-1 max-w-[72px] sm:max-w-none" title="Discount (F5)">
+            <button type="button" id="pos-bottom-discount" class="pos-bottom-btn flex flex-col items-center justify-center gap-0 rounded-lg px-1.5 py-1 text-white border-t-2 border-transparent hover:bg-white/20 hover:border-t-white/90 transition-all duration-200 ease-out hover:scale-105 active:scale-95 origin-center min-w-0 flex-1 max-w-[72px] sm:max-w-none" title="Discount — apply SC/PWD, employee, promo, or manual discount [ F5 ]">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
                 <span class="text-[9px] font-medium uppercase tracking-wide truncate w-full text-center leading-tight">Discount</span>
                 <span class="text-[8px] text-white/80 font-mono">[ F5 ]</span>
             </button>
-            <button type="button" id="pos-bottom-payment" class="pos-bottom-btn flex flex-col items-center justify-center gap-0 rounded-lg px-1.5 py-1 text-white border-t-2 border-transparent hover:bg-white/20 hover:border-t-white/90 transition-all duration-200 ease-out hover:scale-105 active:scale-95 origin-center min-w-0 flex-1 max-w-[72px] sm:max-w-none" title="Payment / Complete (F8)">
+            <button type="button" id="pos-bottom-payment" class="pos-bottom-btn flex flex-col items-center justify-center gap-0 rounded-lg px-1.5 py-1 text-white border-t-2 border-transparent hover:bg-white/20 hover:border-t-white/90 transition-all duration-200 ease-out hover:scale-105 active:scale-95 origin-center min-w-0 flex-1 max-w-[72px] sm:max-w-none" title="Payment — complete sale with cash, card, GCash/Maya, or split [ F8 ]. Disabled when cart is empty.">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg>
                 <span class="text-[9px] font-medium uppercase tracking-wide truncate w-full text-center leading-tight">Payment</span>
                 <span class="text-[8px] text-white/80 font-mono">[ F8 ]</span>
             </button>
-            <button type="button" id="pos-bottom-reprint" class="pos-bottom-btn flex flex-col items-center justify-center gap-0 rounded-lg px-1.5 py-1 text-white border-t-2 border-transparent hover:bg-white/20 hover:border-t-white/90 transition-all duration-200 ease-out hover:scale-105 active:scale-95 origin-center min-w-0 flex-1 max-w-[72px] sm:max-w-none" title="Re-print (F9)">
+            <button type="button" id="pos-bottom-reprint" class="pos-bottom-btn flex flex-col items-center justify-center gap-0 rounded-lg px-1.5 py-1 text-white border-t-2 border-transparent hover:bg-white/20 hover:border-t-white/90 transition-all duration-200 ease-out hover:scale-105 active:scale-95 origin-center min-w-0 flex-1 max-w-[72px] sm:max-w-none" title="Re-print — print receipt for a previous transaction by reference [ F9 ]">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9V2h12v7"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h2"/><path d="M18 18h2a2 2 0 0 0 2-2v-5a2 2 0 0 0-2-2h-2"/><path d="M6 14h12v8H6z"/></svg>
                 <span class="text-[9px] font-medium uppercase tracking-wide truncate w-full text-center leading-tight">Re-print</span>
                 <span class="text-[8px] text-white/80 font-mono">[ F9 ]</span>
             </button>
-            <button type="button" id="pos-bottom-sales" class="pos-bottom-btn flex flex-col items-center justify-center gap-0 rounded-lg px-1.5 py-1 text-white border-t-2 border-transparent hover:bg-white/20 hover:border-t-white/90 transition-all duration-200 ease-out hover:scale-105 active:scale-95 origin-center min-w-0 flex-1 max-w-[72px] sm:max-w-none" title="Sales history (F11)">
+            <button type="button" id="pos-bottom-sales" class="pos-bottom-btn flex flex-col items-center justify-center gap-0 rounded-lg px-1.5 py-1 text-white border-t-2 border-transparent hover:bg-white/20 hover:border-t-white/90 transition-all duration-200 ease-out hover:scale-105 active:scale-95 origin-center min-w-0 flex-1 max-w-[72px] sm:max-w-none" title="Sales history — view today’s transactions [ F11 ]">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M16 13H8"/><path d="M16 17H8"/><path d="M10 9H8"/></svg>
                 <span class="text-[9px] font-medium uppercase tracking-wide truncate w-full text-center leading-tight">Sales</span>
                 <span class="text-[8px] text-white/80 font-mono">[ F11 ]</span>
             </button>
-            <button type="button" id="pos-bottom-lock" class="pos-bottom-btn flex flex-col items-center justify-center gap-0 rounded-lg px-1.5 py-1 text-white border-t-2 border-transparent hover:bg-white/20 hover:border-t-white/90 transition-all duration-200 ease-out hover:scale-105 active:scale-95 origin-center min-w-0 flex-1 max-w-[72px] sm:max-w-none" title="Lock POS (F10)">
+            <button type="button" id="pos-bottom-lock" class="pos-bottom-btn flex flex-col items-center justify-center gap-0 rounded-lg px-1.5 py-1 text-white border-t-2 border-transparent hover:bg-white/20 hover:border-t-white/90 transition-all duration-200 ease-out hover:scale-105 active:scale-95 origin-center min-w-0 flex-1 max-w-[72px] sm:max-w-none" title="Lock POS — re-enter PIN to continue [ F10 ]">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="10" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
                 <span class="text-[9px] font-medium uppercase tracking-wide truncate w-full text-center leading-tight">Lock</span>
                 <span class="text-[8px] text-white/80 font-mono">[ F10 ]</span>
             </button>
-            <button type="button" id="pos-bottom-logout" class="pos-bottom-btn flex flex-col items-center justify-center gap-0 rounded-lg px-1.5 py-1 text-white border-t-2 border-transparent hover:bg-rose-500/40 hover:border-t-rose-300 transition-all duration-200 ease-out hover:scale-105 active:scale-95 origin-center min-w-0 flex-1 max-w-[72px] sm:max-w-none border-l border-white/20 ml-0.5 pl-1.5" title="Logout">
+            <button type="button" id="pos-bottom-logout" class="pos-bottom-btn flex flex-col items-center justify-center gap-0 rounded-lg px-1.5 py-1 text-white border-t-2 border-transparent hover:bg-rose-500/40 hover:border-t-rose-300 transition-all duration-200 ease-out hover:scale-105 active:scale-95 origin-center min-w-0 flex-1 max-w-[72px] sm:max-w-none border-l border-white/20 ml-0.5 pl-1.5" title="Logout — end session">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
                 <span class="text-[9px] font-medium uppercase tracking-wide truncate w-full text-center leading-tight">Logout</span>
                 <span class="text-[8px] text-white/80 font-mono">—</span>
             </button>
+            <button type="button" id="pos-bottom-minimal-toggle" class="pos-bottom-btn flex flex-col items-center justify-center gap-0 rounded-lg px-1 py-1 text-white/80 border-l border-white/20 ml-0.5 hover:bg-white/15 hover:text-white transition-all max-w-[44px]" title="Hide toolbar — use F1–F11. Click tab at bottom to show again." aria-label="Minimal mode">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+                <span class="text-[8px]">Hide</span>
+            </button>
         </div>
     </nav>
+    <button type="button" id="pos-bottom-show-bar" class="fixed left-1/2 z-50 flex items-center gap-1.5 -translate-x-1/2 py-2.5 px-4 rounded-t-xl bg-slate-800 text-white text-sm font-semibold shadow-lg hover:bg-slate-700 active:bg-slate-600 transition print:hidden border border-b-0 border-slate-600" style="bottom: 0; display: none;" title="Click to show toolbar">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 15l7-7 7 7"/></svg>
+        <span>Show toolbar</span>
+    </button>
     </div>
 @endsection
 
@@ -977,7 +993,9 @@
             if (!raw) return;
             var state = JSON.parse(raw);
             if (state && Array.isArray(state.cartItems)) {
-                cartItems = state.cartItems;
+                cartItems = state.cartItems.map(function (item) {
+                    return Object.assign({ notes: '' }, item);
+                });
                 appliedDiscounts = state.appliedDiscounts || [];
                 serviceChargeAmount = parseFloat(state.serviceChargeAmount) || 0;
                 renderCart();
@@ -1008,6 +1026,23 @@
         if (n.indexOf('vitamin') >= 0) return 'bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300';
         if (n.indexOf('supplies') >= 0 || n.indexOf('first aid') >= 0) return 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300';
         return 'bg-slate-100 dark:bg-darkmode-700 text-slate-600 dark:text-slate-400';
+    }
+    function getCategoryBorderClass(cat) {
+        if (!cat) return 'pos-cat-default';
+        var n = (cat.name || '').toLowerCase();
+        var t = (cat.type || '').toLowerCase();
+        if (t === 'rx' || n.indexOf('rx') >= 0 || n.indexOf('prescription') >= 0) return 'pos-cat-rx';
+        if (t === 'otc' || n.indexOf('otc') >= 0) return 'pos-cat-otc';
+        if (n.indexOf('vitamin') >= 0) return 'pos-cat-vitamin';
+        if (n.indexOf('supplies') >= 0 || n.indexOf('first aid') >= 0) return 'pos-cat-supplies';
+        return 'pos-cat-default';
+    }
+    function getCategoryIconSvg(cat) {
+        var n = (cat && cat.name || '').toLowerCase();
+        var t = (cat && cat.type || '').toLowerCase();
+        if (t === 'rx' || n.indexOf('rx') >= 0 || n.indexOf('prescription') >= 0) return '<svg class="h-4 w-4 text-rose-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v4M4.93 4.93l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83M12 18v4"/><circle cx="12" cy="12" r="3"/></svg>';
+        if (n.indexOf('vitamin') >= 0) return '<svg class="h-4 w-4 text-amber-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v12M6 12h12"/></svg>';
+        return '<svg class="h-4 w-4 text-slate-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="4" width="16" height="16" rx="2"/><path d="M9 9h6v6H9z"/></svg>';
     }
     var productsPerPage = 9;
     var productsCurrentPage = 1;
@@ -1082,9 +1117,12 @@
                 loadProducts();
                 loadHeldOrders();
                 setNotReadyStatusChip('active');
+                setConnectionStatus(true);
+                initShiftTimer();
                 setTimeout(function () { showPosMainContent(); }, 450);
             })
             .catch(function (err) {
+                setConnectionStatus(false);
                 var msg = err.response && err.response.data && err.response.data.message
                     ? err.response.data.message
                     : 'POS is not registered or this terminal is inactive. Contact the software provider to register this POS.';
@@ -1115,6 +1153,37 @@
             dot.classList.add('pos-not-ready-status-dot', 'bg-red-500');
             label.textContent = 'Inactive';
         }
+    }
+
+    function setConnectionStatus(online) {
+        var dot = document.getElementById('pos-connection-dot');
+        if (!dot) return;
+        dot.classList.remove('bg-emerald-400', 'bg-amber-400');
+        dot.classList.remove('shadow-[0_0_6px_rgba(52,211,153,0.8)]', 'shadow-[0_0_6px_rgba(251,191,36,0.8)]');
+        if (online) {
+            dot.classList.add('bg-emerald-400', 'shadow-[0_0_6px_rgba(52,211,153,0.8)]');
+            dot.setAttribute('title', 'Online');
+        } else {
+            dot.classList.add('bg-amber-400', 'shadow-[0_0_6px_rgba(251,191,36,0.8)]');
+            dot.setAttribute('title', 'Local only');
+        }
+    }
+
+    var shiftStartKey = 'pos_shift_start';
+    function initShiftTimer() {
+        if (!sessionStorage.getItem(shiftStartKey)) sessionStorage.setItem(shiftStartKey, String(Date.now()));
+        function updateShiftTimer() {
+            var el = document.getElementById('pos-shift-timer');
+            if (!el) return;
+            var start = parseInt(sessionStorage.getItem(shiftStartKey), 10);
+            if (isNaN(start)) return;
+            var mins = Math.floor((Date.now() - start) / 60000);
+            var h = Math.floor(mins / 60);
+            var m = mins % 60;
+            el.textContent = h > 0 ? 'Shift: ' + h + 'h ' + m + 'm' : 'Shift: ' + m + 'm';
+        }
+        updateShiftTimer();
+        setInterval(updateShiftTimer, 60000);
     }
 
     function setRetryButtonLoading(loading) {
@@ -1200,12 +1269,16 @@
             }
             if (!ok) return false;
             if (!currentCategory) return true;
+            if (currentCategory === 'favorites') return true;
             var catName = p.category && p.category.name ? p.category.name.toLowerCase() : '';
             if (currentCategory === 'rx') return /rx|prescription/.test(catName);
             if (currentCategory === 'otc') return /otc|over[- ]the[- ]counter/.test(catName);
             if (currentCategory === 'supplies') return /supply|supplies|disposables?/.test(catName);
             return true;
         });
+        if (currentCategory === 'favorites') {
+            filteredProducts = filteredProducts.slice(0, 9);
+        }
         productsCurrentPage = 1;
         renderProducts();
     }
@@ -1219,7 +1292,8 @@
             else if (/otc|over[- ]the[- ]counter/.test(catName)) otc++;
             else if (/supply|supplies|disposables?/.test(catName)) supplies++;
         });
-        return { all: all, rx: rx, otc: otc, supplies: supplies };
+        var favorites = Math.min(9, all);
+        return { all: all, rx: rx, otc: otc, supplies: supplies, favorites: favorites };
     }
 
     function updateCategoryTabCounts() {
@@ -1228,10 +1302,12 @@
         var elRx = document.getElementById('pos-tab-count-rx');
         var elOtc = document.getElementById('pos-tab-count-otc');
         var elSupplies = document.getElementById('pos-tab-count-supplies');
+        var elFavorites = document.getElementById('pos-tab-count-favorites');
         if (elAll) elAll.textContent = counts.all;
         if (elRx) elRx.textContent = counts.rx;
         if (elOtc) elOtc.textContent = counts.otc;
         if (elSupplies) elSupplies.textContent = counts.supplies;
+        if (elFavorites) elFavorites.textContent = counts.favorites;
     }
 
     function renderProducts() {
@@ -1274,36 +1350,62 @@
                 var cat = p.category;
                 var catName = cat && cat.name ? cat.name : '';
                 var catPillClass = getCategoryPillClass(cat);
+                var catBorderClass = getCategoryBorderClass(cat);
+                var catIcon = getCategoryIconSvg(cat);
                 var stockBadge = getStockBadgeHtml(stock);
                 var outOfStock = stock <= 0;
                 var isRx = isProductRx(p);
+                var earliestExpiry = getEarliestExpiry(p.batches);
+                var expiryBadgeHtml = formatExpiryBadge(earliestExpiry);
                 var card = document.createElement('button');
                 card.type = 'button';
-                card.className = 'pos-product-card group relative flex flex-col rounded-xl border-[1.5px] border-slate-200 dark:border-darkmode-600 bg-white dark:bg-darkmode-800 text-left overflow-hidden shadow-sm transition-all duration-200 hover:border-primary/40 hover:shadow-md hover:-translate-y-0.5 active:translate-y-0' + (outOfStock ? ' opacity-60 cursor-not-allowed' : '');
+                card.className = 'pos-product-card ' + catBorderClass + ' group relative flex flex-col rounded-xl border-[1.5px] border-slate-200 dark:border-darkmode-600 bg-white dark:bg-darkmode-800 text-left overflow-hidden shadow-sm transition-all duration-200 hover:border-primary/40 hover:shadow-md hover:-translate-y-0.5 active:translate-y-0' + (outOfStock ? ' opacity-60 cursor-not-allowed' : '');
                 card.setAttribute('data-product-id', p.id);
                 card.disabled = outOfStock;
                 card.innerHTML =
+                    '<span class="absolute top-1.5 right-1.5 w-7 h-7 flex items-center justify-center rounded-md bg-slate-100 dark:bg-darkmode-700 shrink-0" aria-hidden="true">' + catIcon + '</span>' +
+                    (!outOfStock ? '<div class="pos-product-card-overlay absolute inset-0 z-10 flex items-center justify-center rounded-xl bg-slate-900/70 opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none group-hover:pointer-events-auto" aria-hidden="true"><div class="flex gap-1.5 p-2 rounded-lg bg-white dark:bg-darkmode-800 shadow-lg" onclick="event.stopPropagation()">' +
+                        [1,2,3,4,5].map(function (n) { return '<button type="button" class="pos-quick-add-qty h-8 w-8 rounded-md border border-slate-200 dark:border-darkmode-500 bg-white dark:bg-darkmode-700 text-slate-800 dark:text-slate-200 text-xs font-bold hover:bg-sky-600 hover:text-white hover:border-sky-600 active:bg-sky-700 transition-colors" data-qty="' + n + '">' + n + '</button>'; }).join('') +
+                    '</div></div>' : '') +
                     '<div class="flex-1 p-2 flex flex-col gap-0.5">' +
                         '<div class="flex items-center justify-between gap-1">' +
                             '<div class="flex items-center gap-1 min-w-0">' +
                                 (isRx ? '<span class="inline-flex items-center rounded border border-rose-200 dark:border-rose-800 bg-rose-50 dark:bg-rose-900/30 px-1 py-0.5 text-[9px] font-bold text-rose-600 dark:text-rose-300 uppercase">Rx</span>' : '<span class="text-[10px] font-medium rounded-full px-1.5 py-0.5 inline-flex shrink-0 ' + catPillClass + '">' + (catName || '—') + '</span>') +
                             '</div>' +
-                            (!outOfStock ? '<span class="pos-add-circle flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-primary text-white shadow-sm transition-all duration-200 group-hover:shadow-md group-hover:scale-110 hover:scale-110 hover:bg-primary/90 hover:shadow-md" aria-label="Add to order"><svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></span>' : '') +
+                            (!outOfStock ? '<span class="pos-add-circle flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-primary text-white shadow-sm transition-all duration-200 group-hover:shadow-md group-hover:scale-110 hover:scale-110 hover:bg-primary/90 hover:shadow-md" aria-label="Add 1 to order"><svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></span>' : '') +
                         '</div>' +
                         '<div class="text-xs font-bold text-slate-800 dark:text-slate-100 leading-tight line-clamp-2 min-h-[2rem]">' + name + '</div>' +
                         (generic ? '<div class="text-[10px] text-slate-600 dark:text-slate-400 truncate">' + generic + '</div>' : '') +
                         '<div class="mt-auto flex items-center justify-between flex-wrap gap-1 text-[10px]">' +
-                            '<span class="flex items-center gap-0.5 min-w-0">' + stockBadge + (unit ? ' <span class="text-slate-400 dark:text-slate-500 truncate">' + unit + '</span>' : '') + '</span>' +
+                            '<span class="flex items-center gap-0.5 min-w-0">' + stockBadge + (unit ? ' <span class="text-slate-400 dark:text-slate-500 truncate">' + unit + '</span>' : '') + (expiryBadgeHtml ? ' ' + expiryBadgeHtml : '') + '</span>' +
                             '<span class="text-sm font-bold text-primary shrink-0">' + price + '</span>' +
                         '</div>' +
                     '</div>';
                 if (!outOfStock) {
-                    card.addEventListener('click', function () {
-                        addToCart(p);
+                    card.addEventListener('click', function (e) {
+                        var overlay = card.querySelector('.pos-product-card-overlay');
+                        var qtyBtn = e.target.closest('.pos-quick-add-qty');
+                        if (qtyBtn) {
+                            var qty = parseInt(qtyBtn.getAttribute('data-qty'), 10) || 1;
+                            addToCart(p, qty);
+                            card.classList.add('pos-product-card-just-added', 'border-emerald-300', 'bg-emerald-50/50', 'dark:border-emerald-700', 'dark:bg-emerald-900/20');
+                            setTimeout(function () { card.classList.remove('pos-product-card-just-added', 'border-emerald-300', 'bg-emerald-50/50', 'dark:border-emerald-700', 'dark:bg-emerald-900/20'); }, 400);
+                            return;
+                        }
+                        if (overlay && overlay.contains(e.target)) return;
+                        addToCart(p, 1);
                         card.classList.add('pos-product-card-just-added', 'border-emerald-300', 'bg-emerald-50/50', 'dark:border-emerald-700', 'dark:bg-emerald-900/20');
-                        setTimeout(function () {
-                            card.classList.remove('pos-product-card-just-added', 'border-emerald-300', 'bg-emerald-50/50', 'dark:border-emerald-700', 'dark:bg-emerald-900/20');
-                        }, 400);
+                        setTimeout(function () { card.classList.remove('pos-product-card-just-added', 'border-emerald-300', 'bg-emerald-50/50', 'dark:border-emerald-700', 'dark:bg-emerald-900/20'); }, 400);
+                    });
+                    card.querySelectorAll('.pos-quick-add-qty').forEach(function (btn) {
+                        btn.addEventListener('click', function (e) {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            var qty = parseInt(this.getAttribute('data-qty'), 10) || 1;
+                            addToCart(p, qty);
+                            card.classList.add('pos-product-card-just-added', 'border-emerald-300', 'bg-emerald-50/50', 'dark:border-emerald-700', 'dark:bg-emerald-900/20');
+                            setTimeout(function () { card.classList.remove('pos-product-card-just-added', 'border-emerald-300', 'bg-emerald-50/50', 'dark:border-emerald-700', 'dark:bg-emerald-900/20'); }, 400);
+                        });
                     });
                 }
                 gridInner.appendChild(card);
@@ -1404,11 +1506,13 @@
         return type === 'rx' || name.indexOf('rx') >= 0 || name.indexOf('prescription') >= 0;
     }
 
-    function addToCart(product) {
+    function addToCart(product, quantity) {
         if (!product || !product.id) return;
+        var qty = parseInt(quantity, 10);
+        if (isNaN(qty) || qty < 1) qty = 1;
         var existing = findCartItem(product.id);
         if (existing) {
-            existing.quantity += 1;
+            existing.quantity += qty;
         } else {
             cartItems.push({
                 product_id: product.id,
@@ -1416,12 +1520,35 @@
                 generic_name: product.generic_name || '',
                 unit: product.unit || '',
                 unit_price: parseFloat(product.price) || 0,
-                quantity: 1,
-                is_rx: isProductRx(product)
+                quantity: qty,
+                is_rx: isProductRx(product),
+                notes: ''
             });
         }
         renderCart();
         saveCartToStorage();
+    }
+
+    function getEarliestExpiry(batches) {
+        if (!Array.isArray(batches) || !batches.length) return null;
+        var date = null;
+        batches.forEach(function (b) {
+            var d = b.expiry_date ? (b.expiry_date.split && b.expiry_date.split('T')[0]) || b.expiry_date : null;
+            if (d && (!date || d < date)) date = d;
+        });
+        return date;
+    }
+
+    function formatExpiryBadge(expiryStr) {
+        if (!expiryStr) return '';
+        var d = new Date(expiryStr);
+        if (isNaN(d.getTime())) return '';
+        var months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+        var label = 'Exp: ' + months[d.getMonth()] + ' ' + d.getFullYear();
+        var now = new Date();
+        var daysLeft = Math.ceil((d - now) / (24 * 60 * 60 * 1000));
+        var isSoon = daysLeft <= 30;
+        return '<span class="pos-expiry-badge text-[9px] font-semibold ' + (isSoon ? 'text-rose-600 dark:text-rose-400 bg-rose-50 dark:bg-rose-900/30' : 'text-slate-500 dark:text-slate-400') + '">' + label + '</span>';
     }
 
     function updateCartQuantity(productId, delta) {
@@ -1454,6 +1581,16 @@
         }
         renderCart();
         saveCartToStorage();
+    }
+
+    function setCartItemNotes(productId, notes) {
+        for (var i = 0; i < cartItems.length; i++) {
+            if (cartItems[i].product_id === productId) {
+                cartItems[i].notes = notes || '';
+                saveCartToStorage();
+                return;
+            }
+        }
     }
 
     function clearCart() {
@@ -1528,7 +1665,7 @@
         var badgeEl = document.getElementById('pos-order-item-badge');
         if (!container) return;
         if (!cartItems.length) {
-            container.innerHTML = '<div class="px-4 py-6 sm:px-5 text-center text-slate-400 text-xs">No items in the order yet. Tap <span class="font-semibold text-sky-600">Add</span> on items from the list to build an order.</div>';
+            container.innerHTML = '<div class="flex flex-col items-center justify-center px-4 py-8 text-center"><span class="inline-flex h-14 w-14 items-center justify-center rounded-full bg-slate-100 dark:bg-darkmode-700 text-slate-400 mb-3" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 10.5V6a3.75 3.75 0 10-7.5 0v4.5m11.356-1.993l1.263 12c.07.665-.45 1.243-1.119 1.243H4.25a1.125 1.125 0 01-1.12-1.243l1.264-12A1.125 1.125 0 015.513 7.5h12.974c.576 0 1.059.435 1.119 1.007zM8.625 10.5a.375.375 0 11-.75 0 .375.375 0 01.75 0zm7.5 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z"/></svg></span><p class="text-xs font-medium text-slate-600 dark:text-slate-400">Scan or search a product to begin</p><p class="mt-0.5 text-[10px] text-slate-500 dark:text-slate-500">Use the search bar, categories, or barcode scanner.</p></div>';
             if (badgeEl) { badgeEl.classList.add('hidden'); badgeEl.textContent = '0 items'; }
         } else {
             // Order line: top = title + description, bottom = qty + total + void (compressed)
@@ -1543,12 +1680,13 @@
                 if (item.generic_name) descParts.push(item.generic_name);
                 descParts.push('₱' + unitPriceStr + '/unit');
                 var description = descParts.join(' · ');
+                var itemNotes = (item.notes != null && item.notes !== '') ? escapeHtml(item.notes) : '';
                 html += [
-                    '<article class="pos-order-item flex flex-col gap-1.5 rounded-lg border border-slate-200 bg-slate-50/30 px-2 py-1.5 transition-colors hover:border-slate-300 hover:bg-slate-50/50 min-w-0">',
+                    '<article class="pos-order-item pos-order-item-animate flex flex-col gap-1.5 rounded-lg border border-slate-200 bg-slate-50/30 px-2 py-1.5 transition-colors hover:border-slate-300 hover:bg-slate-50/50 min-w-0">',
                     '<div class="min-w-0">',
                     '<div class="flex items-center gap-1.5 min-w-0">',
                     rxBadge,
-                    '<h3 class="pos-order-item-name text-xs font-semibold text-slate-800 truncate leading-tight">', escapeHtml(item.name), '</h3>',
+                    '<h3 class="pos-order-item-name text-xs font-semibold text-slate-800 truncate leading-tight">', escapeHtml(item.name), (item.quantity > 1 ? ' <span class="text-slate-500 font-normal">' + item.quantity + '×</span>' : ''), '</h3>',
                     '</div>',
                     '<p class="pos-order-item-desc mt-0.5 text-[10px] text-slate-500 truncate leading-snug">', escapeHtml(description), '</p>',
                     '</div>',
@@ -1563,6 +1701,7 @@
                     '<button type="button" class="pos-cart-void-btn inline-flex h-5 w-5 shrink-0 items-center justify-center rounded border border-slate-200 bg-white text-slate-400 text-sm leading-none transition-colors hover:border-rose-200 hover:bg-rose-50 hover:text-rose-600" data-id="', item.product_id, '" title="Remove line" aria-label="Remove line">×</button>',
                     '</div>',
                     '</div>',
+                    '<input type="text" class="pos-cart-notes-input w-full rounded border border-slate-200 bg-white px-1.5 py-0.5 text-[10px] text-slate-700 placeholder:text-slate-400 focus:ring-1 focus:ring-primary/20 focus:border-primary" data-id="', item.product_id, '" placeholder="Note (e.g. Take after meals)" value="', itemNotes, '" maxlength="120" aria-label="Line note">',
                     '</article>'
                 ].join('');
             });
@@ -1598,6 +1737,14 @@
                 btn.addEventListener('click', function () {
                     var id = parseInt(this.getAttribute('data-id'), 10);
                     openVoidManagerModal(id);
+                });
+            });
+            container.querySelectorAll('.pos-cart-notes-input').forEach(function (input) {
+                input.addEventListener('change', function () {
+                    setCartItemNotes(parseInt(this.getAttribute('data-id'), 10), this.value.trim());
+                });
+                input.addEventListener('blur', function () {
+                    setCartItemNotes(parseInt(this.getAttribute('data-id'), 10), this.value.trim());
                 });
             });
             var itemsCount = cartItems.reduce(function (sum, item) { return sum + item.quantity; }, 0);
@@ -1643,7 +1790,12 @@
             totalDueEl.classList.add('pos-total-amount-animate');
         }
         var headerTotalEl = document.getElementById('pos-header-total');
-        if (headerTotalEl) headerTotalEl.textContent = formatMoney(totalDue);
+        if (headerTotalEl) {
+            headerTotalEl.textContent = formatMoney(totalDue);
+            headerTotalEl.classList.remove('pos-total-amount-animate');
+            void headerTotalEl.offsetWidth;
+            headerTotalEl.classList.add('pos-total-amount-animate');
+        }
         if (totalDiscountEl) totalDiscountEl.textContent = formatMoney(totalDiscount);
         if (vatExemptionTotalEl) vatExemptionTotalEl.textContent = formatMoney(vatExempt);
 
@@ -1658,6 +1810,15 @@
         }
         renderAppliedDiscounts();
         updateChange();
+        updateBottomBarContext();
+    }
+
+    function updateBottomBarContext() {
+        var empty = !cartItems.length;
+        var holdBtn = document.getElementById('pos-bottom-hold');
+        var paymentBtn = document.getElementById('pos-bottom-payment');
+        if (holdBtn) holdBtn.classList.toggle('pos-bottom-dim', empty);
+        if (paymentBtn) paymentBtn.classList.toggle('pos-bottom-dim', empty);
     }
 
     function updateChange() {
@@ -1784,6 +1945,31 @@
                 if (headerLogout) headerLogout.click();
             });
         }
+
+        var minimalToggle = document.getElementById('pos-bottom-minimal-toggle');
+        var showBarBtn = document.getElementById('pos-bottom-show-bar');
+        var bottomBar = document.getElementById('pos-bottom-bar');
+        var POS_BOTTOM_MINIMAL_KEY = 'pos_bottom_minimal';
+
+        function setBottomBarMinimal(minimal) {
+            if (!bottomBar) return;
+            if (minimal) {
+                bottomBar.classList.add('pos-bottom-minimal');
+                if (showBarBtn) showBarBtn.style.display = 'flex';
+                try { localStorage.setItem(POS_BOTTOM_MINIMAL_KEY, '1'); } catch (e) {}
+            } else {
+                bottomBar.classList.remove('pos-bottom-minimal');
+                if (showBarBtn) showBarBtn.style.display = 'none';
+                try { localStorage.removeItem(POS_BOTTOM_MINIMAL_KEY); } catch (e) {}
+            }
+        }
+
+        if (minimalToggle) minimalToggle.addEventListener('click', function () { setBottomBarMinimal(true); });
+        if (showBarBtn) showBarBtn.addEventListener('click', function () { setBottomBarMinimal(false); });
+
+        try {
+            if (localStorage.getItem(POS_BOTTOM_MINIMAL_KEY) === '1') setBottomBarMinimal(true);
+        } catch (e) {}
     }
 
     function openPaymentModal(type, onDone) {
@@ -2648,6 +2834,8 @@
             var t = btn.getAttribute('data-type');
             btn.setAttribute('data-selected', t === type ? 'true' : 'false');
         });
+        var splitHint = document.getElementById('pos-payment-split-hint');
+        if (splitHint) splitHint.classList.toggle('hidden', type !== 'split');
         updateCompleteSaleButtonState();
     }
 
@@ -2912,7 +3100,8 @@
                     product_batch_id: null,
                     quantity: item.quantity,
                     unit_price: item.unit_price,
-                    prescription_number: item.is_rx && rxInfo ? rxInfo.number : null
+                    prescription_number: item.is_rx && rxInfo ? rxInfo.number : null,
+                    notes: (item.notes && item.notes.trim()) ? item.notes.trim() : null
                 };
             })
         };
@@ -3381,6 +3570,8 @@
 
         var scPwdBtn = document.getElementById('pos-sc-pwd-btn');
         if (scPwdBtn) scPwdBtn.addEventListener('click', function () { document.getElementById('pos-discount-dropdown').classList.add('hidden'); openScPwdModal(); });
+        var customerQuickAddBtn = document.getElementById('pos-customer-quick-add-btn');
+        if (customerQuickAddBtn) customerQuickAddBtn.addEventListener('click', function () { openScPwdModal(); });
 
         var voidModal = document.getElementById('pos-void-modal');
         var voidModalBackdrop = document.getElementById('pos-void-modal-backdrop');
@@ -3796,23 +3987,30 @@
 
         document.querySelectorAll('.pos-category-chip').forEach(function (chip) {
             chip.addEventListener('click', function () {
+                var cat = this.getAttribute('data-category') || '';
                 document.querySelectorAll('.pos-category-chip').forEach(function (c) {
-                    c.classList.remove('border-primary', 'bg-primary', 'text-white', 'font-semibold', 'shadow-sm');
+                    c.classList.remove('border-primary', 'bg-primary', 'text-white', 'font-semibold', 'shadow-sm', 'border-sky-500', 'bg-sky-500', 'border-emerald-500', 'bg-emerald-500', 'border-slate-500', 'bg-slate-200', 'dark:bg-darkmode-600', 'text-slate-700', 'dark:text-slate-300', 'border-amber-500', 'bg-amber-500');
                     c.classList.add('border-slate-200', 'dark:border-darkmode-500', 'bg-transparent', 'text-slate-500', 'dark:text-slate-400', 'font-medium');
-                    var badge = c.querySelector('.pos-tab-badge');
-                    if (badge) {
-                        badge.classList.remove('bg-white/25');
-                        badge.classList.add('bg-slate-100', 'dark:bg-darkmode-600', 'text-slate-500', 'dark:text-slate-400');
-                    }
+                    var b = c.querySelector('.pos-tab-badge');
+                    if (b) { b.classList.remove('bg-white/25'); b.classList.add('bg-slate-100', 'dark:bg-darkmode-600', 'text-slate-500', 'dark:text-slate-400'); }
                 });
-                this.classList.add('border-primary', 'bg-primary', 'text-white', 'font-semibold', 'shadow-sm');
+                if (cat === '') {
+                    this.classList.add('border-primary', 'bg-primary', 'text-white', 'font-semibold', 'shadow-sm');
+                } else if (cat === 'rx') {
+                    this.classList.add('border-sky-500', 'bg-sky-500', 'text-white', 'font-semibold', 'shadow-sm');
+                } else if (cat === 'otc') {
+                    this.classList.add('border-emerald-500', 'bg-emerald-500', 'text-white', 'font-semibold', 'shadow-sm');
+                } else if (cat === 'supplies') {
+                    this.classList.add('border-slate-500', 'bg-slate-200', 'dark:bg-darkmode-600', 'text-slate-700', 'dark:text-slate-300', 'font-semibold', 'shadow-sm');
+                } else if (cat === 'favorites') {
+                    this.classList.add('border-amber-500', 'bg-amber-500', 'text-white', 'font-semibold', 'shadow-sm');
+                } else {
+                    this.classList.add('border-primary', 'bg-primary', 'text-white', 'font-semibold', 'shadow-sm');
+                }
                 this.classList.remove('border-slate-200', 'dark:border-darkmode-500', 'bg-transparent', 'text-slate-500', 'dark:text-slate-400', 'font-medium');
                 var badge = this.querySelector('.pos-tab-badge');
-                if (badge) {
-                    badge.classList.add('bg-white/25');
-                    badge.classList.remove('bg-slate-100', 'dark:bg-darkmode-600', 'text-slate-500', 'dark:text-slate-400');
-                }
-                currentCategory = this.getAttribute('data-category') || '';
+                if (badge) { badge.classList.add('bg-white/25'); badge.classList.remove('bg-slate-100', 'dark:bg-darkmode-600', 'text-slate-500', 'dark:text-slate-400'); }
+                currentCategory = cat;
                 applyFilters();
             });
         });

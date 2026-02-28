@@ -346,3 +346,73 @@
     }
 }
 
+/* POS header total count-up animation */
+.pos-total-amount-animate {
+    animation: pos-total-pop 0.35s ease-out;
+}
+.pos-header-total-count {
+    transition: transform 0.2s ease;
+}
+@keyframes pos-total-pop {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.08); }
+    100% { transform: scale(1); }
+}
+
+/* POS product card category left border */
+.pos-product-card.pos-cat-rx { border-left: 4px solid rgb(244 63 94); }
+.pos-product-card.pos-cat-otc { border-left: 4px solid rgb(14 165 233); }
+.pos-product-card.pos-cat-vitamin { border-left: 4px solid rgb(245 158 11); }
+.pos-product-card.pos-cat-supplies { border-left: 4px solid rgb(20 184 166); }
+.pos-product-card.pos-cat-default { border-left: 4px solid rgb(148 163 184); }
+
+/* POS order item slide-in */
+@keyframes pos-order-item-in {
+    from {
+        opacity: 0;
+        transform: translateX(-8px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+.pos-order-item-animate {
+    animation: pos-order-item-in 0.25s ease-out;
+}
+
+/* POS payment button selected glow */
+.pos-tender-type-btn[data-selected="true"] {
+    box-shadow: 0 0 0 2px rgb(56 189 248 / 0.5), 0 0 12px rgb(56 189 248 / 0.25);
+}
+
+/* POS bottom bar: tooltip and minimal mode */
+#pos-bottom-bar.pos-bottom-minimal {
+    transform: translateY(100%);
+    opacity: 0;
+    pointer-events: none;
+}
+.pos-bottom-btn[title]:hover::after {
+    content: attr(title);
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    margin-bottom: 4px;
+    padding: 4px 8px;
+    font-size: 10px;
+    font-weight: 500;
+    color: white;
+    background: rgba(0,0,0,0.85);
+    border-radius: 6px;
+    white-space: nowrap;
+    z-index: 50;
+    pointer-events: none;
+}
+.pos-bottom-btn {
+    position: relative;
+}
+.pos-bottom-btn.pos-bottom-dim {
+    opacity: 0.5;
+}
+
