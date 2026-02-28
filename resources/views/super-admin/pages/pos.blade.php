@@ -4,7 +4,7 @@
 @section('breadcrumb', 'POS')
 
 @section('content')
-    <div class="pb-20 print:pb-0 flex justify-center">
+    <div class="pb-20 print:pb-0 flex justify-center @if(config('pos.touchscreen', false)) pos-touchscreen @endif" data-pos-touchscreen="{{ config('pos.touchscreen', false) ? '1' : '0' }}">
     {{-- Centered container: 1024×768 on large screens, centered --}}
     <div class="w-full max-w-[1024px] mx-auto px-2 sm:px-3 lg:max-h-[768px] lg:flex lg:flex-col lg:overflow-hidden">
     {{-- POS not ready: polished full-page state (gradient, card, status chip, footer) --}}
@@ -161,7 +161,8 @@
                             type="text"
                             id="pos-search-input"
                             placeholder="Search product name, generic name, or barcode…"
-                            class="pos-search-input w-full rounded-lg border border-slate-200 dark:border-darkmode-500 bg-slate-50/50 dark:bg-darkmode-700/50 px-3 py-2 pr-9 text-xs sm:text-sm text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 focus:ring-2 focus:ring-primary/20 focus:border-primary dark:focus:border-primary transition"
+                            class="pos-search-input w-full rounded-lg border border-slate-200 dark:border-darkmode-500 bg-slate-50/50 dark:bg-darkmode-700/50 px-3 py-2 pr-9 text-xs sm:text-sm text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 focus:ring-2 focus:ring-primary/20 focus:border-primary dark:focus:border-primary transition @if(config('pos.touchscreen', false)) js-kioskboard-input @endif"
+                            @if(config('pos.touchscreen', false)) inputmode="search" data-kioskboard-type="all" data-kioskboard-placement="bottom" @endif
                             autocomplete="off"
                         >
                         <svg xmlns="http://www.w3.org/2000/svg" class="absolute right-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 pointer-events-none text-slate-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
@@ -365,7 +366,7 @@
                 </div>
                 <div class="space-y-2 hidden">
                     <label for="pos-amount-received" class="text-xs font-medium text-slate-600">Amount received (₱)</label>
-                    <input type="tel" inputmode="decimal" id="pos-amount-received" class="w-full rounded-xl border border-slate-200 bg-slate-50/70 px-3 py-2.5 text-sm text-slate-900 placeholder-slate-400 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition" placeholder="Enter amount received" autocomplete="off">
+                    <input type="tel" inputmode="decimal" id="pos-amount-received" class="w-full rounded-xl border border-slate-200 bg-slate-50/70 px-3 py-2.5 text-sm text-slate-900 placeholder-slate-400 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition @if(config('pos.touchscreen', false)) js-kioskboard-input @endif" placeholder="Enter amount received" autocomplete="off" @if(config('pos.touchscreen', false)) data-kioskboard-type="numpad" data-kioskboard-placement="bottom" @endif>
                     <div class="flex items-center justify-between rounded-xl bg-slate-100 px-3 py-2.5">
                         <span class="text-sm font-medium text-slate-600">Change</span>
                         <span id="pos-change-amount" class="text-lg font-bold text-slate-800">₱0.00</span>
@@ -400,7 +401,8 @@
                             <input
                                 type="password"
                                 id="pos-void-manager-input-modal"
-                                class="w-full rounded-lg border border-slate-200 dark:border-darkmode-500 bg-white dark:bg-darkmode-700 px-3 py-2.5 text-sm text-slate-900 dark:text-slate-100 placeholder-slate-400 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition"
+                                class="w-full rounded-lg border border-slate-200 dark:border-darkmode-500 bg-white dark:bg-darkmode-700 px-3 py-2.5 text-sm text-slate-900 dark:text-slate-100 placeholder-slate-400 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition @if(config('pos.touchscreen', false)) js-kioskboard-input @endif"
+                                @if(config('pos.touchscreen', false)) data-kioskboard-type="all" data-kioskboard-placement="bottom" @endif
                                 placeholder="••••••••"
                                 autocomplete="off"
                                 maxlength="255"
@@ -444,12 +446,12 @@
                         </div>
                         <div>
                             <label for="pos-sc-pwd-id" class="block text-sm font-medium text-slate-700 dark:text-slate-200 mb-1.5">SC/PWD ID number <span class="text-rose-500">*</span></label>
-                            <input type="text" id="pos-sc-pwd-id" class="w-full rounded-lg border border-slate-200 dark:border-darkmode-500 bg-white dark:bg-darkmode-700 px-3 py-2.5 text-sm text-slate-900 dark:text-slate-100 placeholder-slate-400 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition" placeholder="e.g. 1234-5678-9012" maxlength="50" autocomplete="off">
+                            <input type="text" id="pos-sc-pwd-id" class="w-full rounded-lg border border-slate-200 dark:border-darkmode-500 bg-white dark:bg-darkmode-700 px-3 py-2.5 text-sm text-slate-900 dark:text-slate-100 placeholder-slate-400 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition @if(config('pos.touchscreen', false)) js-kioskboard-input @endif" @if(config('pos.touchscreen', false)) data-kioskboard-type="all" data-kioskboard-placement="bottom" @endif placeholder="e.g. 1234-5678-9012" maxlength="50" autocomplete="off">
                             <p id="pos-sc-pwd-id-error" class="mt-1 text-xs text-rose-600 dark:text-rose-400 hidden">Please enter SC/PWD ID number.</p>
                         </div>
                         <div>
                             <label for="pos-sc-pwd-name" class="block text-sm font-medium text-slate-700 dark:text-slate-200 mb-1.5">Customer name <span class="text-slate-400 font-normal">(optional)</span></label>
-                            <input type="text" id="pos-sc-pwd-name" class="w-full rounded-lg border border-slate-200 dark:border-darkmode-500 bg-white dark:bg-darkmode-700 px-3 py-2.5 text-sm text-slate-900 dark:text-slate-100 placeholder-slate-400 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition" placeholder="Full name" maxlength="255" autocomplete="off">
+                            <input type="text" id="pos-sc-pwd-name" class="w-full rounded-lg border border-slate-200 dark:border-darkmode-500 bg-white dark:bg-darkmode-700 px-3 py-2.5 text-sm text-slate-900 dark:text-slate-100 placeholder-slate-400 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition @if(config('pos.touchscreen', false)) js-kioskboard-input @endif" @if(config('pos.touchscreen', false)) data-kioskboard-type="all" data-kioskboard-placement="bottom" @endif placeholder="Full name" maxlength="255" autocomplete="off">
                         </div>
                         <div class="rounded-xl border border-emerald-200 dark:border-emerald-800 bg-emerald-50 dark:bg-emerald-900/20 p-3 flex items-center justify-between gap-2">
                             <span class="text-sm font-medium text-slate-700 dark:text-slate-200">Discount amount</span>
@@ -488,13 +490,14 @@
                                 type="tel"
                                 inputmode="decimal"
                                 id="pos-payment-modal-amount"
-                                class="w-full rounded-lg border border-slate-200 dark:border-darkmode-500 bg-white dark:bg-darkmode-700 px-3 py-2.5 text-sm text-slate-900 dark:text-slate-100 placeholder-slate-400 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition"
+                                class="w-full rounded-lg border border-slate-200 dark:border-darkmode-500 bg-white dark:bg-darkmode-700 px-3 py-2.5 text-sm text-slate-900 dark:text-slate-100 placeholder-slate-400 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition @if(config('pos.touchscreen', false)) js-kioskboard-input @endif"
+                                @if(config('pos.touchscreen', false)) data-kioskboard-type="numpad" data-kioskboard-placement="bottom" @endif
                                 placeholder="Enter amount received"
                                 autocomplete="off"
                             >
                             <p id="pos-payment-modal-error" class="mt-1 text-xs text-rose-600 dark:text-rose-400 hidden"></p>
-                            {{-- Touch-friendly quick amount + keypad --}}
-                            <div class="mt-3 space-y-3">
+                            {{-- Touch-friendly quick amount + keypad (hidden when POS touchscreen: KioskBoard is used instead) --}}
+                            <div id="pos-payment-custom-keypad" class="mt-3 space-y-3 @if(config('pos.touchscreen', false)) hidden @endif">
                                 <div class="flex flex-wrap gap-2">
                                     <button type="button" class="pos-payment-quick-amount flex-1 min-w-[100px] rounded-lg border border-primary bg-primary/10 px-3 py-2.5 text-sm font-semibold text-primary hover:bg-primary/20 active:scale-95 transition touch-manipulation" data-action="exact">Exact amount</button>
                                     <button type="button" class="pos-payment-quick-amount rounded-lg border border-slate-200 dark:border-darkmode-500 bg-white dark:bg-darkmode-700 px-3 py-2.5 text-sm font-medium text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-darkmode-600 active:scale-95 transition touch-manipulation" data-action="100">+₱100</button>
@@ -526,22 +529,22 @@
                         <div id="pos-payment-modal-card-ewallet-fields" class="hidden space-y-3 pt-2 border-t border-slate-200 dark:border-darkmode-600">
                             <div>
                                 <label for="pos-payment-modal-reference" class="block text-xs font-medium text-slate-600 dark:text-slate-300 mb-1.5">Reference / Approval no.</label>
-                                <input type="text" id="pos-payment-modal-reference" maxlength="100" autocomplete="off" class="w-full rounded-lg border border-slate-200 dark:border-darkmode-500 bg-white dark:bg-darkmode-700 px-3 py-2.5 text-sm text-slate-900 dark:text-slate-100 placeholder-slate-400 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition" placeholder="e.g. 123456789">
+                                <input type="text" id="pos-payment-modal-reference" maxlength="100" autocomplete="off" class="w-full rounded-lg border border-slate-200 dark:border-darkmode-500 bg-white dark:bg-darkmode-700 px-3 py-2.5 text-sm text-slate-900 dark:text-slate-100 placeholder-slate-400 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition @if(config('pos.touchscreen', false)) js-kioskboard-input @endif" @if(config('pos.touchscreen', false)) data-kioskboard-type="all" data-kioskboard-placement="bottom" @endif placeholder="e.g. 123456789">
                             </div>
                             <div>
                                 <label for="pos-payment-modal-provider" class="block text-xs font-medium text-slate-600 dark:text-slate-300 mb-1.5">Provider</label>
-                                <input type="text" id="pos-payment-modal-provider" maxlength="100" autocomplete="off" class="w-full rounded-lg border border-slate-200 dark:border-darkmode-500 bg-white dark:bg-darkmode-700 px-3 py-2.5 text-sm text-slate-900 dark:text-slate-100 placeholder-slate-400 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition" placeholder="e.g. GCash, Maya, Visa, Mastercard">
+                                <input type="text" id="pos-payment-modal-provider" maxlength="100" autocomplete="off" class="w-full rounded-lg border border-slate-200 dark:border-darkmode-500 bg-white dark:bg-darkmode-700 px-3 py-2.5 text-sm text-slate-900 dark:text-slate-100 placeholder-slate-400 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition @if(config('pos.touchscreen', false)) js-kioskboard-input @endif" @if(config('pos.touchscreen', false)) data-kioskboard-type="all" data-kioskboard-placement="bottom" @endif placeholder="e.g. GCash, Maya, Visa, Mastercard">
                             </div>
                         </div>
                         <div class="space-y-3 pt-2 border-t border-slate-200 dark:border-darkmode-600">
                             <p class="text-[10px] font-medium uppercase tracking-wide text-slate-500 dark:text-slate-400">Customer (optional)</p>
                             <div>
                                 <label for="pos-payment-modal-customer-name" class="block text-xs font-medium text-slate-600 dark:text-slate-300 mb-1">Name or ID</label>
-                                <input type="text" id="pos-payment-modal-customer-name" maxlength="255" autocomplete="off" class="w-full rounded-lg border border-slate-200 dark:border-darkmode-500 bg-white dark:bg-darkmode-700 px-3 py-2 text-sm text-slate-900 dark:text-slate-100 placeholder-slate-400 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition" placeholder="Customer name or ID">
+                                <input type="text" id="pos-payment-modal-customer-name" maxlength="255" autocomplete="off" class="w-full rounded-lg border border-slate-200 dark:border-darkmode-500 bg-white dark:bg-darkmode-700 px-3 py-2 text-sm text-slate-900 dark:text-slate-100 placeholder-slate-400 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition @if(config('pos.touchscreen', false)) js-kioskboard-input @endif" @if(config('pos.touchscreen', false)) data-kioskboard-type="all" data-kioskboard-placement="bottom" @endif placeholder="Customer name or ID">
                             </div>
                             <div>
                                 <label for="pos-payment-modal-customer-address" class="block text-xs font-medium text-slate-600 dark:text-slate-300 mb-1">Address</label>
-                                <input type="text" id="pos-payment-modal-customer-address" maxlength="500" autocomplete="nope" class="w-full rounded-lg border border-slate-200 dark:border-darkmode-500 bg-white dark:bg-darkmode-700 px-3 py-2 text-sm text-slate-900 dark:text-slate-100 placeholder-slate-400 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition" placeholder="Customer address">
+                                <input type="text" id="pos-payment-modal-customer-address" maxlength="500" autocomplete="nope" class="w-full rounded-lg border border-slate-200 dark:border-darkmode-500 bg-white dark:bg-darkmode-700 px-3 py-2 text-sm text-slate-900 dark:text-slate-100 placeholder-slate-400 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition @if(config('pos.touchscreen', false)) js-kioskboard-input @endif" @if(config('pos.touchscreen', false)) data-kioskboard-type="all" data-kioskboard-placement="bottom" @endif placeholder="Customer address">
                             </div>
                         </div>
                     </div>
@@ -591,11 +594,11 @@
                             <p class="text-[10px] font-medium uppercase tracking-wide text-slate-500 dark:text-slate-400">Customer (optional)</p>
                             <div>
                                 <label for="pos-split-modal-customer-name" class="block text-xs font-medium text-slate-600 dark:text-slate-300 mb-1">Name or ID</label>
-                                <input type="text" id="pos-split-modal-customer-name" maxlength="255" autocomplete="off" class="w-full rounded-lg border border-slate-200 dark:border-darkmode-500 bg-white dark:bg-darkmode-700 px-3 py-2 text-sm text-slate-900 dark:text-slate-100 placeholder-slate-400 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition" placeholder="Customer name or ID">
+                                <input type="text" id="pos-split-modal-customer-name" maxlength="255" autocomplete="off" class="w-full rounded-lg border border-slate-200 dark:border-darkmode-500 bg-white dark:bg-darkmode-700 px-3 py-2 text-sm text-slate-900 dark:text-slate-100 placeholder-slate-400 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition @if(config('pos.touchscreen', false)) js-kioskboard-input @endif" placeholder="Customer name or ID" @if(config('pos.touchscreen', false)) data-kioskboard-type="all" data-kioskboard-placement="bottom" @endif>
                             </div>
                             <div>
                                 <label for="pos-split-modal-customer-address" class="block text-xs font-medium text-slate-600 dark:text-slate-300 mb-1">Address</label>
-                                <input type="text" id="pos-split-modal-customer-address" maxlength="500" autocomplete="nope" class="w-full rounded-lg border border-slate-200 dark:border-darkmode-500 bg-white dark:bg-darkmode-700 px-3 py-2 text-sm text-slate-900 dark:text-slate-100 placeholder-slate-400 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition" placeholder="Customer address">
+                                <input type="text" id="pos-split-modal-customer-address" maxlength="500" autocomplete="nope" class="w-full rounded-lg border border-slate-200 dark:border-darkmode-500 bg-white dark:bg-darkmode-700 px-3 py-2 text-sm text-slate-900 dark:text-slate-100 placeholder-slate-400 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition @if(config('pos.touchscreen', false)) js-kioskboard-input @endif" placeholder="Customer address" @if(config('pos.touchscreen', false)) data-kioskboard-type="all" data-kioskboard-placement="bottom" @endif>
                             </div>
                         </div>
                     </div>
@@ -638,14 +641,14 @@
                 </div>
                 {{-- Toolbar: search, date range, status, clear --}}
                 <div class="px-4 sm:px-5 py-3 border-b border-slate-100 flex-shrink-0 flex flex-wrap items-center gap-2 sm:gap-3">
-                    <input type="text" id="pos-sales-history-search" placeholder="Search OR # or amount…" class="rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs text-slate-900 placeholder-slate-400 focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition w-full sm:w-48">
+                    <input type="text" id="pos-sales-history-search" placeholder="Search OR # or amount…" class="rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs text-slate-900 placeholder-slate-400 focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition w-full sm:w-48 @if(config('pos.touchscreen', false)) js-kioskboard-input @endif" @if(config('pos.touchscreen', false)) data-kioskboard-type="all" data-kioskboard-placement="bottom" @endif>
                     <div class="flex items-center gap-1.5">
                         <label for="pos-sales-history-date-from" class="text-xs text-slate-500 whitespace-nowrap">From</label>
-                        <input type="date" id="pos-sales-history-date-from" class="rounded-lg border border-slate-200 bg-white px-2 py-1.5 text-xs text-slate-900 focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition">
+                        <input type="date" id="pos-sales-history-date-from" class="rounded-lg border border-slate-200 bg-white px-2 py-1.5 text-xs text-slate-900 focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition @if(config('pos.touchscreen', false)) js-kioskboard-input @endif" @if(config('pos.touchscreen', false)) data-kioskboard-type="all" data-kioskboard-placement="bottom" @endif>
                     </div>
                     <div class="flex items-center gap-1.5">
                         <label for="pos-sales-history-date-to" class="text-xs text-slate-500 whitespace-nowrap">To</label>
-                        <input type="date" id="pos-sales-history-date-to" class="rounded-lg border border-slate-200 bg-white px-2 py-1.5 text-xs text-slate-900 focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition">
+                        <input type="date" id="pos-sales-history-date-to" class="rounded-lg border border-slate-200 bg-white px-2 py-1.5 text-xs text-slate-900 focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition @if(config('pos.touchscreen', false)) js-kioskboard-input @endif" @if(config('pos.touchscreen', false)) data-kioskboard-type="all" data-kioskboard-placement="bottom" @endif>
                     </div>
                     <div class="flex items-center gap-1.5">
                         <label for="pos-sales-history-status" class="text-xs text-slate-500 whitespace-nowrap">Status</label>
@@ -707,15 +710,15 @@
                             </div>
                         </div>
                     </div>
-                    {{-- Transaction detail side panel --}}
-                    <div id="pos-sales-history-detail-panel" class="hidden w-0 sm:w-80 flex-shrink-0 border-l border-slate-200 bg-slate-50/50 overflow-y-auto">
-                        <div class="p-4">
-                            <div class="flex items-center justify-between mb-3">
-                                <h3 class="text-sm font-semibold text-slate-800">Transaction details</h3>
-                                <button type="button" id="pos-sales-history-detail-close" class="rounded p-1 text-slate-400 hover:text-slate-600 hover:bg-slate-200 transition-colors" aria-label="Close">×</button>
-                            </div>
-                            <div id="pos-sales-history-detail-content" class="text-xs text-slate-600 space-y-2"></div>
+                    {{-- Transaction detail side panel: professional, modern, clean --}}
+                    <div id="pos-sales-history-detail-panel" class="hidden w-0 sm:w-80 flex-shrink-0 border-l border-slate-200 dark:border-darkmode-600 bg-white dark:bg-darkmode-800 overflow-y-auto">
+                        <div class="sticky top-0 z-10 flex items-center justify-between gap-2 px-4 py-3 border-b border-slate-200 dark:border-darkmode-600 bg-white dark:bg-darkmode-800">
+                            <h3 class="text-sm font-semibold text-slate-800 dark:text-slate-100">Transaction details</h3>
+                            <button type="button" id="pos-sales-history-detail-close" class="flex h-8 w-8 items-center justify-center rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-100 dark:hover:bg-darkmode-600 dark:hover:text-slate-300 transition-colors touch-manipulation" aria-label="Close">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+                            </button>
                         </div>
+                        <div id="pos-sales-history-detail-content" class="p-4 space-y-4"></div>
                     </div>
                 </div>
             </div>
@@ -730,7 +733,7 @@
                 <p class="mt-1 text-sm text-slate-600">OR #<span id="pos-sales-void-or"></span> will be voided. This cannot be undone.</p>
                 <div class="mt-4">
                     <label for="pos-sales-void-reason" class="block text-xs font-medium text-slate-600 mb-1">Reason for void <span class="text-rose-500">*</span></label>
-                    <input type="text" id="pos-sales-void-reason" placeholder="e.g. Wrong entry, customer cancelled" class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm text-slate-900 placeholder-slate-400 focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition" maxlength="255">
+                    <input type="text" id="pos-sales-void-reason" placeholder="e.g. Wrong entry, customer cancelled" class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm text-slate-900 placeholder-slate-400 focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition @if(config('pos.touchscreen', false)) js-kioskboard-input @endif" @if(config('pos.touchscreen', false)) data-kioskboard-type="all" data-kioskboard-placement="bottom" @endif maxlength="255">
                     <p id="pos-sales-void-reason-error" class="mt-1 text-xs text-rose-600 hidden">Please enter a reason.</p>
                 </div>
                 <div class="mt-5 flex justify-end gap-2">
@@ -814,10 +817,11 @@
                             <input
                                 type="text"
                                 id="pos-rx-number"
-                                class="w-full rounded-lg border border-slate-200 dark:border-darkmode-500 bg-white dark:bg-darkmode-700 px-3 py-2.5 text-sm text-slate-900 dark:text-slate-100 placeholder-slate-400 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition"
+                                class="w-full rounded-lg border border-slate-200 dark:border-darkmode-500 bg-white dark:bg-darkmode-700 px-3 py-2.5 text-sm text-slate-900 dark:text-slate-100 placeholder-slate-400 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition @if(config('pos.touchscreen', false)) js-kioskboard-input @endif"
                                 placeholder="e.g. RX-2024-001"
                                 maxlength="100"
                                 autocomplete="off"
+                                @if(config('pos.touchscreen', false)) data-kioskboard-type="all" data-kioskboard-placement="bottom" @endif
                             >
                             <p id="pos-rx-number-error" class="mt-1 text-xs text-rose-600 dark:text-rose-400 hidden">Enter prescription number for Rx items.</p>
                         </div>
@@ -828,10 +832,11 @@
                             <input
                                 type="text"
                                 id="pos-rx-doctor"
-                                class="w-full rounded-lg border border-slate-200 dark:border-darkmode-500 bg-white dark:bg-darkmode-700 px-3 py-2.5 text-sm text-slate-900 dark:text-slate-100 placeholder-slate-400 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition"
+                                class="w-full rounded-lg border border-slate-200 dark:border-darkmode-500 bg-white dark:bg-darkmode-700 px-3 py-2.5 text-sm text-slate-900 dark:text-slate-100 placeholder-slate-400 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition @if(config('pos.touchscreen', false)) js-kioskboard-input @endif"
                                 placeholder="Doctor name"
                                 maxlength="120"
                                 autocomplete="off"
+                                @if(config('pos.touchscreen', false)) data-kioskboard-type="all" data-kioskboard-placement="bottom" @endif
                             >
                             <p id="pos-rx-doctor-error" class="mt-1 text-xs text-rose-600 dark:text-rose-400 hidden">Enter prescribing doctor name.</p>
                         </div>
@@ -902,6 +907,12 @@
     </div>
 @endsection
 
+@if(config('pos.touchscreen', false))
+@push('scripts')
+<script src="https://cdn.jsdelivr.net/gh/furcan/KioskBoard@2.3.0/dist/kioskboard-aio-2.3.0.min.js"></script>
+@endpush
+@endif
+
 @push('scripts')
 <script>
 (function () {
@@ -919,6 +930,8 @@
             'X-Requested-With': 'XMLHttpRequest'
         }
     };
+
+    var POS_TOUCHSCREEN = {{ json_encode(config('pos.touchscreen', false)) }};
 
     function formatMoney(n) {
         if (n == null || isNaN(n)) return '₱0.00';
@@ -1431,8 +1444,7 @@
     function setCartQuantity(productId, quantity) {
         var qty = parseInt(quantity, 10);
         if (isNaN(qty) || qty < 1) {
-            removeCartItem(productId);
-            return;
+            qty = 1;
         }
         for (var i = 0; i < cartItems.length; i++) {
             if (cartItems[i].product_id === productId) {
@@ -1543,7 +1555,7 @@
                     '<div class="flex items-center justify-between gap-1.5 flex-wrap">',
                     '<div class="pos-qty-control inline-flex items-center gap-0 rounded border border-slate-200 bg-white px-0.5 py-0 shadow-sm">',
                     '<button type="button" class="', qtyBtnCls, '" data-id="', item.product_id, '" data-delta="-1" aria-label="Decrease">−</button>',
-                    '<input type="number" class="', qtyInputCls, '" min="1" value="', item.quantity, '" data-id="', item.product_id, '" inputmode="numeric" autocomplete="off" aria-label="Quantity">',
+                    '<input type="number" class="', qtyInputCls, (POS_TOUCHSCREEN ? ' js-kioskboard-input' : ''), '" min="1" value="', item.quantity, '" data-id="', item.product_id, '" inputmode="numeric" autocomplete="off" aria-label="Quantity"', (POS_TOUCHSCREEN ? ' data-kioskboard-type="numpad" data-kioskboard-placement="bottom"' : ''), '>',
                     '<button type="button" class="', qtyBtnCls, '" data-id="', item.product_id, '" data-delta="1" aria-label="Increase">+</button>',
                     '</div>',
                     '<div class="flex items-center gap-1 shrink-0">',
@@ -1577,6 +1589,11 @@
                     }
                 });
             });
+            if (POS_TOUCHSCREEN && typeof KioskBoard !== 'undefined') {
+                container.querySelectorAll('.pos-cart-qty-input.js-kioskboard-input').forEach(function (el) {
+                    KioskBoard.run(el);
+                });
+            }
             container.querySelectorAll('.pos-cart-void-btn').forEach(function (btn) {
                 btn.addEventListener('click', function () {
                     var id = parseInt(this.getAttribute('data-id'), 10);
@@ -1672,10 +1689,12 @@
 
     var paymentModalCallback = null;
     var paymentModalType = 'cash';
+    var paymentModalTouchscreenPoll = null;
     var lastPaymentReference = '';
     var lastPaymentProvider = '';
     var currentSplitPayments = [];
     var splitPaymentModalCallback = null;
+    var splitModalTouchscreenPoll = null;
 
     function updatePaymentModalChangeFromDom() {
         var totalEl = document.getElementById('pos-payment-modal-total');
@@ -1821,9 +1840,23 @@
         modal.classList.remove('hidden');
         amountInput.focus();
         amountInput.select();
+        if (POS_TOUCHSCREEN) {
+            setTimeout(function () {
+                amountInput.focus();
+                amountInput.select();
+            }, 250);
+            if (amountInput.classList.contains('js-kioskboard-input')) {
+                if (paymentModalTouchscreenPoll) clearInterval(paymentModalTouchscreenPoll);
+                paymentModalTouchscreenPoll = setInterval(updatePaymentModalChangeFromDom, 350);
+            }
+        }
     }
 
     function closePaymentModal(success) {
+        if (paymentModalTouchscreenPoll) {
+            clearInterval(paymentModalTouchscreenPoll);
+            paymentModalTouchscreenPoll = null;
+        }
         var modal = document.getElementById('pos-payment-modal');
         if (modal) modal.classList.add('hidden');
         var cb = paymentModalCallback;
@@ -1906,17 +1939,20 @@
         var id = 'pos-split-row-' + idx;
         var refId = 'pos-split-ref-' + idx;
         var provId = 'pos-split-prov-' + idx;
+        var kCls = POS_TOUCHSCREEN ? ' js-kioskboard-input' : '';
+        var kDataNumpad = POS_TOUCHSCREEN ? ' data-kioskboard-type="numpad" data-kioskboard-placement="bottom"' : '';
+        var kDataAll = POS_TOUCHSCREEN ? ' data-kioskboard-type="all" data-kioskboard-placement="bottom"' : '';
         return '<div class="pos-split-row rounded-xl border border-slate-200 dark:border-darkmode-600 bg-slate-50/50 dark:bg-darkmode-700/30 p-3 space-y-2" data-idx="' + idx + '">' +
             '<div class="flex items-center gap-2 flex-wrap">' +
                 '<select class="pos-split-method rounded-lg border border-slate-200 dark:border-darkmode-500 bg-white dark:bg-darkmode-700 px-2 py-2 text-sm text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-primary/20 min-w-[100px]" data-idx="' + idx + '">' +
                     '<option value="cash">Cash</option><option value="card">Card</option><option value="ewallet">E-wallet</option>' +
                 '</select>' +
-                '<input type="tel" inputmode="decimal" class="pos-split-amount w-24 rounded-lg border border-slate-200 dark:border-darkmode-500 bg-white dark:bg-darkmode-700 px-2 py-2 text-sm text-slate-900 dark:text-slate-100 placeholder="0.00" data-idx="' + idx + '">' +
+                '<input type="tel" inputmode="decimal" class="pos-split-amount w-24 rounded-lg border border-slate-200 dark:border-darkmode-500 bg-white dark:bg-darkmode-700 px-2 py-2 text-sm text-slate-900 dark:text-slate-100 placeholder-slate-400' + kCls + '" placeholder="0.00" data-idx="' + idx + '"' + kDataNumpad + '>' +
                 '<button type="button" class="pos-split-remove rounded-lg border border-rose-200 text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-900/20 px-2 py-2 text-xs font-medium" data-idx="' + idx + '" title="Remove">Remove</button>' +
             '</div>' +
             '<div class="pos-split-ref-prov hidden gap-2 grid grid-cols-2">' +
-                '<input type="text" id="' + refId + '" class="pos-split-ref rounded-lg border border-slate-200 dark:border-darkmode-500 bg-white dark:bg-darkmode-700 px-2 py-1.5 text-xs placeholder-slate-400" placeholder="Ref no." maxlength="100" data-idx="' + idx + '">' +
-                '<input type="text" id="' + provId + '" class="pos-split-prov rounded-lg border border-slate-200 dark:border-darkmode-500 bg-white dark:bg-darkmode-700 px-2 py-1.5 text-xs placeholder-slate-400" placeholder="Provider" maxlength="100" data-idx="' + idx + '">' +
+                '<input type="text" id="' + refId + '" class="pos-split-ref rounded-lg border border-slate-200 dark:border-darkmode-500 bg-white dark:bg-darkmode-700 px-2 py-1.5 text-xs placeholder-slate-400' + kCls + '" placeholder="Ref no." maxlength="100" data-idx="' + idx + '"' + kDataAll + '>' +
+                '<input type="text" id="' + provId + '" class="pos-split-prov rounded-lg border border-slate-200 dark:border-darkmode-500 bg-white dark:bg-darkmode-700 px-2 py-1.5 text-xs placeholder-slate-400' + kCls + '" placeholder="Provider" maxlength="100" data-idx="' + idx + '"' + kDataAll + '>' +
             '</div>' +
         '</div>';
     }
@@ -1978,10 +2014,25 @@
         });
         updateSplitTotalEntered();
         document.getElementById('pos-split-payment-modal').classList.remove('hidden');
+        if (POS_TOUCHSCREEN && typeof KioskBoard !== 'undefined') {
+            rowsContainer.querySelectorAll('.pos-split-amount, .pos-split-ref, .pos-split-prov').forEach(function (el) {
+                if (el.classList.contains('js-kioskboard-input')) KioskBoard.run(el);
+            });
+            if (splitModalTouchscreenPoll) clearInterval(splitModalTouchscreenPoll);
+            splitModalTouchscreenPoll = setInterval(updateSplitTotalEntered, 350);
+        }
         var firstAmount = rowsContainer.querySelector('.pos-split-amount');
-        if (firstAmount) { firstAmount.focus(); firstAmount.select(); }
+        if (firstAmount) {
+            firstAmount.focus();
+            firstAmount.select();
+            if (POS_TOUCHSCREEN) setTimeout(function () { firstAmount.focus(); firstAmount.select(); }, 250);
+        }
     }
     function closeSplitPaymentModal(success) {
+        if (splitModalTouchscreenPoll) {
+            clearInterval(splitModalTouchscreenPoll);
+            splitModalTouchscreenPoll = null;
+        }
         document.getElementById('pos-split-payment-modal').classList.add('hidden');
         var cb = splitPaymentModalCallback;
         splitPaymentModalCallback = null;
@@ -2209,37 +2260,51 @@
         var panel = document.getElementById('pos-sales-history-detail-panel');
         var content = document.getElementById('pos-sales-history-detail-content');
         if (!panel || !content) return;
-        content.innerHTML = '<p class="text-slate-500">Loading…</p>';
+        content.innerHTML = '<div class="flex items-center justify-center py-8"><span class="text-sm text-slate-500 dark:text-slate-400">Loading…</span></div>';
         panel.classList.remove('hidden');
         if (panel.classList.contains('w-0')) { panel.classList.remove('w-0'); panel.classList.add('sm:w-80'); }
         axios.get(apiBase + '/pos/transactions/' + transactionId + '/receipt', { headers: headers.headers })
             .then(function (r) {
                 var t = (r.data && r.data.data) ? r.data.data : null;
-                if (!t) { content.innerHTML = '<p class="text-slate-500">Not found.</p>'; return; }
+                if (!t) { content.innerHTML = '<p class="text-sm text-slate-500 dark:text-slate-400 py-4">Not found.</p>'; return; }
                 var orNum = formatOrNumber(t.or_number);
                 var created = t.created_at || '';
                 if (created && created.indexOf('T') !== -1) created = new Date(created.replace('Z', '')).toLocaleString('en-PH', { dateStyle: 'short', timeStyle: 'short' });
                 var cashierName = (t.cashier && (t.cashier.name || t.cashier.email)) || '—';
                 var pay = getPaymentDisplay(t.payment_method, t.payment_provider);
-                var html = '<p class="font-semibold text-slate-800">OR # ' + escapeHtml(orNum) + '</p>' +
-                    '<p>Date: ' + escapeHtml(created) + '</p>' +
-                    '<p>Cashier: ' + escapeHtml(cashierName) + '</p>' +
-                    '<p>Payment: <span class="inline-flex items-center gap-1"><span aria-hidden="true">' + pay.icon + '</span>' + escapeHtml(pay.label) + '</span></p>' +
-                    '<p class="pt-2 border-t border-slate-200 mt-2 font-medium">Items</p>';
+                var html = '<div class="rounded-xl border border-slate-200 dark:border-darkmode-600 bg-slate-50/50 dark:bg-darkmode-700/30 px-4 py-3">' +
+                    '<p class="text-xs font-medium uppercase tracking-wide text-slate-500 dark:text-slate-400">OR Number</p>' +
+                    '<p class="mt-0.5 text-base font-bold text-slate-800 dark:text-slate-100">' + escapeHtml(orNum) + '</p>' +
+                    '</div>' +
+                    '<dl class="space-y-2.5 text-sm">' +
+                    '<div class="flex justify-between gap-2"><dt class="text-slate-500 dark:text-slate-400 shrink-0">Date</dt><dd class="text-slate-800 dark:text-slate-200 text-right">' + escapeHtml(created) + '</dd></div>' +
+                    '<div class="flex justify-between gap-2"><dt class="text-slate-500 dark:text-slate-400 shrink-0">Cashier</dt><dd class="text-slate-800 dark:text-slate-200 text-right">' + escapeHtml(cashierName) + '</dd></div>' +
+                    '<div class="flex justify-between gap-2"><dt class="text-slate-500 dark:text-slate-400 shrink-0">Payment</dt><dd class="text-slate-800 dark:text-slate-200 text-right inline-flex items-center gap-1"><span aria-hidden="true">' + pay.icon + '</span>' + escapeHtml(pay.label) + '</dd></div>' +
+                    '</dl>' +
+                    '<div class="border-t border-slate-200 dark:border-darkmode-600 pt-4">' +
+                    '<p class="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400 mb-3">Items</p>' +
+                    '<ul class="space-y-2.5">';
                 var items = t.items || [];
                 items.forEach(function (item) {
                     var name = (item.product && item.product.name) || item.product_id || '—';
                     var qty = item.quantity || 0;
                     var price = parseFloat(item.unit_price) || 0;
                     var sub = (parseFloat(item.subtotal) || (qty * price)).toFixed(2);
-                    html += '<p class="pl-2">' + escapeHtml(name) + ' × ' + qty + ' @ ' + formatMoney(price) + ' = ' + formatMoney(parseFloat(sub)) + '</p>';
+                    html += '<li class="flex flex-col gap-0.5 py-2 border-b border-slate-100 dark:border-darkmode-600 last:border-0">' +
+                        '<span class="text-sm font-medium text-slate-800 dark:text-slate-200">' + escapeHtml(name) + '</span>' +
+                        '<span class="text-xs text-slate-500 dark:text-slate-400">' + qty + ' × ' + formatMoney(price) + ' = <span class="font-medium text-slate-700 dark:text-slate-300">' + formatMoney(parseFloat(sub)) + '</span></span>' +
+                        '</li>';
                 });
                 var total = parseFloat(t.total) || 0;
-                html += '<p class="pt-2 border-t border-slate-200 mt-2 font-semibold">Total: ' + formatMoney(total) + '</p>';
+                html += '</ul></div>' +
+                    '<div class="rounded-xl bg-primary/10 dark:bg-primary/20 border border-primary/20 dark:border-primary/30 px-4 py-3 flex justify-between items-center">' +
+                    '<span class="text-sm font-semibold text-slate-700 dark:text-slate-300">Total</span>' +
+                    '<span class="text-lg font-bold text-primary dark:text-primary">' + formatMoney(total) + '</span>' +
+                    '</div>';
                 content.innerHTML = html;
             })
             .catch(function () {
-                content.innerHTML = '<p class="text-rose-600">Failed to load details.</p>';
+                content.innerHTML = '<p class="text-sm text-rose-600 dark:text-rose-400 py-4">Failed to load details.</p>';
             });
     }
 
@@ -2247,9 +2312,13 @@
     function openSalesVoidModal(transactionId, orNum) {
         salesVoidTransactionId = transactionId;
         document.getElementById('pos-sales-void-or').textContent = formatOrNumber(orNum) || orNum || transactionId;
-        document.getElementById('pos-sales-void-reason').value = '';
+        var reasonInput = document.getElementById('pos-sales-void-reason');
+        if (reasonInput) reasonInput.value = '';
         document.getElementById('pos-sales-void-reason-error').classList.add('hidden');
         document.getElementById('pos-sales-void-modal').classList.remove('hidden');
+        if (POS_TOUCHSCREEN && reasonInput) {
+            setTimeout(function () { reasonInput.focus(); }, 250);
+        }
     }
     function closeSalesVoidModal() {
         document.getElementById('pos-sales-void-modal').classList.add('hidden');
@@ -2530,6 +2599,7 @@
         modal.classList.remove('hidden');
         numInput.focus();
         numInput.select();
+        if (POS_TOUCHSCREEN) setTimeout(function () { numInput.focus(); numInput.select(); }, 250);
     }
 
     function closeRxModal(result) {
@@ -2728,6 +2798,12 @@
             didOpen: function (modalEl) {
                 var input = modalEl.querySelector('input.swal2-input');
                 if (input) {
+                    if (POS_TOUCHSCREEN && typeof KioskBoard !== 'undefined') {
+                        input.classList.add('js-kioskboard-input');
+                        input.setAttribute('data-kioskboard-type', 'all');
+                        input.setAttribute('data-kioskboard-placement', 'bottom');
+                        KioskBoard.run(input);
+                    }
                     input.focus();
                     input.select();
                 }
@@ -2941,7 +3017,10 @@
         }
         if (errorEl) errorEl.classList.add('hidden');
         modal.classList.remove('hidden');
-        if (input) input.focus();
+        if (input) {
+            input.focus();
+            if (POS_TOUCHSCREEN) setTimeout(function () { input.focus(); }, 250);
+        }
     }
 
     function openClearOrderModal() {
@@ -2960,7 +3039,10 @@
         }
         if (errorEl) errorEl.classList.add('hidden');
         modal.classList.remove('hidden');
-        if (input) input.focus();
+        if (input) {
+            input.focus();
+            if (POS_TOUCHSCREEN) setTimeout(function () { input.focus(); }, 250);
+        }
     }
 
     function closeVoidManagerModal() {
@@ -3078,6 +3160,7 @@
             modal.classList.remove('hidden');
             if (idInput) {
                 idInput.focus();
+                if (POS_TOUCHSCREEN) setTimeout(function () { idInput.focus(); }, 250);
             }
         }
     }
@@ -3115,11 +3198,19 @@
             return;
         }
         if (typeof Swal === 'undefined') return;
+        var discountInputClass = 'swal2-input' + (POS_TOUCHSCREEN ? ' js-kioskboard-input' : '');
+        var discountInputData = POS_TOUCHSCREEN ? ' data-kioskboard-type="numpad" data-kioskboard-placement="bottom"' : '';
         Swal.fire({
             title: typeLabel,
-            html: '<input type="number" id="pos-manual-discount-amount" class="swal2-input" placeholder="Amount (₱)" min="0" step="0.01" value="0">',
+            html: '<input type="number" id="pos-manual-discount-amount" class="' + discountInputClass + '" placeholder="Amount (₱)" min="0" step="0.01" value="0"' + discountInputData + '>',
             showCancelButton: true,
             confirmButtonText: 'Apply',
+            didOpen: function () {
+                if (POS_TOUCHSCREEN && typeof KioskBoard !== 'undefined') {
+                    var el = document.getElementById('pos-manual-discount-amount');
+                    if (el && el.classList.contains('js-kioskboard-input')) KioskBoard.run(el);
+                }
+            },
             preConfirm: function () {
                 var amt = parseFloat(document.getElementById('pos-manual-discount-amount').value) || 0;
                 if (amt <= 0) { Swal.showValidationMessage('Enter amount.'); return false; }
@@ -3490,6 +3581,11 @@
                 row.querySelector('.pos-split-remove').addEventListener('click', function () {
                     if (rowsContainer.querySelectorAll('.pos-split-row').length > 1) { row.remove(); updateSplitTotalEntered(); }
                 });
+                if (POS_TOUCHSCREEN && typeof KioskBoard !== 'undefined') {
+                    row.querySelectorAll('.pos-split-amount, .pos-split-ref, .pos-split-prov').forEach(function (el) {
+                        if (el.classList.contains('js-kioskboard-input')) KioskBoard.run(el);
+                    });
+                }
                 updateSplitTotalEntered();
             });
         }
@@ -3669,10 +3765,26 @@
         var searchInput = document.getElementById('pos-search-input');
         if (searchInput) {
             var searchTimer = null;
-            searchInput.addEventListener('input', function () {
+            var lastSearchValue = (searchInput.value || '').trim();
+            function scheduleApplyFilters() {
+                lastSearchValue = (searchInput.value || '').trim();
                 if (searchTimer) clearTimeout(searchTimer);
                 searchTimer = setTimeout(applyFilters, 250);
-            });
+            }
+            searchInput.addEventListener('input', scheduleApplyFilters);
+            searchInput.addEventListener('change', scheduleApplyFilters);
+            searchInput.addEventListener('keyup', scheduleApplyFilters);
+            // Virtual keyboards (e.g. KioskBoard) set value programmatically and often do not fire input/change
+            if (searchInput.classList.contains('js-kioskboard-input')) {
+                setInterval(function () {
+                    var current = (searchInput.value || '').trim();
+                    if (current !== lastSearchValue) {
+                        lastSearchValue = current;
+                        if (searchTimer) clearTimeout(searchTimer);
+                        searchTimer = setTimeout(applyFilters, 250);
+                    }
+                }, 350);
+            }
         }
 
         var scanBtn = document.getElementById('pos-scan-btn');
@@ -3809,6 +3921,77 @@
             }
         });
     })();
+
+    // KioskBoard must be initialized before any code that may call KioskBoard.run() (e.g. renderCart, split modal)
+    if (POS_TOUCHSCREEN && typeof KioskBoard !== 'undefined') {
+        var kioskTheme = document.documentElement.classList.contains('dark') ? 'dark' : 'light';
+        KioskBoard.init({
+            keysJsonUrl: '{{ asset("js/kioskboard-keys-english.json") }}',
+            language: 'en',
+            theme: kioskTheme,
+            allowRealKeyboard: false,
+            allowMobileKeyboard: false,
+            cssAnimations: true,
+            cssAnimationsDuration: 280,
+            cssAnimationsStyle: 'slide',
+            keysAllowSpacebar: true,
+            keysSpacebarText: 'Space',
+            keysFontFamily: 'sans-serif',
+            keysFontSize: '22px',
+            keysFontWeight: 'normal',
+            autoScroll: false,
+            capsLockActive: false,
+            keysEnterCanClose: true,
+            keysEnterCallback: function () {
+                var modalVisible = function (id) {
+                    var m = document.getElementById(id);
+                    return m && !m.classList.contains('hidden');
+                };
+                if (modalVisible('pos-void-modal')) {
+                    var btn = document.getElementById('pos-void-modal-confirm');
+                    if (btn) { btn.click(); return; }
+                }
+                if (modalVisible('pos-sc-pwd-modal')) {
+                    var btn = document.getElementById('pos-sc-pwd-modal-apply');
+                    if (btn) { btn.click(); return; }
+                }
+                if (modalVisible('pos-payment-modal')) {
+                    var btn = document.getElementById('pos-payment-modal-apply');
+                    if (btn) { btn.click(); return; }
+                }
+                if (modalVisible('pos-split-payment-modal')) {
+                    var btn = document.getElementById('pos-split-payment-apply');
+                    if (btn) { btn.click(); return; }
+                }
+                if (modalVisible('pos-sales-void-modal')) {
+                    var btn = document.getElementById('pos-sales-void-confirm');
+                    if (btn) { btn.click(); return; }
+                }
+                if (modalVisible('pos-rx-modal')) {
+                    var btn = document.getElementById('pos-rx-modal-apply');
+                    if (btn) { btn.click(); return; }
+                }
+                if (modalVisible('pos-sales-history-modal')) {
+                    var btn = document.getElementById('pos-sales-history-apply-filters');
+                    if (btn) { btn.click(); return; }
+                }
+                var swalPopup = document.querySelector('.swal2-popup');
+                if (swalPopup && swalPopup.offsetParent !== null) {
+                    var swalConfirm = swalPopup.querySelector('.swal2-confirm');
+                    if (swalConfirm && !swalConfirm.disabled) { swalConfirm.click(); return; }
+                }
+                var active = document.activeElement;
+                if (active && active.id === 'pos-search-input') {
+                    if (typeof applyFilters === 'function') applyFilters();
+                    return;
+                }
+                if (active && active.classList && active.classList.contains('pos-cart-qty-input')) {
+                    active.blur();
+                }
+            }
+        });
+        KioskBoard.run('.js-kioskboard-input');
+    }
 
     // Initial load: restore cart from localStorage, then load terminal and products
     loadCartFromStorage();

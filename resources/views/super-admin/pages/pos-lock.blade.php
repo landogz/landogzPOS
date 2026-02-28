@@ -67,9 +67,10 @@
                                 type="password"
                                 id="lock-password"
                                 autocomplete="current-password"
-                                class="w-full rounded-xl border border-slate-200 bg-white py-3 pl-4 pr-12 text-sm text-slate-900 placeholder-slate-400 shadow-sm transition focus:border-primary focus:ring-2 focus:ring-primary/20 focus:shadow-md outline-none"
+                                class="w-full rounded-xl border border-slate-200 bg-white py-3 pl-4 pr-12 text-sm text-slate-900 placeholder-slate-400 shadow-sm transition focus:border-primary focus:ring-2 focus:ring-primary/20 focus:shadow-md outline-none @if(config('pos.touchscreen', false)) js-kioskboard-input @endif"
                                 placeholder="Enter cashier password"
                                 required
+                                @if(config('pos.touchscreen', false)) data-kioskboard-type="all" data-kioskboard-placement="bottom" @endif
                             >
                             <button
                                 type="button"
@@ -122,6 +123,9 @@
     <script src="{{ $base }}/dist/js/vendors/dom.js"></script>
     <script src="{{ $base }}/dist/js/vendors/axios.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    @if(config('pos.touchscreen', false))
+    <script src="https://cdn.jsdelivr.net/gh/furcan/KioskBoard@2.3.0/dist/kioskboard-aio-2.3.0.min.js"></script>
+    @endif
     <script>
         (function () {
             var form = document.getElementById('pos-lock-form');
@@ -144,6 +148,19 @@
             }
 
             if (passwordInput) passwordInput.focus();
+
+            if (form && passwordInput) {
+                passwordInput.addEventListener('keydown', function (e) {
+                    if (e.key === 'Enter') {
+                        e.preventDefault();
+                        if (typeof form.requestSubmit === 'function') {
+                            form.requestSubmit();
+                        } else if (unlockBtn) {
+                            unlockBtn.click();
+                        }
+                    }
+                });
+            }
 
             if (toggleBtn && passwordInput && eyeOpen && eyeClosed) {
                 passwordInput.type = 'password';
@@ -256,6 +273,36 @@
                         window.location.href = '{{ route('dashboard.login') }}';
                     }
                 });
+            }
+
+            var posTouchscreen = {{ json_encode(config('pos.touchscreen', false)) }};
+            if (posTouchscreen && typeof KioskBoard !== 'undefined' && passwordInput) {
+                KioskBoard.init({
+                    keysJsonUrl: '{{ asset("js/kioskboard-keys-english.json") }}',
+                    language: 'en',
+                    theme: 'light',
+                    allowRealKeyboard: false,
+                    allowMobileKeyboard: false,
+                    cssAnimations: true,
+                    cssAnimationsDuration: 280,
+                    cssAnimationsStyle: 'slide',
+                    keysAllowSpacebar: true,
+                    keysSpacebarText: 'Space',
+                    keysFontFamily: 'sans-serif',
+                    keysFontSize: '22px',
+                    keysFontWeight: 'normal',
+                    autoScroll: false,
+                    capsLockActive: false,
+                    keysEnterCanClose: true,
+                    keysEnterCallback: function () {
+                        if (form && typeof form.requestSubmit === 'function') {
+                            form.requestSubmit();
+                        } else if (unlockBtn) {
+                            unlockBtn.click();
+                        }
+                    }
+                });
+                KioskBoard.run('.js-kioskboard-input');
             }
         })();
     </script>
