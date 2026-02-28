@@ -23,7 +23,7 @@
     </div>
 
     {{-- Fullscreen POS canvas (no sidebar, full-width content) --}}
-    <div class="min-h-screen w-full bg-slate-100 dark:bg-darkmode-800 px-3 sm:px-5 py-4 sm:py-6">
+    <div class="min-h-screen w-full bg-slate-100 dark:bg-darkmode-800 px-2 sm:px-4 py-2 sm:py-3">
         <div class="w-full">
             @yield('content')
         </div>

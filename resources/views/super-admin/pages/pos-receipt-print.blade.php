@@ -65,6 +65,7 @@
         var transactionId = params.get('transaction_id');
         var amountReceived = parseFloat(params.get('amount_received')) || null;
         var change = parseFloat(params.get('change')) || null;
+        var isReprint = params.get('reprint') === '1' || params.get('reprint') === 'true';
 
         var token = null;
         try {
@@ -86,7 +87,7 @@
             return (typeof n === 'number' ? n.toFixed(2) : parseFloat(n || 0).toFixed(2)).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
         }
 
-        function buildReceiptHtml(r, amountReceivedParam, changeParam) {
+        function buildReceiptHtml(r, amountReceivedParam, changeParam, reprintFlag) {
             var h = r.receipt_header || {};
             var total = parseFloat(r.total) || 0;
             var amountRecv = amountReceivedParam != null ? amountReceivedParam : total;
@@ -94,7 +95,8 @@
             if (changeAmount < 0) changeAmount = 0;
 
             var paymentLabel = (r.payment_method || 'cash').toLowerCase();
-            if (paymentLabel === 'cash') paymentLabel = 'CASH SALES';
+            if (paymentLabel === 'split') paymentLabel = 'SPLIT PAYMENT';
+            else if (paymentLabel === 'cash') paymentLabel = 'CASH SALES';
             else if (paymentLabel === 'ewallet') paymentLabel = 'E-WALLET';
             else paymentLabel = 'CHARGE SALES';
 
@@ -157,9 +159,21 @@
             var itemCount = (r.items || []).length;
             html += '<hr class="receipt-sep">';
             html += '<div class="receipt-row font-bold"><span class="left">TOTAL:</span><span class="right">' + itemCount + ' Item' + (itemCount !== 1 ? 's' : '') + ' ' + formatMoney(total) + '</span></div>';
+            if (r.transaction_payments && r.transaction_payments.length > 0) {
+                r.transaction_payments.forEach(function (p) {
+                    var methodLabel = (p.payment_method || 'cash').toLowerCase();
+                    if (methodLabel === 'cash') methodLabel = 'Cash';
+                    else if (methodLabel === 'ewallet') methodLabel = 'E-wallet';
+                    else methodLabel = 'Card';
+                    html += '<div class="receipt-row"><span class="left">' + escapeHtml(methodLabel) + ':</span><span class="right">' + formatMoney(p.amount) + '</span></div>';
+                    if (p.payment_reference) html += '<div class="receipt-row"><span class="left">Ref:</span><span class="right">' + escapeHtml(p.payment_reference) + '</span></div>';
+                    if (p.payment_provider) html += '<div class="receipt-row"><span class="left">Provider:</span><span class="right">' + escapeHtml(p.payment_provider) + '</span></div>';
+                });
+            } else {
+                if (r.payment_reference) html += '<div class="receipt-row"><span class="left">Ref/Approval:</span><span class="right">' + escapeHtml(r.payment_reference) + '</span></div>';
+                if (r.payment_provider) html += '<div class="receipt-row"><span class="left">Provider:</span><span class="right">' + escapeHtml(r.payment_provider) + '</span></div>';
+            }
             html += '<div class="receipt-row"><span class="left">Payment Received:</span><span class="right">' + formatMoney(amountRecv) + '</span></div>';
-            if (r.payment_reference) html += '<div class="receipt-row"><span class="left">Ref/Approval:</span><span class="right">' + escapeHtml(r.payment_reference) + '</span></div>';
-            if (r.payment_provider) html += '<div class="receipt-row"><span class="left">Provider:</span><span class="right">' + escapeHtml(r.payment_provider) + '</span></div>';
             html += '<div class="receipt-row font-bold"><span class="left">CHANGE:</span><span class="right">' + formatMoney(changeAmount) + '</span></div>';
             html += '</div>';
 
@@ -195,7 +209,12 @@
             html += '</div>';
 
             html += '<div class="receipt-messages header-center">';
-            html += '<div>THIS IS YOUR OFFICIAL RECEIPT</div>';
+            if (reprintFlag) {
+                html += '<div class="font-bold">REPRINT — FOR REFERENCE ONLY</div>';
+                html += '<div class="mt-1 text-[10px]">This is not an official receipt.</div>';
+            } else {
+                html += '<div>THIS IS YOUR OFFICIAL RECEIPT</div>';
+            }
             html += '<div class="mt-2">THANK YOU, PLEASE COME AGAIN!</div>';
             html += '</div>';
 
@@ -282,7 +301,7 @@
             var receipt = (data && data.data) ? data.data : data;
             if (!receipt) throw new Error('Invalid receipt data.');
             loadingEl.style.display = 'none';
-            bodyEl.innerHTML = buildReceiptHtml(receipt, amountReceived, change);
+            bodyEl.innerHTML = buildReceiptHtml(receipt, amountReceived, change, isReprint);
             bodyEl.style.display = 'block';
             window.onload = function () {
                 window.print();

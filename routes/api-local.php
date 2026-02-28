@@ -32,6 +32,7 @@ Route::post('pos/verify-manager', [\App\Http\Controllers\API\POS\PosSessionContr
 Route::post('pos/log-line-void', [\App\Http\Controllers\API\POS\PosSessionController::class, 'logLineVoid']);
 Route::get('pos/products', [\App\Http\Controllers\API\POS\PosProductController::class, 'index']);
 Route::get('pos/products/search', [\App\Http\Controllers\API\POS\PosProductController::class, 'search']);
+Route::get('pos/transactions', [\App\Http\Controllers\API\POS\PosTransactionController::class, 'index']);
 Route::post('pos/transactions', [\App\Http\Controllers\API\POS\PosTransactionController::class, 'store']);
 Route::get('pos/transactions/{transaction}/receipt', [\App\Http\Controllers\API\POS\PosTransactionController::class, 'receipt']);
 Route::post('pos/transactions/{transaction}/void', [\App\Http\Controllers\API\POS\PosTransactionController::class, 'void']);

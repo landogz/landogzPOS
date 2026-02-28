@@ -52,4 +52,9 @@ class Transaction extends Model
     {
         return $this->hasMany(Discount::class);
     }
+
+    public function transactionPayments(): HasMany
+    {
+        return $this->hasMany(TransactionPayment::class);
+    }
 }

@@ -8,7 +8,7 @@
     <meta charset="utf-8">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Login - Super Admin - Landogz POS</title>
+    <title>Login - Landogz POS</title>
     <link rel="stylesheet" href="{{ $base }}/dist/css/app.css">
     <style>
         /* OTP 6-digit boxes: layout and look (works without Tailwind) */
@@ -70,10 +70,10 @@
                     <div class="my-auto">
                         <img class="-intro-x -mt-16 w-1/2" src="{{ $base }}/dist/images/illustration.svg" alt="Landogz POS">
                         <div class="-intro-x mt-10 text-4xl font-medium leading-tight text-white">
-                            Super Admin
+                            Landogz POS
                         </div>
                         <div class="-intro-x mt-5 text-lg text-white text-opacity-70 dark:text-slate-400">
-                            Sign in to manage your POS.
+                            Sign in to access your account.
                         </div>
                     </div>
                 </div>

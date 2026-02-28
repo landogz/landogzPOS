@@ -24,6 +24,7 @@ class ReceiptController extends Controller
             'cashier',
             'officialReceipt',
             'discounts',
+            'transactionPayments',
         ])->findOrFail($transaction_id);
 
         $this->ensureReceiptAccess($request->user(), $transaction);
@@ -95,6 +96,14 @@ class ReceiptController extends Controller
             'payment_method' => $transaction->payment_method,
             'payment_reference' => $transaction->payment_reference,
             'payment_provider' => $transaction->payment_provider,
+            'transaction_payments' => $transaction->payment_method === 'split'
+                ? $transaction->transactionPayments->map(fn ($p) => [
+                    'payment_method' => $p->payment_method,
+                    'amount' => (float) $p->amount,
+                    'payment_reference' => $p->payment_reference,
+                    'payment_provider' => $p->payment_provider,
+                ])->values()->all()
+                : null,
             'customer_name' => $transaction->customer_name,
             'customer_address' => $transaction->customer_address,
             'cashier_name' => $transaction->cashier?->name,
