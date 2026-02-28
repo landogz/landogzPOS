@@ -5,20 +5,79 @@
 
 @section('content')
     <div class="pb-20 print:pb-0 flex justify-center">
-    {{-- Centered container: 1024px max (4:3 / 1024x768), centered on larger screens --}}
-    <div class="w-full max-w-[1024px] mx-auto px-2 sm:px-3">
+    {{-- Centered container: 1024×768 on large screens, centered --}}
+    <div class="w-full max-w-[1024px] mx-auto px-2 sm:px-3 lg:max-h-[768px] lg:flex lg:flex-col lg:overflow-hidden">
+    {{-- POS not ready: polished full-page state (gradient, card, status chip, footer) --}}
+    <div id="pos-not-ready-container" class="hidden print:hidden w-full min-h-[320px] sm:min-h-[400px] flex flex-col items-center justify-center p-4 sm:p-6 pos-not-ready-bg">
+        <div class="w-full max-w-lg mx-auto">
+            <div class="rounded-2xl border border-slate-200 dark:border-darkmode-600 bg-white dark:bg-darkmode-800 shadow-xl border-t-4 border-t-primary p-6 sm:p-10 md:p-12 lg:p-16 text-center">
+                {{-- Brand header: logo mark + bold name --}}
+                <div class="flex items-center justify-center gap-2 mb-6">
+                    <span class="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"/></svg>
+                    </span>
+                    <span class="text-sm font-bold tracking-tight text-gray-900 dark:text-slate-100">Landogz POS</span>
+                </div>
+                {{-- Icon + status chip grouped and centered --}}
+                <div class="flex flex-col items-center mb-4">
+                    {{-- Warning icon: outer glow ring + pulse ring + inner circle --}}
+                    <div class="relative inline-flex items-center justify-center w-24 h-24 mb-3">
+                        <span class="pos-not-ready-icon-glow absolute inline-flex h-full w-full rounded-full bg-amber-100/80 dark:bg-amber-900/20" aria-hidden="true"></span>
+                        <span class="pos-not-ready-icon-pulse absolute inline-flex h-20 w-20 rounded-full bg-amber-400/40 dark:bg-amber-500/30" aria-hidden="true"></span>
+                        <span class="pos-not-ready-icon-inner relative inline-flex h-16 w-16 items-center justify-center rounded-full bg-amber-100 dark:bg-amber-900/40 text-amber-600 dark:text-amber-400">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z"/></svg>
+                        </span>
+                    </div>
+                    {{-- Status chip directly below icon --}}
+                    <div id="pos-not-ready-status-chip" class="inline-flex items-center gap-1.5 rounded-full bg-red-50 dark:bg-red-900/20 px-3 py-1.5 text-xs font-medium text-red-700 dark:text-red-300">
+                        <span class="pos-not-ready-status-dot relative flex h-2 w-2 rounded-full bg-red-500" id="pos-not-ready-status-dot"></span>
+                        <span id="pos-not-ready-status-label">Inactive</span>
+                    </div>
+                </div>
+                <h2 class="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-slate-100">POS not ready</h2>
+                <p id="pos-not-ready-message" class="mt-3 text-sm leading-relaxed text-gray-500 dark:text-slate-400">
+                    <span id="pos-not-ready-line1">This terminal is not registered or inactive.</span><br>
+                    <span id="pos-not-ready-line2">Contact the software provider to register this POS.</span>
+                </p>
+                <p id="pos-not-ready-terminal-info" class="mt-2 text-sm text-red-900/60 dark:text-red-300/70">Terminal: <span id="pos-not-ready-terminal-label">Not detected</span> · Branch: <span id="pos-not-ready-branch-label">Unassigned</span></p>
+                <div class="mt-8 flex flex-col sm:flex-row items-stretch sm:items-center justify-center gap-3 sm:gap-4">
+                    <a href="mailto:rolan@landogzwebsolutions.com?subject=POS%20Registration%20%2F%20Terminal%20Support" class="inline-flex sm:min-w-[180px] w-full sm:w-auto items-center justify-center gap-2 rounded-lg bg-primary px-6 py-3 text-sm font-semibold text-white shadow-sm hover:bg-primary/90 hover:scale-105 active:scale-100 transition-all duration-200">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+                        Contact support
+                    </a>
+                    <button type="button" id="pos-not-ready-retry-btn" class="inline-flex sm:min-w-[180px] w-full sm:w-auto items-center justify-center gap-2 rounded-lg border-2 border-primary/50 dark:border-primary/40 bg-white dark:bg-darkmode-700 px-6 py-3 text-sm font-medium text-slate-700 dark:text-slate-200 hover:border-primary hover:bg-slate-50 dark:hover:bg-darkmode-600 transition-all duration-200 disabled:opacity-60 disabled:cursor-not-allowed">
+                        <span id="pos-not-ready-retry-icon" class="inline-flex shrink-0">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+                        </span>
+                        <span id="pos-not-ready-retry-spinner" class="hidden h-4 w-4 shrink-0 animate-spin rounded-full border-2 border-slate-300 border-t-primary"></span>
+                        <span id="pos-not-ready-retry-label">Retry</span>
+                    </button>
+                </div>
+                <a href="#" id="pos-not-ready-learn-link" class="mt-4 inline-block text-xs text-primary hover:underline focus:outline-none focus:ring-2 focus:ring-primary/30 rounded">Learn how to register this terminal →</a>
+                <footer class="mt-10 pt-8 my-6 border-t border-slate-200 dark:border-darkmode-600 text-xs space-y-1">
+                    <p class="text-gray-500 dark:text-slate-400">Last checked: <span id="pos-not-ready-last-checked">just now</span></p>
+                    <p class="text-gray-400 dark:text-slate-500">Terminal ID: <span id="pos-not-ready-footer-terminal">Not detected</span></p>
+                    <p class="text-gray-400 dark:text-slate-500">App version: <span id="pos-not-ready-version">v1.0.0</span></p>
+                </footer>
+            </div>
+        </div>
+    </div>
+    {{-- POS main content (hidden when terminal not ready) --}}
+    <div id="pos-main-content" class="flex flex-col flex-1 min-h-0 min-w-0">
     {{-- POS header: two-tier (branding + total | OR + date + welcome + actions), brand primary --}}
-    <div class="sticky top-0 z-30 mt-1 mb-2 w-full print:hidden">
+    <div class="sticky top-0 z-30 mt-1 mb-2 w-full print:hidden shrink-0">
         <header class="w-full overflow-hidden rounded-lg shadow-md">
             {{-- Top bar: branding left, total right --}}
-            <div class="flex items-center justify-between gap-2 bg-primary px-3 py-1.5 sm:px-4 sm:py-2">
+            <div class="flex items-center justify-between gap-3 bg-primary px-3 py-2 sm:px-4 sm:py-2.5 shadow-sm">
                 <div class="min-w-0">
-                    <h1 class="text-base font-bold text-white underline decoration-white/80 underline-offset-1 sm:text-lg">Landogz POS<span id="pos-company-label" class="font-semibold text-white/95 ml-1 sm:ml-1.5"></span></h1>
-                    <p class="text-[10px] sm:text-xs text-white/90">Point of Sale</p>
+                    <h1 class="text-base font-bold tracking-tight text-white sm:text-lg">Landogz POS</h1>
+                    <p class="mt-0.5 text-[10px] sm:text-xs text-white/85">
+                        Point of Sale<span id="pos-company-label" class="text-white/90"></span>
+                    </p>
                 </div>
-                <div class="flex shrink-0 items-center gap-1.5">
-                    <span class="hidden sm:inline text-[10px] text-white/80">Total</span>
-                    <div class="flex items-center justify-end rounded bg-slate-900 px-2.5 py-1.5 min-w-[90px] sm:min-w-[110px]">
+                <div class="flex shrink-0 items-center gap-2">
+                    <span class="hidden sm:inline text-[10px] font-medium uppercase tracking-wider text-white/80">Total</span>
+                    <div class="flex items-center justify-end rounded-lg bg-slate-900/90 px-3 py-2 min-w-[88px] sm:min-w-[112px] ring-1 ring-white/10">
                         <span id="pos-header-total" class="text-base font-bold tabular-nums text-white sm:text-lg">₱0.00</span>
                     </div>
                 </div>
@@ -90,8 +149,8 @@
         </header>
     </div>
 
-    {{-- Main POS layout: compact for viewport height --}}
-    <div class="mt-2 sm:mt-3 grid grid-cols-12 gap-2 sm:gap-3 max-h-[calc(100vh-11rem)] min-h-0">
+    {{-- Main POS layout: fills remaining height; capped at 768px on lg --}}
+    <div class="mt-2 sm:mt-3 grid grid-cols-12 gap-2 sm:gap-3 max-h-[calc(100vh-11rem)] lg:max-h-none lg:flex-1 lg:min-h-0 lg:overflow-hidden min-h-0">
         {{-- Product catalog --}}
         <div class="col-span-8 flex flex-col min-h-0">
             {{-- Search + filters --}}
@@ -150,13 +209,15 @@
                         <p class="mt-0.5 text-[10px] text-slate-500 dark:text-slate-400">Use search, categories, or barcode scan.</p>
                     </div>
                 </div>
-                <div id="pos-products-grid" class="hidden flex-1 min-h-0 overflow-auto">
-                    <div class="grid grid-cols-3 gap-2 sm:gap-3 p-2 sm:p-3 w-full">
-                        {{-- Product cards will be rendered here by JavaScript --}}
+                <div id="pos-products-grid" class="hidden flex-1 min-h-0 overflow-hidden flex flex-col">
+                    <div class="flex-1 min-h-0 overflow-auto">
+                        <div class="grid grid-cols-3 gap-2 sm:gap-3 p-2 sm:p-3 w-full">
+                            {{-- Product cards will be rendered here by JavaScript --}}
+                        </div>
                     </div>
                 </div>
-                <div id="pos-products-list" class="hidden flex-1 overflow-auto">
-                    <div class="divide-y divide-slate-100 dark:divide-darkmode-600 w-full">
+                <div id="pos-products-list" class="hidden flex-1 min-h-0 overflow-hidden flex flex-col">
+                    <div id="pos-products-list-inner" class="w-full flex-1 min-h-0 overflow-y-auto overflow-x-hidden p-2 sm:p-3 space-y-2">
                         {{-- Product list rows will be rendered here by JavaScript --}}
                     </div>
                 </div>
@@ -165,7 +226,7 @@
 
         {{-- Current order / payment (reference layout) --}}
         <div class="col-span-4 flex flex-col gap-2 min-h-0 min-w-0 overflow-auto sticky top-[5.5rem] self-start max-h-[calc(100vh-11rem)]">
-            <div class="pos-order-panel flex flex-col rounded-xl border border-slate-200 bg-white shadow-md min-h-0 min-w-0">
+            <div class="pos-order-panel flex flex-col rounded-xl border border-slate-200 bg-white shadow-md min-h-0 min-w-0 overflow-hidden">
                 {{-- Header: Current Order + badge + Hold + Clear; then tags + OR --}}
                 <div class="border-b border-slate-200 bg-white px-2 py-2 sm:px-3 sm:py-2.5">
                     <div class="flex items-center justify-between gap-2 flex-wrap min-w-0">
@@ -187,8 +248,8 @@
                         <span id="pos-or-badge" class="text-[10px] text-slate-500">OR: <span id="pos-or-placeholder" class="font-semibold text-slate-700">Pending</span></span>
                     </div>
                 </div>
-                {{-- Order items: scrollable list of cards (default height; payment buttons compressed below) --}}
-                <div id="pos-order-items" class="flex-1 min-h-[140px] max-h-[280px] overflow-x-auto overflow-y-auto mx-2 my-2 space-y-2 px-2 pr-3">
+                {{-- Order items: constrained height so VAT + Total due + Payment stay visible --}}
+                <div id="pos-order-items" class="h-[160px] min-h-[100px] max-h-[200px] overflow-x-auto overflow-y-auto mx-2 my-2 space-y-2 px-2 pr-3 shrink-0">
                     <div class="px-2 py-6 text-center text-slate-400 text-[10px]">
                         No items yet. Tap <span class="font-semibold text-sky-600">Add</span> on items to build order.
                     </div>
@@ -310,14 +371,15 @@
                         <span id="pos-change-amount" class="text-lg font-bold text-slate-800">₱0.00</span>
                     </div>
                 </div>
-                <button type="button" id="pos-complete-sale-btn" class="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-primary px-4 py-3 text-sm font-bold text-white shadow-md hover:bg-primary/90 hover:shadow-lg hover:-translate-y-0.5 active:translate-y-0 transition-all duration-200 disabled:opacity-60 disabled:cursor-not-allowed disabled:hover:translate-y-0 disabled:hover:shadow-md" title="Add items to complete a sale">
+                <button type="button" id="pos-complete-sale-btn" class="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-primary px-4 py-3 text-sm font-bold text-white shadow-md hover:bg-primary/90 hover:shadow-lg hover:-translate-y-0.5 active:translate-y-0 transition-all duration-200 disabled:opacity-60 disabled:cursor-not-allowed disabled:hover:translate-y-0 disabled:hover:shadow-md" title="Proceed to checkout">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
-                    <span id="pos-complete-sale-label">Complete Sale</span>
+                    <span id="pos-complete-sale-label">Checkout</span>
                 </button>
-                <p class="text-[10px] text-slate-400">OR and BIR details generated after completing sale.</p>
+                <p class="text-[10px] text-slate-400">OR and BIR details generated after checkout.</p>
             </div>
         </div>
     </div>
+    </div>{{-- /pos-main-content --}}
     </div>{{-- /max-w-[1024px] centered --}}
 
     {{-- Line void manager approval modal (custom, not Swal) --}}
@@ -560,13 +622,16 @@
                         <label for="pos-sales-history-date-to" class="text-xs text-slate-500 whitespace-nowrap">To</label>
                         <input type="date" id="pos-sales-history-date-to" class="rounded-lg border border-slate-200 bg-white px-2 py-1.5 text-xs text-slate-900 focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition">
                     </div>
-                    <select id="pos-sales-history-status" class="rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs text-slate-700 focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition">
-                        <option value="all">All status</option>
-                        <option value="completed">Completed</option>
-                        <option value="voided">Voided</option>
-                        <option value="pending">Pending</option>
-                        <option value="refunded">Refunded</option>
-                    </select>
+                    <div class="flex items-center gap-1.5">
+                        <label for="pos-sales-history-status" class="text-xs text-slate-500 whitespace-nowrap">Status</label>
+                        <select id="pos-sales-history-status" class="rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs text-slate-700 focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition min-w-[120px]" aria-label="Filter by status">
+                            <option value="all">All status</option>
+                            <option value="completed">Completed</option>
+                            <option value="voided">Voided</option>
+                            <option value="pending">Pending</option>
+                            <option value="refunded">Refunded</option>
+                        </select>
+                    </div>
                     <button type="button" id="pos-sales-history-apply-filters" class="rounded-lg bg-primary px-3 py-2 text-xs font-medium text-white hover:bg-primary/90 transition-colors">Apply</button>
                     <button type="button" id="pos-sales-history-clear-filters" class="rounded-lg border border-slate-200 px-3 py-2 text-xs font-medium text-slate-600 hover:bg-slate-50 transition-colors">Clear filters</button>
                 </div>
@@ -760,7 +825,7 @@
     </div>
 
     {{-- Fixed bottom action bar: icon + label + shortcut [ Fn ], with animations (concept: top-border hover) --}}
-    <nav class="fixed bottom-0 left-0 right-0 z-40 flex w-full items-center bg-primary px-2 py-2 shadow-[0_-2px_10px_rgba(0,0,0,0.1)] print:hidden transition-shadow duration-300" aria-label="POS actions">
+    <nav id="pos-bottom-bar" class="fixed bottom-0 left-0 right-0 z-40 flex w-full items-center bg-primary px-2 py-2 shadow-[0_-2px_10px_rgba(0,0,0,0.1)] print:hidden transition-shadow duration-300" aria-label="POS actions">
         <div class="flex flex-1 items-center justify-around gap-0.5 min-w-0">
             <button type="button" id="pos-bottom-new-sale" class="pos-bottom-btn flex flex-col items-center justify-center gap-0 rounded-lg px-1.5 py-1 text-white border-t-2 border-transparent hover:bg-white/20 hover:border-t-white/90 transition-all duration-200 ease-out hover:scale-105 active:scale-95 origin-center min-w-0 flex-1 max-w-[72px] sm:max-w-none" title="New sale (F1)">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
@@ -978,17 +1043,88 @@
                 renderBirFooter();
                 loadProducts();
                 loadHeldOrders();
+                setNotReadyStatusChip('active');
+                setTimeout(function () { showPosMainContent(); }, 450);
             })
             .catch(function (err) {
                 var msg = err.response && err.response.data && err.response.data.message
                     ? err.response.data.message
-                    : 'POS terminal is not registered. Please configure TERMINAL_API_KEY and register the terminal.';
-                if (typeof Swal !== 'undefined') {
-                    Swal.fire({ icon: 'error', title: 'POS not ready', text: msg });
-                }
+                    : 'POS is not registered or this terminal is inactive. Contact the software provider to register this POS.';
+                showPosNotReady(msg);
+                setRetryButtonLoading(false);
                 var completeBtn = document.getElementById('pos-complete-sale-btn');
                 if (completeBtn) completeBtn.disabled = true;
             });
+    }
+
+    function setNotReadyStatusChip(state) {
+        var chip = document.getElementById('pos-not-ready-status-chip');
+        var label = document.getElementById('pos-not-ready-status-label');
+        var dot = document.getElementById('pos-not-ready-status-dot');
+        if (!chip || !label || !dot) return;
+        chip.classList.remove('bg-red-50', 'dark:bg-red-900/20', 'text-red-700', 'dark:text-red-300', 'bg-slate-100', 'dark:bg-slate-700/50', 'text-slate-600', 'dark:text-slate-400', 'bg-emerald-50', 'dark:bg-emerald-900/20', 'text-emerald-700', 'dark:text-emerald-300');
+        dot.classList.remove('pos-not-ready-status-dot', 'bg-red-500', 'bg-slate-500', 'bg-emerald-500');
+        if (state === 'checking') {
+            chip.classList.add('bg-slate-100', 'dark:bg-slate-700/50', 'text-slate-600', 'dark:text-slate-400');
+            dot.classList.add('bg-slate-500');
+            label.textContent = 'Checking…';
+        } else if (state === 'active') {
+            chip.classList.add('bg-emerald-50', 'dark:bg-emerald-900/20', 'text-emerald-700', 'dark:text-emerald-300');
+            dot.classList.add('bg-emerald-500');
+            label.textContent = 'Active';
+        } else {
+            chip.classList.add('bg-red-50', 'dark:bg-red-900/20', 'text-red-700', 'dark:text-red-300');
+            dot.classList.add('pos-not-ready-status-dot', 'bg-red-500');
+            label.textContent = 'Inactive';
+        }
+    }
+
+    function setRetryButtonLoading(loading) {
+        var btn = document.getElementById('pos-not-ready-retry-btn');
+        var icon = document.getElementById('pos-not-ready-retry-icon');
+        var spinner = document.getElementById('pos-not-ready-retry-spinner');
+        var label = document.getElementById('pos-not-ready-retry-label');
+        if (!btn) return;
+        if (loading) {
+            btn.disabled = true;
+            if (label) label.textContent = 'Checking…';
+            if (icon) icon.classList.add('hidden');
+            if (spinner) spinner.classList.remove('hidden');
+        } else {
+            btn.disabled = false;
+            if (label) label.textContent = 'Retry';
+            if (icon) icon.classList.remove('hidden');
+            if (spinner) spinner.classList.add('hidden');
+        }
+    }
+
+    function showPosNotReady(message) {
+        var container = document.getElementById('pos-not-ready-container');
+        var mainContent = document.getElementById('pos-main-content');
+        var bottomBar = document.getElementById('pos-bottom-bar');
+        var line1 = document.getElementById('pos-not-ready-line1');
+        var line2 = document.getElementById('pos-not-ready-line2');
+        var lastChecked = document.getElementById('pos-not-ready-last-checked');
+        var defaultMsg = 'POS is not registered or this terminal is inactive. Contact the software provider to register this POS.';
+        var msg = message || defaultMsg;
+        var firstPeriod = msg.indexOf('.');
+        if (line1) line1.textContent = firstPeriod > 0 ? msg.substring(0, firstPeriod + 1).trim() : msg;
+        if (line2) line2.textContent = firstPeriod > 0 ? msg.substring(firstPeriod + 1).trim() : 'Contact the software provider to register this POS.';
+        setNotReadyStatusChip('inactive');
+        if (lastChecked) lastChecked.textContent = 'just now';
+        setRetryButtonLoading(false);
+        if (container) container.classList.remove('hidden');
+        if (mainContent) mainContent.classList.add('hidden');
+        if (bottomBar) bottomBar.classList.add('hidden');
+    }
+
+    function showPosMainContent() {
+        var container = document.getElementById('pos-not-ready-container');
+        var mainContent = document.getElementById('pos-main-content');
+        if (container) container.classList.add('hidden');
+        if (mainContent) mainContent.classList.remove('hidden');
+        var bottomBar = document.getElementById('pos-bottom-bar');
+        if (bottomBar) bottomBar.classList.remove('hidden');
     }
 
     function loadHeldOrders() {
@@ -1065,7 +1201,7 @@
         var gridOuter = document.getElementById('pos-products-grid');
         var gridInner = gridOuter ? gridOuter.querySelector('.grid') : null;
         var listOuter = document.getElementById('pos-products-list');
-        var listInner = listOuter ? listOuter.querySelector('.divide-y') : null;
+        var listInner = listOuter ? listOuter.querySelector('#pos-products-list-inner') || listOuter.querySelector('.divide-y') : null;
         if (!gridInner || !listInner) return;
 
         gridInner.innerHTML = '';
@@ -1153,6 +1289,10 @@
         } else {
             if (listOuter) listOuter.classList.remove('hidden');
             if (gridOuter) gridOuter.classList.add('hidden');
+            var cat = null;
+            var catName = '';
+            var catPillClass = '';
+            var isRx = false;
             pageProducts.forEach(function (p) {
                 var stock = Array.isArray(p.batches)
                     ? p.batches.reduce(function (sum, b) { return sum + (parseFloat(b.quantity) || 0); }, 0)
@@ -1161,29 +1301,53 @@
                 var name = p.name || 'Product';
                 var generic = p.generic_name || '';
                 var unit = p.unit || '';
+                cat = p.category;
+                catName = cat && cat.name ? cat.name : '';
+                catPillClass = getCategoryPillClass(cat);
                 var stockBadge = getStockBadgeHtml(stock);
                 var outOfStock = stock <= 0;
+                isRx = isProductRx(p);
+                var rxBadge = isRx ? '<span class="shrink-0 inline-flex items-center rounded border border-rose-200 dark:border-rose-800 bg-rose-50 dark:bg-rose-900/30 px-1 py-0.5 text-[9px] font-bold text-rose-600 dark:text-rose-300 uppercase">Rx</span>' : '';
+                var categoryPill = !isRx ? '<span class="text-[10px] font-medium rounded-full px-1.5 py-0.5 inline-flex shrink-0 ' + catPillClass + '">' + (catName || '—') + '</span>' : '';
                 var row = document.createElement('div');
-                row.className = 'flex items-center justify-between gap-2 px-3 py-2 sm:px-4 hover:bg-slate-50 dark:hover:bg-darkmode-700/60 transition-colors';
+                row.className = 'flex items-center justify-between gap-3 py-2.5 px-3 rounded-lg border border-slate-200 dark:border-darkmode-600 bg-white dark:bg-darkmode-800 hover:border-slate-300 dark:hover:border-darkmode-500 transition-colors';
                 row.innerHTML =
                     '<div class="min-w-0 flex-1">' +
-                        '<div class="text-xs font-semibold text-slate-800 dark:text-slate-100">' + name + '</div>' +
-                        (generic ? '<div class="text-[10px] text-slate-500 dark:text-slate-400 truncate">' + generic + '</div>' : '') +
+                        '<div class="flex items-center gap-1.5 flex-wrap">' + rxBadge + categoryPill + '<span class="text-xs font-semibold text-slate-800 dark:text-slate-100 truncate">' + escapeHtml(name) + '</span></div>' +
+                        (generic ? '<div class="mt-0.5 text-[10px] text-slate-500 dark:text-slate-400 truncate">' + escapeHtml(generic) + '</div>' : '') +
                         '<div class="mt-0.5 text-[10px]">' + stockBadge + (unit ? ' · ' + unit : '') + '</div>' +
                     '</div>' +
                     '<div class="flex items-center gap-2 flex-shrink-0">' +
-                        '<span class="text-xs font-semibold text-slate-800 dark:text-slate-100">' + price + '</span>' +
-                        '<button type="button" class="inline-flex items-center justify-center rounded-md border-2 border-primary text-primary px-2 py-0.5 text-[10px] font-semibold pos-add-btn bg-transparent hover:bg-primary/10' + (outOfStock ? ' opacity-50 cursor-not-allowed' : '') + '"' + (outOfStock ? ' disabled' : '') + '>Add</button>' +
+                        '<span class="text-sm font-bold text-primary tabular-nums">' + price + '</span>' +
+                        '<button type="button" class="pos-add-btn inline-flex h-8 min-w-[2rem] items-center justify-center rounded-lg border-2 border-primary bg-primary px-3 py-1.5 text-xs font-semibold text-white hover:bg-primary/90 transition-colors' + (outOfStock ? ' opacity-50 cursor-not-allowed' : '') + '"' + (outOfStock ? ' disabled' : '') + '>Add</button>' +
                     '</div>';
                 var btn = row.querySelector('.pos-add-btn');
                 if (!outOfStock) {
                     btn.addEventListener('click', function (e) {
                         e.stopPropagation();
                         addToCart(p);
+                        row.classList.add('border-emerald-300', 'bg-emerald-50/50', 'dark:border-emerald-700', 'dark:bg-emerald-900/20');
+                        setTimeout(function () { row.classList.remove('border-emerald-300', 'bg-emerald-50/50', 'dark:border-emerald-700', 'dark:bg-emerald-900/20'); }, 400);
                     });
                 }
                 listInner.appendChild(row);
             });
+            var listPaginationWrap = listOuter ? listOuter.querySelector('.pos-products-pagination') : null;
+            if (listPaginationWrap) listPaginationWrap.remove();
+            if (totalPages > 1 && listOuter) {
+                var listPagEl = document.createElement('div');
+                listPagEl.className = 'pos-products-pagination flex items-center justify-between gap-2 px-4 py-2 border-t border-slate-200 dark:border-darkmode-600 bg-slate-50/50 dark:bg-darkmode-800/50 flex-shrink-0';
+                var prevDisabled = productsCurrentPage <= 1 ? ' disabled' : '';
+                var nextDisabled = productsCurrentPage >= totalPages ? ' disabled' : '';
+                listPagEl.innerHTML = '<span class="text-xs text-slate-500 dark:text-slate-400">Showing ' + (pageStart + 1) + '–' + Math.min(pageStart + productsPerPage, totalFiltered) + ' of ' + totalFiltered + '</span>' +
+                    '<div class="flex gap-1">' +
+                    '<button type="button" class="pos-products-prev rounded-lg border border-slate-200 dark:border-darkmode-500 px-2.5 py-1 text-xs font-medium text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-darkmode-600 disabled:opacity-50"' + prevDisabled + '>Previous</button>' +
+                    '<button type="button" class="pos-products-next rounded-lg border border-slate-200 dark:border-darkmode-500 px-2.5 py-1 text-xs font-medium text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-darkmode-600 disabled:opacity-50"' + nextDisabled + '>Next</button>' +
+                    '</div>';
+                listOuter.appendChild(listPagEl);
+                listPagEl.querySelector('.pos-products-prev').addEventListener('click', function () { if (productsCurrentPage > 1) { productsCurrentPage--; renderProducts(); } });
+                listPagEl.querySelector('.pos-products-next').addEventListener('click', function () { if (productsCurrentPage < totalPages) { productsCurrentPage++; renderProducts(); } });
+            }
         }
     }
 
@@ -1478,7 +1642,7 @@
 
         var hasRx = cartItems.some(function (i) { return i.is_rx; });
         var labelEl = document.getElementById('pos-complete-sale-label');
-        if (labelEl) labelEl.textContent = hasRx ? 'Complete Sale · Rx Required' : 'Complete Sale';
+        if (labelEl) labelEl.textContent = hasRx ? 'Checkout · Rx Required' : 'Checkout';
     }
 
     var paymentModalCallback = null;
@@ -1610,10 +1774,13 @@
 
         amountInput.value = existingAmount || '';
         if (errorEl) errorEl.classList.add('hidden');
+        amountInput.classList.remove('border-rose-500', 'dark:border-rose-400');
 
         var cardEwalletBlock = document.getElementById('pos-payment-modal-card-ewallet-fields');
         var refInput = document.getElementById('pos-payment-modal-reference');
         var provInput = document.getElementById('pos-payment-modal-provider');
+        if (refInput) refInput.classList.remove('border-rose-500', 'dark:border-rose-400');
+        if (provInput) provInput.classList.remove('border-rose-500', 'dark:border-rose-400');
         if (paymentModalType === 'card' || paymentModalType === 'ewallet') {
             if (cardEwalletBlock) cardEwalletBlock.classList.remove('hidden');
             if (refInput) { refInput.value = ''; refInput.placeholder = paymentModalType === 'card' ? 'Approval / reference no.' : 'Transaction / reference no.'; }
@@ -1645,6 +1812,8 @@
         var amountInput = document.getElementById('pos-payment-modal-amount');
         var errorEl = document.getElementById('pos-payment-modal-error');
         var hiddenAmountInput = document.getElementById('pos-amount-received');
+        var refInput = document.getElementById('pos-payment-modal-reference');
+        var provInput = document.getElementById('pos-payment-modal-provider');
         if (!amountInput || !hiddenAmountInput) {
             closePaymentModal(false);
             return;
@@ -1654,18 +1823,53 @@
         amountInput.value = cleaned;
         var val = cleaned.trim();
         var received = parseAmount(val);
-        if (paymentModalType === 'cash' && received < total) {
+        var isCardOrEwallet = paymentModalType === 'card' || paymentModalType === 'ewallet';
+
+        function showPaymentError(msg, focusEl) {
             if (errorEl) {
-                errorEl.textContent = 'Amount received is less than the total due.';
+                errorEl.textContent = msg;
                 errorEl.classList.remove('hidden');
             }
-            amountInput.focus();
+            if (focusEl) focusEl.focus();
+        }
+        function clearFieldError(input) {
+            if (input) input.classList.remove('border-rose-500', 'dark:border-rose-400');
+        }
+        function setFieldError(input) {
+            if (input) input.classList.add('border-rose-500', 'dark:border-rose-400');
+        }
+
+        if (errorEl) errorEl.classList.add('hidden');
+        if (refInput) clearFieldError(refInput);
+        if (provInput) clearFieldError(provInput);
+        if (amountInput) clearFieldError(amountInput);
+
+        if (isNaN(received) || received < total) {
+            setFieldError(amountInput);
+            showPaymentError(
+                val === '' ? 'Please enter amount received.' : 'Amount received is less than the total due.',
+                amountInput
+            );
             return;
+        }
+        if (isCardOrEwallet) {
+            var refVal = refInput ? String(refInput.value || '').trim() : '';
+            var provVal = provInput ? String(provInput.value || '').trim() : '';
+            var refLabel = paymentModalType === 'card' ? 'Approval / reference no.' : 'Reference / approval no.';
+            var provHint = paymentModalType === 'card' ? 'e.g. Visa, Mastercard' : 'e.g. GCash, Maya';
+            if (!refVal) {
+                setFieldError(refInput);
+                showPaymentError('Please enter ' + refLabel.toLowerCase() + '.', refInput);
+                return;
+            }
+            if (!provVal) {
+                setFieldError(provInput);
+                showPaymentError('Please enter provider (' + provHint + ').', provInput);
+                return;
+            }
         }
         if (errorEl) errorEl.classList.add('hidden');
         hiddenAmountInput.value = val;
-        var refInput = document.getElementById('pos-payment-modal-reference');
-        var provInput = document.getElementById('pos-payment-modal-provider');
         lastPaymentReference = (refInput && refInput.value) ? String(refInput.value).trim().slice(0, 100) : '';
         lastPaymentProvider = (provInput && provInput.value) ? String(provInput.value).trim().slice(0, 100) : '';
         updateChange();
@@ -2683,7 +2887,7 @@
             .catch(function (err) {
                 var msg = err.response && err.response.data && err.response.data.message
                     ? err.response.data.message
-                    : 'Failed to complete sale.';
+                    : 'Checkout failed.';
                 if (typeof Swal !== 'undefined') {
                     Swal.fire({ icon: 'error', title: 'Error', text: msg });
                 }
@@ -3022,6 +3226,17 @@
 
     // Event bindings
     (function bindEvents() {
+        var posNotReadyRetry = document.getElementById('pos-not-ready-retry-btn');
+        if (posNotReadyRetry) {
+            posNotReadyRetry.addEventListener('click', function () {
+                setRetryButtonLoading(true);
+                setNotReadyStatusChip('checking');
+                var lastChecked = document.getElementById('pos-not-ready-last-checked');
+                if (lastChecked) lastChecked.textContent = 'just now';
+                loadTerminalAndProducts();
+            });
+        }
+
         var newSaleBtn = document.getElementById('pos-new-sale-btn');
         if (newSaleBtn) {
             newSaleBtn.addEventListener('click', function () {

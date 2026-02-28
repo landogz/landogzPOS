@@ -204,6 +204,31 @@
         transition: all 0.2s ease;
     }
 
+    /* POS not ready screen: plain background (no gradient/watermark/dots) */
+    .pos-not-ready-bg {
+        background-color: #f1f5f9;
+    }
+    .dark .pos-not-ready-bg {
+        background-color: #1e293b;
+    }
+
+    /* POS not ready icon: outer glow ring (soft, subtle pulse) */
+    .pos-not-ready-icon-glow {
+        animation: pos-not-ready-glow 2.5s ease-in-out infinite;
+    }
+    /* POS not ready icon: middle ring pulse (radar ping) */
+    .pos-not-ready-icon-pulse {
+        animation: pos-not-ready-ping 2s ease-in-out infinite;
+    }
+    .pos-not-ready-icon-inner {
+        animation: pos-not-ready-pulse 2s ease-in-out infinite;
+    }
+
+    /* POS not ready status chip: red pulsing dot */
+    .pos-not-ready-status-dot {
+        animation: pos-not-ready-dot-pulse 1.5s ease-in-out infinite;
+    }
+
     /* POS lock screen: subtle animated lock icon */
     .pos-lock-icon {
         animation: pos-lock-bounce 3s ease-in-out infinite;
@@ -276,6 +301,48 @@
     to {
         opacity: 1;
         transform: scale(1);
+    }
+}
+
+@keyframes pos-not-ready-glow {
+    0%, 100% {
+        opacity: 0.8;
+        transform: scale(1);
+    }
+    50% {
+        opacity: 0.5;
+        transform: scale(1.08);
+    }
+}
+
+@keyframes pos-not-ready-ping {
+    0%, 100% {
+        opacity: 0.4;
+        transform: scale(1);
+    }
+    50% {
+        opacity: 0;
+        transform: scale(1.15);
+    }
+}
+
+@keyframes pos-not-ready-pulse {
+    0%, 100% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.85;
+    }
+}
+
+@keyframes pos-not-ready-dot-pulse {
+    0%, 100% {
+        opacity: 1;
+        box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.5);
+    }
+    50% {
+        opacity: 0.9;
+        box-shadow: 0 0 0 6px rgba(239, 68, 68, 0);
     }
 }
 

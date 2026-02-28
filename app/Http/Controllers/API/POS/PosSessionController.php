@@ -93,7 +93,7 @@ class PosSessionController extends Controller
         if (! $terminal || ! $terminal->checkApiKey($envKey) || ! $terminal->is_active) {
             return response()->json([
                 'status' => false,
-                'message' => 'POS is not registered or this terminal is inactive. Please check the terminal key in Settings.',
+                'message' => 'POS is not registered or this terminal is inactive. Please contact the software provider to register this POS.',
             ], 403);
         }
 
