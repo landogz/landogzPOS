@@ -1701,7 +1701,7 @@
                     '<button type="button" class="pos-cart-void-btn inline-flex h-5 w-5 shrink-0 items-center justify-center rounded border border-slate-200 bg-white text-slate-400 text-sm leading-none transition-colors hover:border-rose-200 hover:bg-rose-50 hover:text-rose-600" data-id="', item.product_id, '" title="Remove line" aria-label="Remove line">×</button>',
                     '</div>',
                     '</div>',
-                    '<input type="text" class="pos-cart-notes-input w-full rounded border border-slate-200 bg-white px-1.5 py-0.5 text-[10px] text-slate-700 placeholder:text-slate-400 focus:ring-1 focus:ring-primary/20 focus:border-primary" data-id="', item.product_id, '" placeholder="Note (e.g. Take after meals)" value="', itemNotes, '" maxlength="120" aria-label="Line note">',
+                    '<input type="text" class="pos-cart-notes-input w-full rounded border border-slate-200 bg-white px-1 py-0.5 text-[9px] text-slate-700 placeholder:text-slate-400 focus:ring-1 focus:ring-primary/20 focus:border-primary min-h-0 leading-tight' + (POS_TOUCHSCREEN ? ' js-kioskboard-input' : '') + '" data-id="', item.product_id, '" placeholder="Note" value="', itemNotes, '" maxlength="120" aria-label="Line note"' + (POS_TOUCHSCREEN ? ' data-kioskboard-type="all" data-kioskboard-placement="bottom"' : '') + '>',
                     '</article>'
                 ].join('');
             });
@@ -1730,6 +1730,9 @@
             });
             if (POS_TOUCHSCREEN && typeof KioskBoard !== 'undefined') {
                 container.querySelectorAll('.pos-cart-qty-input.js-kioskboard-input').forEach(function (el) {
+                    KioskBoard.run(el);
+                });
+                container.querySelectorAll('.pos-cart-notes-input.js-kioskboard-input').forEach(function (el) {
                     KioskBoard.run(el);
                 });
             }

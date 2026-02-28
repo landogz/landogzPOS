@@ -89,6 +89,7 @@ class PosTransactionController extends Controller
             'items.*.quantity' => 'required|numeric|min:0.001',
             'items.*.unit_price' => 'required|numeric|min:0',
             'items.*.prescription_number' => 'nullable|string|max:100',
+            'items.*.notes' => 'nullable|string|max:500',
             'payment_method' => 'nullable|string|in:cash,card,other,ewallet,split',
             'payment_reference' => 'nullable|string|max:100',
             'payment_provider' => 'nullable|string|max:100',
@@ -187,6 +188,7 @@ class PosTransactionController extends Controller
                         'unit_price' => $unitPrice,
                         'subtotal' => $subtotal,
                         'prescription_number' => $row['prescription_number'] ?? null,
+                        'notes' => isset($row['notes']) && trim((string) $row['notes']) !== '' ? trim((string) $row['notes']) : null,
                     ]);
                     $batch->decrement('quantity', $needQty);
                 } else {
@@ -222,6 +224,7 @@ class PosTransactionController extends Controller
                             'unit_price' => $unitPrice,
                             'subtotal' => $subtotal,
                             'prescription_number' => $row['prescription_number'] ?? null,
+                            'notes' => isset($row['notes']) && trim((string) $row['notes']) !== '' ? trim((string) $row['notes']) : null,
                         ]);
                         $batch->decrement('quantity', $take);
                         $remaining -= $take;

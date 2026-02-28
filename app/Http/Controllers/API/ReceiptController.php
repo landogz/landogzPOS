@@ -78,6 +78,7 @@ class ReceiptController extends Controller
                     'unit_price' => (float) $i->unit_price,
                     'subtotal' => (float) $i->subtotal,
                     'prescription_number' => $i->prescription_number,
+                    'notes' => $i->notes ? trim($i->notes) : null,
                     'is_vat_exempt' => $vatExempt > 0,
                 ];
             })->values()->all(),

@@ -47,6 +47,8 @@
         .receipt-customer-blanks .line { flex: 1; border-bottom: 1px solid #000; min-height: 14px; }
         .receipt-bir-footer { margin-top: 14px; padding-top: 8px; border-top: 1px dashed #000; font-size: 10px; text-align: center; }
         .receipt-bir-footer .receipt-validity-statement { text-transform: uppercase; }
+        .receipt-notes-section { margin-top: 10px; font-size: 11px; text-align: left; border-top: 1px dashed #000; padding-top: 6px; }
+        .receipt-notes-section .note-line { margin: 2px 0; }
         .loading { padding: 24px; text-align: center; color: #666; }
         .error { padding: 24px; text-align: center; color: #c00; }
     </style>
@@ -217,6 +219,16 @@
             }
             html += '<div class="mt-2">THANK YOU, PLEASE COME AGAIN!</div>';
             html += '</div>';
+            var itemsWithNotes = (r.items || []).filter(function (item) { return item.notes && String(item.notes).trim(); });
+            if (itemsWithNotes.length > 0) {
+                html += '<div class="receipt-notes-section">';
+                html += '<div class="font-bold mb-1">Notes:</div>';
+                itemsWithNotes.forEach(function (item) {
+                    var name = item.product_name || 'Item';
+                    html += '<div class="note-line">• ' + escapeHtml(name) + ': ' + escapeHtml(String(item.notes).trim()) + '</div>';
+                });
+                html += '</div>';
+            }
 
             html += '<div class="receipt-customer-blanks receipt-section">';
             html += '<div class="row"><span class="label">Customer:</span><span class="line">' + escapeHtml(r.customer_name || '') + '</span></div>';
