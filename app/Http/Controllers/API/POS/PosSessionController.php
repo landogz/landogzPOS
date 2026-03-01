@@ -4,11 +4,10 @@ namespace App\Http\Controllers\API\POS;
 
 use App\Http\Controllers\Controller;
 use App\Models\PosSession;
-use App\Models\User;
 use App\Services\AuditLogService;
+use App\Services\ManagerVerificationService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\ValidationException;
 
 class PosSessionController extends Controller
@@ -175,32 +174,12 @@ class PosSessionController extends Controller
             ], 403);
         }
 
-        $managers = User::where('branch_id', $branchId)
-            ->where('role', 'manager')
-            ->where('is_active', true)
-            ->get();
+        app(ManagerVerificationService::class)->verifyForBranch($branchId, $request->input('pin_or_password'));
 
-        $value = $request->input('pin_or_password');
-
-        foreach ($managers as $manager) {
-            if ($manager->pin_hash && Hash::check($value, $manager->pin_hash)) {
-                return response()->json([
-                    'status' => true,
-                    'message' => 'Manager verified.',
-                    'data' => ['verified' => true],
-                ]);
-            }
-            if ($manager->password && Hash::check($value, $manager->getAuthPassword())) {
-                return response()->json([
-                    'status' => true,
-                    'message' => 'Manager verified.',
-                    'data' => ['verified' => true],
-                ]);
-            }
-        }
-
-        throw ValidationException::withMessages([
-            'pin_or_password' => ['Invalid manager PIN or password for this branch.'],
+        return response()->json([
+            'status' => true,
+            'message' => 'Manager verified.',
+            'data' => ['verified' => true],
         ]);
     }
 

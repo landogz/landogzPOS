@@ -36,6 +36,11 @@ Route::get('pos/transactions', [\App\Http\Controllers\API\POS\PosTransactionCont
 Route::post('pos/transactions', [\App\Http\Controllers\API\POS\PosTransactionController::class, 'store']);
 Route::get('pos/transactions/{transaction}/receipt', [\App\Http\Controllers\API\POS\PosTransactionController::class, 'receipt']);
 Route::post('pos/transactions/{transaction}/void', [\App\Http\Controllers\API\POS\PosTransactionController::class, 'void']);
+Route::post('pos/x-reading/generate', [\App\Http\Controllers\API\POS\XReadingController::class, 'generate']);
+Route::get('pos/x-reading/latest', [\App\Http\Controllers\API\POS\XReadingController::class, 'latest']);
+Route::get('pos/x-reading/history', [\App\Http\Controllers\API\POS\XReadingController::class, 'history']);
+Route::get('pos/x-reading/{id}', [\App\Http\Controllers\API\POS\XReadingController::class, 'show']);
+Route::patch('pos/x-reading/{id}/printed', [\App\Http\Controllers\API\POS\XReadingController::class, 'markPrinted']);
 Route::get('pos/cashier/summary', [\App\Http\Controllers\API\POS\PosCashierController::class, 'summary']);
 Route::get('pos/held-orders', [\App\Http\Controllers\API\POS\PosHeldOrderController::class, 'index']);
 Route::post('pos/held-orders', [\App\Http\Controllers\API\POS\PosHeldOrderController::class, 'store']);

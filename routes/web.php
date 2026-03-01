@@ -40,6 +40,7 @@ Route::prefix('dashboard')->name('dashboard.')->group(function () {
     Route::get('pos', [SuperAdminViewController::class, 'pos'])->name('pos');
     Route::get('pos/lock', [SuperAdminViewController::class, 'posLock'])->name('pos.lock');
     Route::get('pos/receipt-print', [SuperAdminViewController::class, 'posReceiptPrint'])->name('pos.receipt-print');
+    Route::get('pos/x-reading-print', [SuperAdminViewController::class, 'posXReadingPrint'])->name('pos.x-reading-print');
     Route::get('inventory', [SuperAdminViewController::class, 'inventory'])->name('inventory');
     Route::get('chain', [SuperAdminViewController::class, 'chainDashboard'])->name('chain');
     Route::get('companies', [SuperAdminViewController::class, 'companies'])->name('companies');

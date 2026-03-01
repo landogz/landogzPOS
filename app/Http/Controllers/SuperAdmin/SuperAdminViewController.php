@@ -78,6 +78,16 @@ class SuperAdminViewController extends Controller
         ]);
     }
 
+    /**
+     * POS X-Reading print page. Opens in new window; script fetches X-Reading via API and triggers print.
+     */
+    public function posXReadingPrint(): View
+    {
+        return view('super-admin.pages.pos-x-reading-print', [
+            'apiBase' => url('/api/v1'),
+        ]);
+    }
+
     public function branches(): View
     {
         return view('super-admin.pages.branches');
