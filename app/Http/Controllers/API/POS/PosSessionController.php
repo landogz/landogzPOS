@@ -5,6 +5,7 @@ namespace App\Http\Controllers\API\POS;
 use App\Http\Controllers\Controller;
 use App\Models\PosSession;
 use App\Services\AuditLogService;
+use App\Services\DaySessionService;
 use App\Services\ManagerVerificationService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -145,14 +146,53 @@ class PosSessionController extends Controller
             ], 403);
         }
         $terminalId = $terminal->id;
+        $openingCash = (float) ($validated['opening_cash'] ?? 0);
+
+        $daySessionService = app(DaySessionService::class);
+        $canOpen = $daySessionService->canOpenToday($user->branch_id, $terminalId);
+        if (! $canOpen['ok']) {
+            return response()->json([
+                'status' => false,
+                'message' => $canOpen['message'],
+            ], 422);
+        }
+
+        $daySession = $daySessionService->getOrCreateForToday($user->branch_id, $terminalId, $openingCash);
+        if (! $daySession) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Could not open day session. Please try again.',
+            ], 422);
+        }
+
+        $existingSession = PosSession::where('cashier_id', $user->id)
+            ->where('terminal_id', $terminalId)
+            ->whereNull('closed_at')
+            ->first();
+
+        if ($existingSession) {
+            $existingSession->load('terminal');
+            return response()->json([
+                'status' => true,
+                'message' => 'Session already open.',
+                'data' => array_merge($existingSession->toArray(), ['day_session' => $daySession]),
+            ], 200);
+        }
+
         $session = PosSession::create([
             'cashier_id' => $user->id,
             'terminal_id' => $terminalId,
             'opened_at' => now(),
-            'opening_cash' => $validated['opening_cash'] ?? 0,
+            'opening_cash' => $openingCash,
         ]);
         $session->load('terminal');
-        return response()->json(['status' => true, 'message' => 'Session opened.', 'data' => $session], 201);
+        $session->day_session = $daySession;
+
+        return response()->json([
+            'status' => true,
+            'message' => 'Session opened.',
+            'data' => array_merge($session->toArray(), ['day_session' => $daySession]),
+        ], 201);
     }
 
     /**

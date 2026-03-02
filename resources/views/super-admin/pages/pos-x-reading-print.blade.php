@@ -81,8 +81,17 @@
             var changeFund = parseFloat(x.change_fund) || 0;
             var pullOuts = parseFloat(x.pull_outs) || 0;
             var totalInDrawer = totalSales + changeFund - totalReturns - pullOuts;
-            var amountSubmitted = x.amount_submitted != null ? parseFloat(x.amount_submitted) : null;
-            var amountOver = x.amount_over != null ? parseFloat(x.amount_over) : (amountSubmitted != null ? amountSubmitted - totalInDrawer : null);
+            var amountSubmitted = x.amount_submitted != null && x.amount_submitted !== '' ? parseFloat(x.amount_submitted) : null;
+            if (amountSubmitted == null && x.cash_count && typeof x.cash_count === 'object') {
+                var denomValuesX = { '1000': 1000, '500': 500, '200': 200, '100': 100, '50': 50, '20': 20, '10': 10, '5': 5, '1': 1, '0.25': 0.25, '0.10': 0.10, '0.05': 0.05, '0.01': 0.01 };
+                var cashTotalX = 0;
+                for (var k in denomValuesX) {
+                    var qty = parseInt(x.cash_count[k], 10) || 0;
+                    cashTotalX += qty * denomValuesX[k];
+                }
+                amountSubmitted = Math.round(cashTotalX * 100) / 100;
+            }
+            var amountOver = x.amount_over != null && x.amount_over !== '' ? parseFloat(x.amount_over) : (amountSubmitted != null ? Math.round((amountSubmitted - totalInDrawer) * 100) / 100 : null);
             var cashierName = (cashier.name || cashier.email || '—').toUpperCase();
             var adminName = (x.administrator_name || '—').toUpperCase();
 

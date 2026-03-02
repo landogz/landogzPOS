@@ -41,6 +41,10 @@ Route::get('pos/x-reading/latest', [\App\Http\Controllers\API\POS\XReadingContro
 Route::get('pos/x-reading/history', [\App\Http\Controllers\API\POS\XReadingController::class, 'history']);
 Route::get('pos/x-reading/{id}', [\App\Http\Controllers\API\POS\XReadingController::class, 'show']);
 Route::patch('pos/x-reading/{id}/printed', [\App\Http\Controllers\API\POS\XReadingController::class, 'markPrinted']);
+Route::get('pos/day-status', [\App\Http\Controllers\API\POS\ZReadingController::class, 'dayStatus']);
+Route::post('pos/z-reading/generate', [\App\Http\Controllers\API\POS\ZReadingController::class, 'generate']);
+Route::get('pos/z-reading/{id}', [\App\Http\Controllers\API\POS\ZReadingController::class, 'show']);
+Route::patch('pos/z-reading/{id}/printed', [\App\Http\Controllers\API\POS\ZReadingController::class, 'markPrinted']);
 Route::get('pos/cashier/summary', [\App\Http\Controllers\API\POS\PosCashierController::class, 'summary']);
 Route::get('pos/held-orders', [\App\Http\Controllers\API\POS\PosHeldOrderController::class, 'index']);
 Route::post('pos/held-orders', [\App\Http\Controllers\API\POS\PosHeldOrderController::class, 'store']);

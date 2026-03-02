@@ -119,6 +119,10 @@
                             <i data-lucide="file-bar-chart" class="h-3.5 w-3.5 text-white stroke-[2] shrink-0"></i>
                             <span class="hidden sm:inline">X-Reading</span>
                         </button>
+                        <button type="button" id="pos-z-reading-btn" class="inline-flex items-center justify-center gap-1 rounded-lg bg-slate-700 px-2 py-1 text-[10px] sm:text-xs font-semibold text-white hover:bg-slate-600 transition min-h-[28px]" title="Z-Reading — end of day, closes day session (Manager only)">
+                            <i data-lucide="file-check" class="h-3.5 w-3.5 text-white stroke-[2] shrink-0"></i>
+                            <span class="hidden sm:inline">Z-Reading</span>
+                        </button>
                         <div class="relative shrink-0" id="pos-shortcuts-dropdown-wrap">
                             <button type="button" id="pos-shortcuts-trigger" class="inline-flex items-center justify-center gap-0.5 rounded-lg bg-slate-700 px-1.5 py-1 text-[10px] sm:text-xs font-medium text-white hover:bg-slate-600 transition" aria-haspopup="true" aria-expanded="false" title="Keyboard shortcuts">
                                 <i data-lucide="keyboard" class="h-3.5 w-3.5 text-white stroke-[2] shrink-0"></i>
@@ -867,6 +871,30 @@
         </div>
     </div>
 
+    {{-- Opening cash: required before POS is ready (opens day session) --}}
+    <div id="pos-opening-cash-modal" class="fixed inset-0 z-[99] hidden" aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="pos-opening-cash-modal-title">
+        <div id="pos-opening-cash-modal-backdrop" class="absolute inset-0 bg-slate-900/50 dark:bg-slate-900/70 backdrop-blur-sm transition-opacity"></div>
+        <div class="absolute inset-0 flex items-center justify-center p-4">
+            <div class="relative w-full max-w-sm rounded-2xl border border-slate-200 dark:border-darkmode-600 bg-white dark:bg-darkmode-800 shadow-xl p-6" role="document">
+                <h2 id="pos-opening-cash-modal-title" class="text-lg font-semibold text-slate-800 dark:text-slate-100">Open shift</h2>
+                <p class="mt-1 text-sm text-slate-600 dark:text-slate-300">Enter opening cash in the drawer to start your shift. Enter 0 if starting with no cash.</p>
+                <div class="mt-4">
+                    <label for="pos-opening-cash-input" class="block text-xs font-medium text-slate-600 dark:text-slate-300 mb-1.5">Opening cash (₱)</label>
+                    <input type="number" id="pos-opening-cash-input" min="0" step="0.01" value="0"
+                        class="w-full rounded-lg border border-slate-200 dark:border-darkmode-500 bg-white dark:bg-darkmode-700 px-4 py-2.5 text-sm text-slate-900 dark:text-slate-100 tabular-nums focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none"
+                        placeholder="0.00"
+                        aria-label="Opening cash">
+                    <p id="pos-opening-cash-error" class="mt-1.5 text-xs text-rose-600 dark:text-rose-400 hidden"></p>
+                </div>
+                <div class="mt-6 flex flex-wrap items-center justify-end gap-2">
+                    <button type="button" id="pos-opening-cash-submit" class="rounded-lg bg-primary hover:bg-primary/90 px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition-colors focus:ring-4 focus:ring-primary/30">
+                        Open shift
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     {{-- X-Reading Step 1: Manager PIN only --}}
     <div id="pos-x-reading-pin-modal" class="fixed inset-0 z-[100] hidden" aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="pos-x-reading-pin-modal-title">
         <div id="pos-x-reading-pin-modal-backdrop" class="absolute inset-0 bg-slate-900/50 dark:bg-slate-900/70 backdrop-blur-sm transition-opacity"></div>
@@ -949,7 +977,24 @@
                             @endforeach
                         </div>
                         <p class="mt-1.5 text-xs text-slate-500 dark:text-slate-400">Total: <span id="pos-x-reading-cash-total" class="font-semibold tabular-nums">0.00</span></p>
-                        <p id="pos-x-reading-cash-error" class="mt-1.5 text-xs text-rose-600 dark:text-rose-400 hidden"></p>
+                        <div class="mt-4 rounded-lg border border-slate-200 dark:border-darkmode-500 bg-slate-50/50 dark:bg-darkmode-700/30 p-3 space-y-3">
+                            <p class="text-xs font-medium text-slate-600 dark:text-slate-300">Reconciliation (optional)</p>
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                <div>
+                                    <label for="pos-x-reading-amount-submitted" class="block text-xs font-medium text-slate-600 dark:text-slate-400 mb-1">Amount submitted</label>
+                                    <input type="number" id="pos-x-reading-amount-submitted" min="0" step="0.01" placeholder="0.00"
+                                        class="w-full rounded-lg border border-slate-200 dark:border-darkmode-500 bg-white dark:bg-darkmode-700 px-3 py-2 text-sm text-slate-900 dark:text-slate-100 tabular-nums focus:border-primary focus:ring-1 focus:ring-primary/20 outline-none"
+                                        aria-label="Amount submitted">
+                                </div>
+                                <div>
+                                    <label for="pos-x-reading-pull-outs" class="block text-xs font-medium text-slate-600 dark:text-slate-400 mb-1">Pull-outs</label>
+                                    <input type="number" id="pos-x-reading-pull-outs" min="0" step="0.01" value="0"
+                                        class="w-full rounded-lg border border-slate-200 dark:border-darkmode-500 bg-white dark:bg-darkmode-700 px-3 py-2 text-sm text-slate-900 dark:text-slate-100 tabular-nums focus:border-primary focus:ring-1 focus:ring-primary/20 outline-none"
+                                        aria-label="Pull-outs">
+                                </div>
+                            </div>
+                        </div>
+                        <p id="pos-x-reading-cash-error" class="mt-3 text-xs text-rose-600 dark:text-rose-400 hidden"></p>
                     </div>
                     <div class="mt-6 flex flex-wrap items-center justify-end gap-2">
                         <button type="button" id="pos-x-reading-cash-modal-back" class="rounded-lg border border-slate-200 dark:border-darkmode-500 bg-white dark:bg-darkmode-700 px-5 py-2.5 text-sm font-medium text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-darkmode-600 transition-colors">
@@ -959,6 +1004,82 @@
                             Generate
                         </button>
                     </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {{-- Z-Reading Step 1: Cash Count --}}
+    <div id="pos-z-reading-cash-modal" class="fixed inset-0 z-[101] hidden" aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="pos-z-reading-cash-modal-title">
+        <div id="pos-z-reading-cash-modal-backdrop" class="absolute inset-0 bg-slate-900/50 dark:bg-slate-900/70 backdrop-blur-sm transition-opacity"></div>
+        <div class="absolute inset-0 flex items-center justify-center p-4 overflow-y-auto">
+            <div class="relative w-full max-w-md rounded-2xl border border-slate-200 dark:border-darkmode-600 bg-white dark:bg-darkmode-800 shadow-xl my-4" role="document">
+                <div class="p-6 sm:p-6">
+                    <h2 id="pos-z-reading-cash-modal-title" class="text-lg font-semibold text-slate-800 dark:text-slate-100">Z-Reading — Cash Count</h2>
+                    <p class="mt-1 text-sm text-slate-600 dark:text-slate-300">
+                        Enter quantity per denomination. This closes the day session (Manager only).
+                    </p>
+                    <div class="mt-4">
+                        <p class="text-xs font-medium text-slate-600 dark:text-slate-300 mb-2">CASH COUNT</p>
+                        <div class="rounded-lg border border-slate-200 dark:border-darkmode-500 bg-slate-50/50 dark:bg-darkmode-700/30 p-3 space-y-1.5">
+                            @foreach ($denoms ?? [
+                                '1000' => '1,000.00', '500' => '500.00', '200' => '200.00', '100' => '100.00', '50' => '50.00', '20' => '20.00', '10' => '10.00', '5' => '5.00', '1' => '1.00', '0.25' => '0.25', '0.10' => '0.10', '0.05' => '0.05', '0.01' => '0.01',
+                            ] as $key => $label)
+                                <div class="flex items-center gap-2">
+                                    <span class="w-16 text-right text-xs font-medium text-slate-600 dark:text-slate-400 tabular-nums">{{ $label }}</span>
+                                    <input type="number" id="pos-z-reading-cash-{{ $key }}" data-denom="{{ $key }}" min="0" step="1" value="0"
+                                        class="flex-1 rounded border border-slate-200 dark:border-darkmode-500 bg-white dark:bg-darkmode-700 px-2 py-1.5 text-sm text-slate-900 dark:text-slate-100 tabular-nums focus:border-primary focus:ring-1 focus:ring-primary/20 outline-none"
+                                        placeholder="0">
+                                </div>
+                            @endforeach
+                        </div>
+                        <p class="mt-1.5 text-xs text-slate-500 dark:text-slate-400">Total: <span id="pos-z-reading-cash-total" class="font-semibold tabular-nums">0.00</span></p>
+                        <div class="mt-4 rounded-lg border border-slate-200 dark:border-darkmode-500 bg-slate-50/50 dark:bg-darkmode-700/30 p-3 space-y-3">
+                            <p class="text-xs font-medium text-slate-600 dark:text-slate-300">Reconciliation (optional)</p>
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                <div>
+                                    <label for="pos-z-reading-amount-submitted" class="block text-xs font-medium text-slate-600 dark:text-slate-400 mb-1">Amount submitted</label>
+                                    <input type="number" id="pos-z-reading-amount-submitted" min="0" step="0.01" placeholder="0.00"
+                                        class="w-full rounded-lg border border-slate-200 dark:border-darkmode-500 bg-white dark:bg-darkmode-700 px-3 py-2 text-sm text-slate-900 dark:text-slate-100 tabular-nums focus:border-primary focus:ring-1 focus:ring-primary/20 outline-none"
+                                        aria-label="Amount submitted">
+                                </div>
+                                <div>
+                                    <label for="pos-z-reading-pull-outs" class="block text-xs font-medium text-slate-600 dark:text-slate-400 mb-1">Pull-outs</label>
+                                    <input type="number" id="pos-z-reading-pull-outs" min="0" step="0.01" value="0"
+                                        class="w-full rounded-lg border border-slate-200 dark:border-darkmode-500 bg-white dark:bg-darkmode-700 px-3 py-2 text-sm text-slate-900 dark:text-slate-100 tabular-nums focus:border-primary focus:ring-1 focus:ring-primary/20 outline-none"
+                                        aria-label="Pull-outs">
+                                </div>
+                            </div>
+                        </div>
+                        <p id="pos-z-reading-cash-error" class="mt-3 text-xs text-rose-600 dark:text-rose-400 hidden"></p>
+                    </div>
+                    <div class="mt-6 flex flex-wrap items-center justify-end gap-2">
+                        <button type="button" id="pos-z-reading-cash-modal-cancel" class="rounded-lg border border-slate-200 dark:border-darkmode-500 bg-white dark:bg-darkmode-700 px-5 py-2.5 text-sm font-medium text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-darkmode-600 transition-colors">Cancel</button>
+                        <button type="button" id="pos-z-reading-cash-modal-continue" class="rounded-lg bg-primary hover:bg-primary/90 px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition-colors focus:ring-4 focus:ring-primary/30">Continue</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {{-- Z-Reading Step 2: Manager PIN --}}
+    <div id="pos-z-reading-pin-modal" class="fixed inset-0 z-[102] hidden" aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="pos-z-reading-pin-modal-title">
+        <div id="pos-z-reading-pin-modal-backdrop" class="absolute inset-0 bg-slate-900/50 dark:bg-slate-900/70 backdrop-blur-sm transition-opacity"></div>
+        <div class="absolute inset-0 flex items-center justify-center p-4">
+            <div class="relative w-full max-w-sm rounded-2xl border border-slate-200 dark:border-darkmode-600 bg-white dark:bg-darkmode-800 shadow-xl p-6" role="document">
+                <h2 id="pos-z-reading-pin-modal-title" class="text-lg font-semibold text-slate-800 dark:text-slate-100">Z-Reading — Manager verification</h2>
+                <p class="mt-1 text-sm text-slate-600 dark:text-slate-300">Only Admin or Manager can perform Z-Reading. Enter your PIN or account password.</p>
+                <div class="mt-4">
+                    <label for="pos-z-reading-pin-input" class="block text-xs font-medium text-slate-600 dark:text-slate-300 mb-1.5">PIN or Password</label>
+                    <input type="password" autocomplete="off"
+                        id="pos-z-reading-pin-input"
+                        class="w-full rounded-lg border border-slate-200 dark:border-darkmode-500 bg-white dark:bg-darkmode-700 px-4 py-2.5 text-sm text-slate-900 dark:text-slate-100 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none"
+                        placeholder="Enter PIN or password">
+                    <p id="pos-z-reading-pin-error" class="mt-1 text-xs text-rose-600 dark:text-rose-400 hidden"></p>
+                </div>
+                <div class="mt-6 flex flex-wrap items-center justify-end gap-2">
+                    <button type="button" id="pos-z-reading-pin-modal-back" class="rounded-lg border border-slate-200 dark:border-darkmode-500 bg-white dark:bg-darkmode-700 px-5 py-2.5 text-sm font-medium text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-darkmode-600 transition-colors">Back</button>
+                    <button type="button" id="pos-z-reading-pin-modal-generate" class="rounded-lg bg-primary hover:bg-primary/90 px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition-colors focus:ring-4 focus:ring-primary/30">Generate Z-Reading</button>
                 </div>
             </div>
         </div>
@@ -1039,6 +1160,11 @@
             <button type="button" id="pos-bottom-x-reading" class="pos-bottom-btn flex flex-col items-center justify-center gap-0 rounded-lg px-1.5 py-1 text-white border-t-2 border-transparent hover:bg-white/20 hover:border-t-white/90 transition-all duration-200 ease-out hover:scale-105 active:scale-95 origin-center min-w-0 flex-1 max-w-[72px] sm:max-w-none" title="X-Reading — mid-day snapshot, manager PIN + cash count">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M8 13h2"/><path d="M8 17h2"/><path d="M16 13h2"/><path d="M16 17h2"/></svg>
                 <span class="text-[9px] font-medium uppercase tracking-wide truncate w-full text-center leading-tight">X-Read</span>
+                <span class="text-[8px] text-white/80 font-mono">—</span>
+            </button>
+            <button type="button" id="pos-bottom-z-reading" class="pos-bottom-btn flex flex-col items-center justify-center gap-0 rounded-lg px-1.5 py-1 text-white border-t-2 border-transparent hover:bg-white/20 hover:border-t-white/90 transition-all duration-200 ease-out hover:scale-105 active:scale-95 origin-center min-w-0 flex-1 max-w-[72px] sm:max-w-none" title="Z-Reading — end of day, closes day (Manager only)">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><path d="M14 2v6h6"/><path d="M9 15l2 2 4-4"/></svg>
+                <span class="text-[9px] font-medium uppercase tracking-wide truncate w-full text-center leading-tight">Z-Read</span>
                 <span class="text-[8px] text-white/80 font-mono">—</span>
             </button>
             <button type="button" id="pos-bottom-lock" class="pos-bottom-btn flex flex-col items-center justify-center gap-0 rounded-lg px-1.5 py-1 text-white border-t-2 border-transparent hover:bg-white/20 hover:border-t-white/90 transition-all duration-200 ease-out hover:scale-105 active:scale-95 origin-center min-w-0 flex-1 max-w-[72px] sm:max-w-none" title="Lock POS — re-enter PIN to continue [ F10 ]">
@@ -1261,7 +1387,30 @@
                 setNotReadyStatusChip('active');
                 setConnectionStatus(true);
                 initShiftTimer();
-                setTimeout(function () { showPosMainContent(); }, 450);
+                // Always ensure session (and day session) is open: call session/open so backend runs getOrCreateForToday().
+                // If cashier already has an open session on this terminal, pass 0 and skip modal; otherwise show opening cash modal.
+                axios.get(apiBase + '/pos/cashier/summary', headers)
+                    .then(function (sumRes) {
+                        var data = sumRes.data && sumRes.data.data ? sumRes.data.data : {};
+                        var openSession = data.open_session;
+                        if (openSession && openSession.terminal_id === t.id) {
+                            var openingCash = openSession.opening_cash != null ? parseFloat(openSession.opening_cash) : 0;
+                            axios.post(apiBase + '/pos/session/open', { terminal_id: t.id, opening_cash: openingCash }, headers)
+                                .then(function () { setTimeout(function () { showPosMainContent(); }, 450); })
+                                .catch(function (openErr) {
+                                    var openMsg = openErr.response && openErr.response.data && openErr.response.data.message
+                                        ? openErr.response.data.message
+                                        : 'Could not open day session.';
+                                    if (openErr.response && openErr.response.status === 422 && typeof Swal !== 'undefined') {
+                                        Swal.fire({ icon: 'warning', title: 'Day not opened', text: openMsg });
+                                    }
+                                    setTimeout(function () { showPosMainContent(); }, 450);
+                                });
+                            return;
+                        }
+                        showOpeningCashModal();
+                    })
+                    .catch(function () { showOpeningCashModal(); });
             })
             .catch(function (err) {
                 setConnectionStatus(false);
@@ -1274,6 +1423,53 @@
                 if (completeBtn) completeBtn.disabled = true;
             });
     }
+
+    function showOpeningCashModal() {
+        var notReadyContainer = document.getElementById('pos-not-ready-container');
+        var openingModal = document.getElementById('pos-opening-cash-modal');
+        var openingInput = document.getElementById('pos-opening-cash-input');
+        var openingError = document.getElementById('pos-opening-cash-error');
+        if (notReadyContainer) notReadyContainer.classList.add('hidden');
+        if (openingModal) { openingModal.classList.remove('hidden'); openingModal.setAttribute('aria-hidden', 'false'); }
+        if (openingError) { openingError.classList.add('hidden'); openingError.textContent = ''; }
+        if (openingInput) { openingInput.value = '0'; openingInput.focus(); }
+    }
+
+    // Opening cash modal: submit opens session and shows POS
+    (function () {
+        var submitBtn = document.getElementById('pos-opening-cash-submit');
+        var inputEl = document.getElementById('pos-opening-cash-input');
+        var errorEl = document.getElementById('pos-opening-cash-error');
+        var modal = document.getElementById('pos-opening-cash-modal');
+        function hideOpeningModal() {
+            if (modal) { modal.classList.add('hidden'); modal.setAttribute('aria-hidden', 'true'); }
+        }
+        function doOpenSession() {
+            if (!currentTerminalId) return;
+            if (errorEl) { errorEl.classList.add('hidden'); errorEl.textContent = ''; }
+            var raw = inputEl ? inputEl.value : '';
+            var amount = parseFloat(String(raw).replace(/,/g, '').trim());
+            if (isNaN(amount) || amount < 0) amount = 0;
+            if (submitBtn) submitBtn.disabled = true;
+            axios.post(apiBase + '/pos/session/open', { terminal_id: currentTerminalId, opening_cash: amount }, headers)
+                .then(function () {
+                    hideOpeningModal();
+                    setTimeout(function () { showPosMainContent(); }, 450);
+                })
+                .catch(function (openErr) {
+                    var openMsg = openErr.response && openErr.response.data && openErr.response.data.message
+                        ? openErr.response.data.message
+                        : 'Could not open day session.';
+                    if (errorEl) { errorEl.textContent = openMsg; errorEl.classList.remove('hidden'); }
+                    if (typeof Swal !== 'undefined' && openErr.response && openErr.response.status === 422) {
+                        Swal.fire({ icon: 'warning', title: 'Day not opened', text: openMsg });
+                    }
+                })
+                .finally(function () { if (submitBtn) submitBtn.disabled = false; });
+        }
+        if (submitBtn) submitBtn.addEventListener('click', doOpenSession);
+        if (inputEl) inputEl.addEventListener('keydown', function (e) { if (e.key === 'Enter') { e.preventDefault(); doOpenSession(); } });
+    })();
 
     function setNotReadyStatusChip(state) {
         var chip = document.getElementById('pos-not-ready-status-chip');
@@ -4051,6 +4247,10 @@
                 var el = document.getElementById('pos-x-reading-cash-' + key);
                 if (el) el.value = '0';
             }
+            var subEl = document.getElementById('pos-x-reading-amount-submitted');
+            var pullEl = document.getElementById('pos-x-reading-pull-outs');
+            if (subEl) subEl.value = '';
+            if (pullEl) pullEl.value = '0';
             updateXReadingCashTotal();
             setTimeout(function () {
                 var first = document.getElementById('pos-x-reading-cash-1000');
@@ -4106,8 +4306,16 @@
                 var n = el ? parseInt(el.value, 10) : 0;
                 cashCount[key] = isNaN(n) || n < 0 ? 0 : n;
             }
+            var amountSubmittedEl = document.getElementById('pos-x-reading-amount-submitted');
+            var pullOutsEl = document.getElementById('pos-x-reading-pull-outs');
+            var payload = { terminal_id: currentTerminalId, pin_or_password: pendingXReadingPin, cash_count: cashCount };
+            if (amountSubmittedEl && amountSubmittedEl.value.trim() !== '') {
+                var sub = parseFloat(amountSubmittedEl.value);
+                if (!isNaN(sub)) payload.amount_submitted = sub;
+            }
+            if (pullOutsEl) payload.pull_outs = parseFloat(pullOutsEl.value) || 0;
             if (typeof Swal !== 'undefined') Swal.fire({ title: 'Generating…', allowOutsideClick: false, didOpen: function () { Swal.showLoading(); } });
-            axios.post(apiBase + '/pos/x-reading/generate', { terminal_id: currentTerminalId, pin_or_password: pendingXReadingPin, cash_count: cashCount }, headers)
+            axios.post(apiBase + '/pos/x-reading/generate', payload, headers)
                 .then(function (r) {
                     var data = r.data && r.data.data ? r.data.data : null;
                     if (data) { lastXReadingData = data; openXReadingModal(data); }
@@ -4165,6 +4373,143 @@
             window.open(url, 'pos_x_reading_print', 'width=420,height=700,scrollbars=yes');
             axios.patch(apiBase + '/pos/x-reading/' + lastXReadingData.id + '/printed', {}, headers).catch(function () {});
         });
+
+        var zReadingCashDenoms = { '1000': 1000, '500': 500, '200': 200, '100': 100, '50': 50, '20': 20, '10': 10, '5': 5, '1': 1, '0.25': 0.25, '0.10': 0.10, '0.05': 0.05, '0.01': 0.01 };
+        var pendingZReadingCashCount = null;
+        var pendingZReadingAmountSubmitted = null;
+        var pendingZReadingPullOuts = null;
+        function updateZReadingCashTotal() {
+            var total = 0;
+            for (var key in zReadingCashDenoms) {
+                var el = document.getElementById('pos-z-reading-cash-' + key);
+                var n = el ? parseInt(el.value, 10) : 0;
+                if (!isNaN(n) && n > 0) total += n * zReadingCashDenoms[key];
+            }
+            var totalEl = document.getElementById('pos-z-reading-cash-total');
+            if (totalEl) totalEl.textContent = (Math.round(total * 100) / 100).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+        }
+        function openZReadingCashModal() {
+            if (!currentTerminalId) {
+                if (typeof Swal !== 'undefined') Swal.fire({ icon: 'warning', title: 'Terminal required', text: 'POS terminal must be ready before Z-Reading.' });
+                return;
+            }
+            pendingZReadingCashCount = null;
+            pendingZReadingAmountSubmitted = null;
+            pendingZReadingPullOuts = null;
+            for (var key in zReadingCashDenoms) {
+                var el = document.getElementById('pos-z-reading-cash-' + key);
+                if (el) el.value = '0';
+            }
+            var subEl = document.getElementById('pos-z-reading-amount-submitted');
+            var pullEl = document.getElementById('pos-z-reading-pull-outs');
+            if (subEl) subEl.value = '';
+            if (pullEl) pullEl.value = '0';
+            var errEl = document.getElementById('pos-z-reading-cash-error');
+            if (errEl) { errEl.classList.add('hidden'); errEl.textContent = ''; }
+            updateZReadingCashTotal();
+            var modal = document.getElementById('pos-z-reading-cash-modal');
+            if (modal) { modal.classList.remove('hidden'); modal.setAttribute('aria-hidden', 'false'); }
+        }
+        function closeZReadingCashModal() {
+            var modal = document.getElementById('pos-z-reading-cash-modal');
+            if (modal) { modal.classList.add('hidden'); modal.setAttribute('aria-hidden', 'true'); }
+        }
+        function openZReadingPinModal() {
+            var modal = document.getElementById('pos-z-reading-pin-modal');
+            var input = document.getElementById('pos-z-reading-pin-input');
+            var errEl = document.getElementById('pos-z-reading-pin-error');
+            if (errEl) { errEl.classList.add('hidden'); errEl.textContent = ''; }
+            if (input) { input.value = ''; input.classList.remove('border-rose-500'); input.focus(); }
+            if (modal) { modal.classList.remove('hidden'); modal.setAttribute('aria-hidden', 'false'); }
+        }
+        function closeZReadingPinModal() {
+            var modal = document.getElementById('pos-z-reading-pin-modal');
+            if (modal) { modal.classList.add('hidden'); modal.setAttribute('aria-hidden', 'true'); }
+        }
+        function openZReadingFromButton() {
+            openZReadingCashModal();
+        }
+        var zReadingBtn = document.getElementById('pos-z-reading-btn');
+        if (zReadingBtn) zReadingBtn.addEventListener('click', openZReadingFromButton);
+        var zReadingBottomBtn = document.getElementById('pos-bottom-z-reading');
+        if (zReadingBottomBtn) zReadingBottomBtn.addEventListener('click', openZReadingFromButton);
+        var zReadingCashModalCancel = document.getElementById('pos-z-reading-cash-modal-cancel');
+        var zReadingCashModalContinue = document.getElementById('pos-z-reading-cash-modal-continue');
+        var zReadingCashModalBackdrop = document.getElementById('pos-z-reading-cash-modal-backdrop');
+        if (zReadingCashModalBackdrop) zReadingCashModalBackdrop.addEventListener('click', closeZReadingCashModal);
+        if (zReadingCashModalCancel) zReadingCashModalCancel.addEventListener('click', closeZReadingCashModal);
+        if (zReadingCashModalContinue) zReadingCashModalContinue.addEventListener('click', function () {
+            var cashCount = {};
+            for (var key in zReadingCashDenoms) {
+                var el = document.getElementById('pos-z-reading-cash-' + key);
+                var n = el ? parseInt(el.value, 10) : 0;
+                cashCount[key] = isNaN(n) || n < 0 ? 0 : n;
+            }
+            var subEl = document.getElementById('pos-z-reading-amount-submitted');
+            var pullEl = document.getElementById('pos-z-reading-pull-outs');
+            pendingZReadingCashCount = cashCount;
+            pendingZReadingAmountSubmitted = subEl && subEl.value.trim() !== '' ? parseFloat(subEl.value) : null;
+            pendingZReadingPullOuts = pullEl ? (parseFloat(pullEl.value) || 0) : 0;
+            closeZReadingCashModal();
+            openZReadingPinModal();
+        });
+        var zReadingPinModalBackdrop = document.getElementById('pos-z-reading-pin-modal-backdrop');
+        var zReadingPinModalBack = document.getElementById('pos-z-reading-pin-modal-back');
+        var zReadingPinModalGenerate = document.getElementById('pos-z-reading-pin-modal-generate');
+        var zReadingPinInput = document.getElementById('pos-z-reading-pin-input');
+        if (zReadingPinModalBackdrop) zReadingPinModalBackdrop.addEventListener('click', function () { closeZReadingPinModal(); openZReadingCashModal(); });
+        if (zReadingPinModalBack) zReadingPinModalBack.addEventListener('click', function () { closeZReadingPinModal(); openZReadingCashModal(); });
+        if (zReadingPinModalGenerate) zReadingPinModalGenerate.addEventListener('click', function () {
+            var pin = zReadingPinInput ? zReadingPinInput.value.trim() : '';
+            var errEl = document.getElementById('pos-z-reading-pin-error');
+            if (!pin) {
+                if (errEl) { errEl.textContent = 'Enter manager PIN or password.'; errEl.classList.remove('hidden'); }
+                if (zReadingPinInput) { zReadingPinInput.classList.add('border-rose-500'); zReadingPinInput.focus(); }
+                return;
+            }
+            if (errEl) { errEl.classList.add('hidden'); }
+            if (zReadingPinInput) zReadingPinInput.classList.remove('border-rose-500');
+            var payload = {
+                terminal_id: currentTerminalId,
+                pin_or_password: pin,
+                cash_count: pendingZReadingCashCount || {},
+                pull_outs: pendingZReadingPullOuts || 0
+            };
+            if (pendingZReadingAmountSubmitted != null && !isNaN(pendingZReadingAmountSubmitted)) payload.amount_submitted = pendingZReadingAmountSubmitted;
+            if (typeof Swal !== 'undefined') Swal.fire({ title: 'Generating Z-Reading…', allowOutsideClick: false, didOpen: function () { Swal.showLoading(); } });
+            axios.post(apiBase + '/pos/z-reading/generate', payload, headers)
+                .then(function (r) {
+                    if (typeof Swal !== 'undefined') Swal.close();
+                    var data = r.data && r.data.data ? r.data.data : null;
+                    if (data && data.id) {
+                        closeZReadingPinModal();
+                        pendingZReadingCashCount = null;
+                        pendingZReadingAmountSubmitted = null;
+                        pendingZReadingPullOuts = null;
+                        if (zReadingPinInput) zReadingPinInput.value = '';
+                        var url = dashboardBase + '/pos/z-reading-print?z_reading_id=' + encodeURIComponent(data.id);
+                        window.open(url, 'pos_z_reading_print', 'width=420,height=700,scrollbars=yes');
+                        axios.patch(apiBase + '/pos/z-reading/' + data.id + '/printed', {}, headers).catch(function () {});
+                        if (typeof Swal !== 'undefined') Swal.fire({ toast: true, position: 'top-end', icon: 'success', title: 'Z-Reading generated. Day closed.', timer: 2500, showConfirmButton: false, timerProgressBar: true });
+                    }
+                })
+                .catch(function (err) {
+                    if (typeof Swal !== 'undefined') Swal.close();
+                    var msg = (err.response && err.response.data && err.response.data.message) || 'Failed to generate Z-Reading.';
+                    if (err.response && err.response.status === 403) msg = 'Only Admin or Manager can perform Z-Reading.';
+                    if (err.response && err.response.status === 422) msg = (err.response.data && err.response.data.message) || msg;
+                    if (errEl) { errEl.textContent = msg; errEl.classList.remove('hidden'); }
+                    if (zReadingPinInput) zReadingPinInput.classList.add('border-rose-500');
+                });
+        });
+        if (zReadingPinInput) zReadingPinInput.addEventListener('keydown', function (e) {
+            if (e.key === 'Enter') { e.preventDefault(); zReadingPinModalGenerate && zReadingPinModalGenerate.click(); }
+        });
+        for (var dz in zReadingCashDenoms) {
+            var zCashInput = document.getElementById('pos-z-reading-cash-' + dz);
+            if (zCashInput) zCashInput.addEventListener('input', updateZReadingCashTotal);
+        }
+
         var applyFiltersBtn = document.getElementById('pos-sales-history-apply-filters');
         if (applyFiltersBtn) applyFiltersBtn.addEventListener('click', function () {
             salesHistoryFilters.search = (document.getElementById('pos-sales-history-search').value || '').trim();

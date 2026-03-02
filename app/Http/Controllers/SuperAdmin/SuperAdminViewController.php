@@ -88,6 +88,16 @@ class SuperAdminViewController extends Controller
         ]);
     }
 
+    /**
+     * POS Z-Reading print page. Opens in new window; script fetches Z-Reading via API and triggers print.
+     */
+    public function posZReadingPrint(): View
+    {
+        return view('super-admin.pages.pos-z-reading-print', [
+            'apiBase' => url('/api/v1'),
+        ]);
+    }
+
     public function branches(): View
     {
         return view('super-admin.pages.branches');

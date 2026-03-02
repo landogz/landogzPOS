@@ -23,6 +23,8 @@ class Terminal extends Model
         'is_active',
         'api_key_prefix',
         'api_key_hash',
+        'z_counter',
+        'accumulated_sales',
     ];
 
     protected $casts = [

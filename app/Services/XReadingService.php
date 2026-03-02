@@ -117,8 +117,20 @@ class XReadingService
 
         $changeFund = (float) ($options['change_fund'] ?? 0);
         $pullOuts = (float) ($options['pull_outs'] ?? 0);
-        $amountSubmitted = isset($options['amount_submitted']) ? (float) $options['amount_submitted'] : null;
         $totalInDrawer = $netSales + $changeFund - $totalReturns - $pullOuts;
+
+        // Amount Submitted = from cash count (total of denominations) or explicitly entered
+        $amountSubmitted = isset($options['amount_submitted']) ? (float) $options['amount_submitted'] : null;
+        if ($amountSubmitted === null && ! empty($options['cash_count']) && is_array($options['cash_count'])) {
+            $denomValues = ['1000' => 1000, '500' => 500, '200' => 200, '100' => 100, '50' => 50, '20' => 20, '10' => 10, '5' => 5, '1' => 1, '0.25' => 0.25, '0.10' => 0.10, '0.05' => 0.05, '0.01' => 0.01];
+            $cashCountTotal = 0;
+            foreach ($denomValues as $key => $value) {
+                $qty = isset($options['cash_count'][$key]) ? (int) $options['cash_count'][$key] : 0;
+                $cashCountTotal += $qty * $value;
+            }
+            $amountSubmitted = round($cashCountTotal, 2);
+        }
+        // Amount Over = Amount Submitted − Total In Drawer
         $amountOver = $amountSubmitted !== null ? round($amountSubmitted - $totalInDrawer, 2) : null;
 
         return XReading::create([

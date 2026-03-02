@@ -12,6 +12,7 @@ use App\Models\Transaction;
 use App\Models\TransactionItem;
 use App\Models\TransactionPayment;
 use App\Services\AuditLogService;
+use App\Services\DaySessionService;
 use App\Services\SyncService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -133,8 +134,23 @@ class PosTransactionController extends Controller
         }
         $terminalId = $terminal->id;
 
+        $daySessionService = app(DaySessionService::class);
+        $daySession = $daySessionService->getOpenForTerminalDate($branchId, $terminalId, now());
+        if (! $daySession) {
+            $canOpen = $daySessionService->canOpenToday($branchId, $terminalId);
+            if ($canOpen['ok']) {
+                $daySession = $daySessionService->getOrCreateForToday($branchId, $terminalId, 0);
+            }
+            if (! $daySession) {
+                return response()->json([
+                    'status' => false,
+                    'message' => $canOpen['message'] ?? 'No open day session. Open the day from POS first, or perform Z-Reading if the day was already closed.',
+                ], 422);
+            }
+        }
+
         try {
-            $result = DB::transaction(function () use ($validated, $branchId, $terminalId, $user) {
+            $result = DB::transaction(function () use ($validated, $branchId, $terminalId, $user, $daySession) {
             $branch = Branch::find($branchId);
             if ($branch) {
                 $nextOr = (int) $branch->current_or_number + 1;
@@ -147,6 +163,7 @@ class PosTransactionController extends Controller
             $transaction = Transaction::create([
                 'branch_id' => $branchId,
                 'terminal_id' => $terminalId,
+                'day_session_id' => $daySession->id,
                 'or_number' => $orNumber,
                 'cashier_id' => $user->id,
                 'total' => 0,

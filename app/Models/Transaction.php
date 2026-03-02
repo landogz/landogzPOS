@@ -12,7 +12,7 @@ class Transaction extends Model
     use HasFactory;
 
     protected $fillable = [
-        'branch_id', 'terminal_id', 'or_number', 'cashier_id', 'total', 'vat_amount',
+        'branch_id', 'terminal_id', 'day_session_id', 'or_number', 'cashier_id', 'total', 'vat_amount',
         'discount_amount', 'payment_method', 'payment_reference', 'payment_provider', 'customer_name', 'customer_address', 'status', 'synced_at',
     ];
 
