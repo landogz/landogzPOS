@@ -13,6 +13,10 @@ Route::get('/', function () {
     return view('landing');
 });
 
+Route::get('HIS-functions', function () {
+    return view('his-functions');
+})->name('his-functions');
+
 Route::get('request-quote', [SuperAdminViewController::class, 'requestQuote'])->name('quote.request');
 
 // Super-admin login (alias: route name used by landing/footer; same as dashboard/login)
